@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getChapters, getProgress } from '../api/client';
+import { getChapters, getProgress, resetProgress } from '../api/client';
 
 export default function ProgressDashboard() {
   const [chapters, setChapters] = useState([]);
@@ -11,6 +11,12 @@ export default function ProgressDashboard() {
     getProgress().then(setProgress);
   }, []);
 
+  const handleReset = async () => {
+    if (!window.confirm('Reset all progress? This cannot be undone.')) return;
+    await resetProgress();
+    setProgress({});
+  };
+
   const total = chapters.length || 1;
   const readCount = Object.keys(progress).filter(k => progress[k]?.read).length;
   const quizCount = Object.keys(progress).filter(k => progress[k]?.quizScore != null).length;
@@ -18,7 +24,10 @@ export default function ProgressDashboard() {
 
   return (
     <div className="page progress-page">
-      <h1 className="page-title">Progress Dashboard</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>Progress Dashboard</h1>
+        <button className="btn btn-secondary" onClick={handleReset} style={{ color: 'var(--red)', borderColor: 'var(--red)' }}>Reset Progress</button>
+      </div>
 
       <div className="progress-overview">
         <div className="progress-ring-card">

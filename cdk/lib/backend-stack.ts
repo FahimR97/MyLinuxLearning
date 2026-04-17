@@ -62,6 +62,7 @@ export class BackendStack extends cdk.Stack {
     const progress = api.root.addResource('progress');
     progress.addMethod('GET', new apigateway.LambdaIntegration(progressFn));
     progress.addMethod('POST', new apigateway.LambdaIntegration(progressFn));
+    progress.addMethod('DELETE', new apigateway.LambdaIntegration(progressFn));
 
     new cdk.CfnOutput(this, 'ApiUrl', { value: api.url });
   }

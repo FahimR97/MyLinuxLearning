@@ -75,3 +75,10 @@ export async function saveProgress(data) {
   const existing = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
   localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...existing, ...data }));
 }
+
+export async function resetProgress() {
+  if (API_BASE) {
+    await fetch(`${API_BASE}/progress`, { method: 'DELETE' });
+  }
+  localStorage.removeItem(PROGRESS_KEY);
+}

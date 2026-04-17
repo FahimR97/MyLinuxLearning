@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, ScanCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, ScanCommand, PutCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE_NAME = process.env.TABLE_NAME;
@@ -19,6 +19,14 @@ export const handler = async (event) => {
   if (event.httpMethod === 'GET') {
     const { Items } = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
     return respond(200, Items || []);
+  }
+
+  if (event.httpMethod === 'DELETE') {
+    const { Items } = await client.send(new ScanCommand({ TableName: TABLE_NAME }));
+    for (const item of Items || []) {
+      await client.send(new DeleteCommand({ TableName: TABLE_NAME, Key: { pk: item.pk, sk: item.sk } }));
+    }
+    return respond(200, { message: 'Progress reset' });
   }
 
   if (event.httpMethod === 'POST') {
