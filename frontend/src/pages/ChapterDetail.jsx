@@ -3,6 +3,19 @@ import { useEffect, useState } from 'react';
 import { getChapter, getChapters, getProgress, saveProgress } from '../api/client';
 import CodeBlock from '../components/CodeBlock';
 
+function QABlock({ question, answerElements }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="qa-block">
+      <button className="qa-question" onClick={() => setOpen(!open)}>
+        <span className="qa-icon">{open ? '▾' : '▸'}</span>
+        <span>{formatInline(question)}</span>
+      </button>
+      {open && <div className="qa-answer">{answerElements}</div>}
+    </div>
+  );
+}
+
 function renderMarkdown(content) {
   if (!content) return null;
   const lines = content.split('\n');
@@ -11,6 +24,24 @@ function renderMarkdown(content) {
 
   while (i < lines.length) {
     const line = lines[i];
+
+    // Q&A block: ### Q: ...
+    if (line.startsWith('### Q:') || line.startsWith('### Q ')) {
+      const question = line.replace(/^###\s*/, '');
+      i++;
+      const answerLines = [];
+      while (i < lines.length && !lines[i].startsWith('### Q:') && !lines[i].startsWith('### Q ') && lines[i].trim() !== '---') {
+        answerLines.push(lines[i]);
+        i++;
+      }
+      if (i < lines.length && lines[i].trim() === '---') i++; // skip separator
+      const answerElements = renderMarkdownBlock(answerLines);
+      elements.push(<QABlock key={elements.length} question={question} answerElements={answerElements} />);
+      continue;
+    }
+
+    // Separator
+    if (line.trim() === '---') { elements.push(<hr key={elements.length} className="md-hr" />); i++; continue; }
 
     // Code blocks
     if (line.startsWith('```')) {
@@ -21,7 +52,7 @@ function renderMarkdown(content) {
         codeLines.push(lines[i]);
         i++;
       }
-      i++; // skip closing ```
+      i++;
       elements.push(<CodeBlock key={elements.length} language={lang}>{codeLines.join('\n')}</CodeBlock>);
       continue;
     }
@@ -39,7 +70,6 @@ function renderMarkdown(content) {
         tableRows.push(cells);
         i++;
       }
-      // Remove separator row
       const header = tableRows[0];
       const body = tableRows.filter((_, idx) => idx > 1);
       elements.push(
@@ -64,10 +94,7 @@ function renderMarkdown(content) {
       continue;
     }
 
-    // Empty line
     if (!line.trim()) { i++; continue; }
-
-    // Paragraph
     elements.push(<p key={elements.length} className="md-p">{formatInline(line)}</p>);
     i++;
   }
@@ -75,8 +102,35 @@ function renderMarkdown(content) {
   return elements;
 }
 
+function renderMarkdownBlock(lines) {
+  const elements = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.startsWith('```')) {
+      const lang = line.slice(3).trim() || 'bash';
+      const codeLines = [];
+      i++;
+      while (i < lines.length && !lines[i].startsWith('```')) { codeLines.push(lines[i]); i++; }
+      i++;
+      elements.push(<CodeBlock key={elements.length} language={lang}>{codeLines.join('\n')}</CodeBlock>);
+      continue;
+    }
+    if (line.startsWith('- ')) {
+      const items = [];
+      while (i < lines.length && lines[i].startsWith('- ')) { items.push(lines[i].slice(2)); i++; }
+      elements.push(<ul key={elements.length} className="md-list">{items.map((item, j) => <li key={j}>{formatInline(item)}</li>)}</ul>);
+      continue;
+    }
+    if (!line.trim()) { i++; continue; }
+    elements.push(<p key={elements.length} className="md-p">{formatInline(line)}</p>);
+    i++;
+  }
+  return elements;
+}
+
 function formatInline(text) {
-  // Bold, code, italic
+  if (typeof text !== 'string') return text;
   const parts = [];
   const regex = /(\*\*(.+?)\*\*|`(.+?)`|_(.+?)_)/g;
   let last = 0;

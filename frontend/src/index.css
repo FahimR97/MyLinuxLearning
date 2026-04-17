@@ -319,6 +319,22 @@ a:hover { color: var(--green); }
 .mini-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .mini-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--blue)); border-radius: 3px; transition: width 0.5s ease; }
 
+/* Q&A toggleable blocks */
+.qa-block { margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.qa-question {
+  display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem 1.25rem; width: 100%;
+  background: var(--bg-card); border: none; color: var(--text); font-size: 1rem; font-weight: 600;
+  cursor: pointer; text-align: left; font-family: inherit; line-height: 1.5; transition: background 0.2s;
+}
+.qa-question:hover { background: var(--bg-elevated); }
+.qa-icon { color: var(--blue); font-size: 0.85rem; flex-shrink: 0; margin-top: 0.2rem; }
+.qa-answer {
+  padding: 1rem 1.25rem; border-top: 1px solid var(--border); background: var(--bg);
+  animation: qaReveal 0.2s ease;
+}
+@keyframes qaReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.md-hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
