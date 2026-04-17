@@ -8,10 +8,10 @@ const headers = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type'
+  'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-const respond = (statusCode, body) => ({ statusCode, headers, body: JSON.stringify(body) });
+const respond = (code, body) => ({ statusCode: code, headers, body: JSON.stringify(body) });
 
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return respond(200, {});
@@ -25,12 +25,10 @@ export const handler = async (event) => {
     const body = JSON.parse(event.body || '{}');
     const { chapterId, type } = body;
     const sk = type === 'quiz' ? `quiz#${chapterId}` : `chapter#${chapterId}`;
-
     await client.send(new PutCommand({
       TableName: TABLE_NAME,
-      Item: { pk: 'user#default', sk, ...body, timestamp: new Date().toISOString() }
+      Item: { pk: 'user#default', sk, ...body, timestamp: new Date().toISOString() },
     }));
-
     return respond(200, { message: 'Progress saved' });
   }
 

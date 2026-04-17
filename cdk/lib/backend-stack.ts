@@ -16,21 +16,14 @@ export class BackendStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const backendPath = path.join(__dirname, '../../backend');
+    const backendRoot = path.join(__dirname, '../../backend');
 
-    const makeFn = (name: string, entry: string) => {
+    const makeFn = (name: string, handlerDir: string) => {
       const fn = new lambda.Function(this, name, {
         runtime: lambda.Runtime.NODEJS_20_X,
-        handler: 'index.handler',
-        code: lambda.Code.fromAsset(backendPath, {
-          bundling: {
-            image: lambda.Runtime.NODEJS_20_X.bundlingImage,
-            command: [
-              'bash', '-c',
-              `cp -r /asset-input/lambdas/${entry}/* /asset-output/ && cp -r /asset-input/content /asset-output/content && cp -r /asset-input/node_modules /asset-output/node_modules`,
-            ],
-          },
-          exclude: ['*.md'],
+        handler: `lambdas/${handlerDir}/index.handler`,
+        code: lambda.Code.fromAsset(backendRoot, {
+          exclude: ['node_modules/.cache', '*.md'],
         }),
         environment: { TABLE_NAME: table.tableName },
         timeout: cdk.Duration.seconds(10),

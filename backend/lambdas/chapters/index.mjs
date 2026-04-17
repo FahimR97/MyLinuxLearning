@@ -1,9 +1,7 @@
 import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const chapters = JSON.parse(readFileSync(join(__dirname, 'content', 'chapters.json'), 'utf-8'));
+const chapters = JSON.parse(readFileSync(join(process.env.LAMBDA_TASK_ROOT || '.', 'content', 'chapters.json'), 'utf-8'));
 
 const headers = {
   'Content-Type': 'application/json',
