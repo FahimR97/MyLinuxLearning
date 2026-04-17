@@ -1,0 +1,56 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      - name: Install and Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          VITE_API_URL=${{ secrets.API_URL }} npm run build
+
+      - name: Deploy Frontend to S3
+        run: |
+          aws s3 sync frontend/dist/ s3://${{ secrets.S3_BUCKET }}/ --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} --paths '/*'
+
+      - name: Deploy Backend Lambdas
+        run: |
+          cd backend
+          npm ci --production
+          for func in chapters labs quizzes progress; do
+            cd lambdas/$func
+            zip -r ../../$func.zip .
+            cd ../..
+            cp -r node_modules lambdas/$func/
+            cp -r content lambdas/$func/
+            cd lambdas/$func
+            zip -r ../../$func.zip node_modules/ content/
+            cd ../..
+            aws lambda update-function-code --function-name MyLinuxLearning-$func --zip-file fileb://$func.zip --region eu-west-2
+            rm -rf lambdas/$func/node_modules lambdas/$func/content
+          done

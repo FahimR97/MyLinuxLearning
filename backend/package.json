@@ -1,0 +1,10 @@
+{
+  "name": "mylinuxlearning-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "uuid": "9.0.1",
+    "@aws-sdk/client-dynamodb": "3.525.0",
+    "@aws-sdk/lib-dynamodb": "3.525.0"
+  }
+}

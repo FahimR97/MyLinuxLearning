@@ -1,0 +1,10 @@
+{
+  "name": "my-linux-learning",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy:infra": "cd cdk && npx cdk deploy --all",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build"
+  }
+}

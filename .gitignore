@@ -1,0 +1,9 @@
+node_modules/
+dist/
+build/
+.env
+*.zip
+cdk.out/
+.cdk.staging/
+*.js.map
+*.d.ts
