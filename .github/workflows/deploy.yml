@@ -24,37 +24,32 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-2
 
-      - name: Install and Build Frontend
+      - name: Deploy Infrastructure (CDK)
+        run: |
+          cd cdk
+          npm ci
+          npx cdk deploy --all --require-approval never
+
+      - name: Build and Deploy Frontend
         run: |
           cd frontend
           npm ci
           VITE_API_URL=${{ secrets.API_URL }} npm run build
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }}/ --delete
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} --paths '/*'
 
-      - name: Deploy Frontend to S3
-        run: aws s3 sync frontend/dist/ s3://${{ secrets.S3_BUCKET }}/ --delete
-
-      - name: Invalidate CloudFront
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} --paths '/*'
-
-      - name: Package and Deploy Backend Lambdas
+      - name: Deploy Backend Lambdas
         run: |
           cd backend
           npm ci --omit=dev
-          
-          # Get Lambda function names from CloudFormation
           get_fn() {
             aws cloudformation describe-stack-resource --stack-name BackendStack --logical-resource-id "$1" --query 'StackResourceDetail.PhysicalResourceId' --output text
           }
-          
           CHAPTERS_FN=$(get_fn ChaptersFn0FB2348C)
           LABS_FN=$(get_fn LabsFn7B8F3AE3)
           QUIZZES_FN=$(get_fn QuizzesFnBB1B9AA4)
           PROGRESS_FN=$(get_fn ProgressFn6B9D101A)
-          
-          # Create deployment package (entire backend dir)
           zip -r deploy.zip lambdas/ content/ node_modules/ -x "*.md"
-          
-          # Update all functions
           for fn in "$CHAPTERS_FN" "$LABS_FN" "$QUIZZES_FN" "$PROGRESS_FN"; do
             aws lambda update-function-code --function-name "$fn" --zip-file fileb://deploy.zip
           done
