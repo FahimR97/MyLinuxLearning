@@ -3,9 +3,14 @@ import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cogn
 const POOL_ID = import.meta.env.VITE_COGNITO_POOL_ID || '';
 const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
 
-const userPool = POOL_ID && CLIENT_ID
-  ? new CognitoUserPool({ UserPoolId: POOL_ID, ClientId: CLIENT_ID })
-  : null;
+let userPool = null;
+try {
+  if (POOL_ID && CLIENT_ID) {
+    userPool = new CognitoUserPool({ UserPoolId: POOL_ID, ClientId: CLIENT_ID });
+  }
+} catch (e) {
+  console.error('Cognito UserPool init failed:', e.message);
+}
 
 export function signIn(username, password) {
   if (!userPool) return Promise.reject(new Error('Cognito not configured'));
