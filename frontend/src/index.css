@@ -129,7 +129,7 @@ a:hover { color: var(--lavender); }
   justify-content: center;
   padding: 3rem;
   overflow: hidden;
-  background: linear-gradient(145deg, #0c1a2e 0%, #0f2040 55%, #0a1830 100%);
+  background: linear-gradient(145deg, #0f2847 0%, #162e5a 55%, #0d2444 100%);
   border-right: 1px solid var(--border);
 }
 
@@ -149,21 +149,21 @@ a:hover { color: var(--lavender); }
   filter: blur(80px); pointer-events: none;
 }
 .ls-orb-1 {
-  width: 550px; height: 550px;
-  background: radial-gradient(circle, rgba(45,212,191,0.7) 0%, transparent 65%);
-  top: -180px; left: -180px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(45,212,191,0.5) 0%, transparent 60%);
+  top: -60px; left: -60px;
   animation: orbFloat1 11s ease-in-out infinite;
 }
 .ls-orb-2 {
-  width: 420px; height: 420px;
-  background: radial-gradient(circle, rgba(96,165,250,0.55) 0%, transparent 65%);
-  bottom: -140px; right: -100px;
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(96,165,250,0.45) 0%, transparent 60%);
+  bottom: -60px; right: -60px;
   animation: orbFloat2 13s ease-in-out infinite;
 }
 .ls-orb-3 {
-  width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(125,211,252,0.4) 0%, transparent 65%);
-  top: 50%; left: 55%;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(125,211,252,0.3) 0%, transparent 60%);
+  top: 45%; left: 50%;
   animation: orbFloat1 9s ease-in-out infinite reverse;
 }
 
@@ -291,17 +291,17 @@ a:hover { color: var(--lavender); }
   width: 440px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   padding: 3rem 2.5rem;
-  background: #0d1525;
-  border-left: 1px solid rgba(45,212,191,0.1);
+  background: #0e1e38;
+  border-left: 1px solid rgba(45,212,191,0.15);
 }
 
 .ls-form-card {
   width: 100%; max-width: 360px;
-  background: rgba(21,29,46,0.8);
-  border: 1px solid rgba(45,212,191,0.12);
+  background: rgba(20,36,64,0.95);
+  border: 1px solid rgba(45,212,191,0.18);
   border-radius: var(--radius-lg);
   padding: 2.5rem 2rem;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(45,212,191,0.06);
   animation: lsFadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.1s both;
 }
 .ls-form-card-in {
