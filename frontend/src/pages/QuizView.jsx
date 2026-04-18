@@ -1,57 +1,100 @@
-import { useParams, Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { getQuiz, submitQuiz, getProgress, saveProgress } from '../api/client';
+import { useParams, Link } from 'react-router-dom'
+import { useEffect, useState, useCallback } from 'react'
+import { getQuiz, submitQuiz, getProgress, saveProgress } from '../api/client'
 
 export default function QuizView() {
-  const { chapterId } = useParams();
-  const [questions, setQuestions] = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [results, setResults] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const { chapterId } = useParams()
+  const [questions, setQuestions] = useState([])
+  const [current, setCurrent] = useState(0)
+  const [answers, setAnswers] = useState({})
+  const [results, setResults] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    getQuiz(chapterId).then(data => { setQuestions(data); setCurrent(0); setAnswers({}); setResults(null); });
-  }, [chapterId]);
+    getQuiz(chapterId).then(data => {
+      setQuestions(data)
+      setCurrent(0)
+      setAnswers({})
+      setResults(null)
+    })
+  }, [chapterId])
 
-  if (!questions.length) return <div className="page"><div className="loading">Loading quiz...</div></div>;
+  const handleSelect = useCallback((optionIdx) => {
+    setAnswers(prev => ({ ...prev, [current]: optionIdx }))
+  }, [current])
 
-  const handleSelect = (optionIdx) => {
-    setAnswers(prev => ({ ...prev, [current]: optionIdx }));
-  };
+  const handleNext = useCallback(() => {
+    if (current < questions.length - 1) setCurrent(c => c + 1)
+  }, [current, questions.length])
+
+  const handlePrev = useCallback(() => {
+    if (current > 0) setCurrent(c => c - 1)
+  }, [current])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (results) return
+      if (e.key >= '1' && e.key <= '4') {
+        const idx = parseInt(e.key) - 1
+        if (idx < (questions[current]?.options?.length || 0)) handleSelect(idx)
+      }
+      if (e.key === 'ArrowRight' || e.key === 'Enter') {
+        if (answers[current] != null) handleNext()
+      }
+      if (e.key === 'ArrowLeft') handlePrev()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [results, current, questions, answers, handleSelect, handleNext, handlePrev])
 
   const handleSubmit = async () => {
-    setSubmitting(true);
-    const answerArray = questions.map((_, i) => answers[i] ?? -1);
-    const res = await submitQuiz(chapterId, answerArray);
-    setResults(res);
-    // Save score to progress
-    const progress = await getProgress();
-    await saveProgress({ [chapterId]: { ...progress[chapterId], quizScore: res.score, quizTotal: res.total } });
-    setSubmitting(false);
-  };
+    setSubmitting(true)
+    const answerArray = questions.map((_, i) => answers[i] ?? -1)
+    const res = await submitQuiz(chapterId, answerArray)
+    setResults(res)
+    const prog = await getProgress()
+    await saveProgress({ [chapterId]: { ...prog[chapterId], quizScore: res.score, quizTotal: res.total } })
+    setSubmitting(false)
+  }
 
   const handleRetry = () => {
-    setCurrent(0);
-    setAnswers({});
-    setResults(null);
-  };
+    setCurrent(0)
+    setAnswers({})
+    setResults(null)
+  }
 
-  // Results view
+  if (!questions.length) {
+    return (
+      <div className="page">
+        <div className="loading">
+          <div className="loading-spinner" />
+          Loading quiz...
+        </div>
+      </div>
+    )
+  }
+
   if (results) {
-    const pct = Math.round((results.score / results.total) * 100);
+    const pct = Math.round((results.score / results.total) * 100)
+    const passed = pct >= 70
     return (
       <div className="page quiz-page">
         <Link to={`/chapters/${chapterId}`} className="back-link">← Back to Chapter</Link>
         <div className="quiz-results">
           <h1 className="results-title">Quiz Results</h1>
-          <div className={`results-score ${pct >= 70 ? 'pass' : 'fail'}`}>
+          <div className={`results-score ${passed ? 'pass' : 'fail'}`}>
             <div className="score-circle">
               <span className="score-pct">{pct}%</span>
-              <span className="score-detail">{results.score}/{results.total}</span>
+              <span className="score-detail">{results.score}/{results.total} correct</span>
             </div>
-            <p className="score-msg">{pct >= 70 ? 'Great job! 🎉' : 'Keep studying! 💪'}</p>
+            <p className="score-msg">
+              {passed
+                ? pct === 100 ? '🏆 Perfect score!' : '✓ Passed — solid performance'
+                : '✗ Below 70% — review the chapter and retry'}
+            </p>
           </div>
+
           <div className="results-list">
             {results.results.map((r, i) => (
               <div key={i} className={`result-item ${r.correct ? 'correct' : 'incorrect'}`}>
@@ -59,38 +102,69 @@ export default function QuizView() {
                   <span className="result-icon">{r.correct ? '✓' : '✗'}</span>
                   <span className="result-q">{r.question}</span>
                 </div>
-                {!r.correct && <p className="result-explanation">{r.explanation}</p>}
+                {!r.correct && r.explanation && (
+                  <p className="result-explanation">{r.explanation}</p>
+                )}
               </div>
             ))}
           </div>
+
           <div className="results-actions">
-            <button className="btn btn-primary" onClick={handleRetry}>Retry Quiz</button>
+            <button className="btn btn-primary" onClick={handleRetry}>↺ Retry Quiz</button>
             <Link to={`/chapters/${chapterId}`} className="btn btn-secondary">Back to Chapter</Link>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  const q = questions[current];
+  const q = questions[current]
+  const answeredCount = Object.keys(answers).length
+  const allAnswered = answeredCount === questions.length
+  const isLast = current === questions.length - 1
 
   return (
     <div className="page quiz-page">
       <Link to={`/chapters/${chapterId}`} className="back-link">← Back to Chapter</Link>
+
       <div className="quiz-container">
         <div className="quiz-progress">
-          <div className="quiz-progress-bar">
-            <div className="quiz-progress-fill" style={{ width: `${((current + 1) / questions.length) * 100}%` }} />
+          <div className="quiz-progress-header">
+            <span className="quiz-progress-label">Question {current + 1} of {questions.length}</span>
+            <span className="quiz-progress-count">{answeredCount}/{questions.length} answered</span>
           </div>
-          <span className="quiz-progress-text">{current + 1} / {questions.length}</span>
+          <div className="quiz-progress-bar">
+            <div
+              className="quiz-progress-fill"
+              style={{ width: `${((current + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+          <div className="quiz-dots">
+            {questions.map((_, i) => (
+              <div
+                key={i}
+                className={`quiz-dot ${i === current ? 'current' : answers[i] != null ? 'answered' : ''}`}
+                style={{ cursor: 'pointer' }}
+                onClick={() => setCurrent(i)}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="quiz-question">
           <h2>{q.question}</h2>
+          <p className="quiz-kbd-hint">
+            Press <span className="kbd">1</span>–<span className="kbd">4</span> to select
+            · <span className="kbd">→</span> next · <span className="kbd">←</span> previous
+          </p>
           <div className="quiz-options">
             {q.options.map((opt, i) => (
-              <button key={i} className={`quiz-option ${answers[current] === i ? 'selected' : ''}`} onClick={() => handleSelect(i)}>
-                <span className="option-letter">{String.fromCharCode(65 + i)}</span>
+              <button
+                key={i}
+                className={`quiz-option ${answers[current] === i ? 'selected' : ''}`}
+                onClick={() => handleSelect(i)}
+              >
+                <span className="option-letter">{i + 1}</span>
                 {opt}
               </button>
             ))}
@@ -98,16 +172,34 @@ export default function QuizView() {
         </div>
 
         <div className="quiz-nav">
-          <button className="btn btn-secondary" disabled={current === 0} onClick={() => setCurrent(c => c - 1)}>← Previous</button>
-          {current < questions.length - 1 ? (
-            <button className="btn btn-primary" disabled={answers[current] == null} onClick={() => setCurrent(c => c + 1)}>Next →</button>
+          <button
+            className="btn btn-secondary"
+            disabled={current === 0}
+            onClick={handlePrev}
+          >
+            ← Previous
+          </button>
+
+          {!isLast ? (
+            <button
+              className="btn btn-primary"
+              disabled={answers[current] == null}
+              onClick={handleNext}
+            >
+              Next →
+            </button>
           ) : (
-            <button className="btn btn-primary" disabled={Object.keys(answers).length < questions.length || submitting} onClick={handleSubmit}>
-              {submitting ? 'Submitting...' : 'Submit Quiz'}
+            <button
+              className="btn btn-primary"
+              disabled={!allAnswered || submitting}
+              onClick={handleSubmit}
+              title={!allAnswered ? `${questions.length - answeredCount} questions unanswered` : ''}
+            >
+              {submitting ? 'Submitting...' : `Submit (${answeredCount}/${questions.length})`}
             </button>
           )}
         </div>
       </div>
     </div>
-  );
+  )
 }
