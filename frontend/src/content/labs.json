@@ -16,7 +16,7 @@
         "expectedOutput": "5.15.0-88-generic"
       },
       {
-        "instruction": "Show all system information at once — kernel name, hostname, kernel version, machine architecture, and OS.",
+        "instruction": "Show all system information at once \u2014 kernel name, hostname, kernel version, machine architecture, and OS.",
         "command": "uname -a",
         "expectedOutput": "Linux myhost 5.15.0-88-generic #98-Ubuntu SMP Mon Oct 2 15:18:56 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux"
       },
@@ -36,7 +36,7 @@
     "id": "lab-what-is-linux-2",
     "chapterId": "what-is-linux",
     "title": "Explore the Shell Environment",
-    "description": "Get comfortable with the shell — learn who you are logged in as, which shell you are using, and how to find where programs live.",
+    "description": "Get comfortable with the shell \u2014 learn who you are logged in as, which shell you are using, and how to find where programs live.",
     "steps": [
       {
         "instruction": "Find out which user you are currently logged in as. This is one of the most fundamental commands in Linux.",
@@ -105,12 +105,12 @@
         "expectedOutput": "bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var"
       },
       {
-        "instruction": "Look inside /etc — this is where system-wide configuration files live.",
+        "instruction": "Look inside /etc \u2014 this is where system-wide configuration files live.",
         "command": "ls /etc | head -20",
         "expectedOutput": "adduser.conf\nalternatives\napt\nbash.bashrc\ncron.d\ncrontab\ndefault\nenvironment\nfstab\ngroup\nhostname\nhosts\ninit.d\n..."
       },
       {
-        "instruction": "Check what is in /var/log — this directory stores system and application log files.",
+        "instruction": "Check what is in /var/log \u2014 this directory stores system and application log files.",
         "command": "ls /var/log | head -15",
         "expectedOutput": "alternatives.log\nauth.log\nboot.log\ndpkg.log\nkern.log\nsyslog\n..."
       },
@@ -163,7 +163,7 @@
     "id": "lab-navigating-filesystem-2",
     "chapterId": "navigating-filesystem",
     "title": "Listing Files Like a Pro",
-    "description": "Master the many options of the 'ls' command to see files in different ways — hidden files, detailed info, sorted by time, and more.",
+    "description": "Master the many options of the 'ls' command to see files in different ways \u2014 hidden files, detailed info, sorted by time, and more.",
     "steps": [
       {
         "instruction": "List files in long format to see permissions, owner, size, and modification date.",
@@ -214,7 +214,7 @@
         "expectedOutput": "config  docs  projects"
       },
       {
-        "instruction": "Clean up the entire lab-practice directory tree using rm -r. Be careful with this command — it deletes recursively!",
+        "instruction": "Clean up the entire lab-practice directory tree using rm -r. Be careful with this command \u2014 it deletes recursively!",
         "command": "rm -r ~/lab-practice && ls ~/lab-practice 2>&1",
         "expectedOutput": "ls: cannot access '/home/student/lab-practice': No such file or directory"
       }
@@ -270,7 +270,7 @@
         "expectedOutput": "Access: (0644/-rw-r--r--)  Uid: ( 1000/ student)   Gid: ( 1000/ student)"
       },
       {
-        "instruction": "Check permissions on a directory. Notice the 'd' at the start and the 'x' bits — execute on a directory means you can enter it.",
+        "instruction": "Check permissions on a directory. Notice the 'd' at the start and the 'x' bits \u2014 execute on a directory means you can enter it.",
         "command": "ls -ld /tmp",
         "expectedOutput": "drwxrwxrwt 12 root root 4096 Oct 10 14:30 /tmp"
       },
@@ -511,7 +511,7 @@
     "id": "lab-viewing-editing-files-1",
     "chapterId": "viewing-editing-files",
     "title": "Viewing File Contents",
-    "description": "Learn multiple ways to view file contents — from reading entire files to peeking at just the beginning or end.",
+    "description": "Learn multiple ways to view file contents \u2014 from reading entire files to peeking at just the beginning or end.",
     "steps": [
       {
         "instruction": "Display the entire contents of a small file using cat (concatenate).",
@@ -544,7 +544,7 @@
     "id": "lab-viewing-editing-files-2",
     "chapterId": "viewing-editing-files",
     "title": "Searching Inside Files with grep",
-    "description": "Master grep — the most important text-searching tool in Linux. You will use grep every single day.",
+    "description": "Master grep \u2014 the most important text-searching tool in Linux. You will use grep every single day.",
     "steps": [
       {
         "instruction": "Search for the word 'root' in /etc/passwd. grep prints every line that contains the pattern.",
@@ -656,14 +656,14 @@
         "expectedOutput": "root         345  0.0  0.1  72308  5648 ?        Ss   Oct07   0:01 /usr/sbin/sshd -D"
       },
       {
-        "instruction": "Use pgrep to find process IDs by name — a cleaner alternative to ps | grep.",
+        "instruction": "Use pgrep to find process IDs by name \u2014 a cleaner alternative to ps | grep.",
         "command": "pgrep -a sshd",
         "expectedOutput": "345 /usr/sbin/sshd -D"
       },
       {
         "instruction": "View the process tree to see parent-child relationships between processes.",
         "command": "pstree -p | head -20",
-        "expectedOutput": "systemd(1)─┬─accounts-daemon(456)\n           ├─cron(489)\n           ├─dbus-daemon(490)\n           ├─sshd(345)───sshd(1200)───bash(1234)───pstree(5678)\n           ├─systemd-journal(234)\n           ├─systemd-logind(500)\n           └─systemd-resolve(267)"
+        "expectedOutput": "systemd(1)\u2500\u252c\u2500accounts-daemon(456)\n           \u251c\u2500cron(489)\n           \u251c\u2500dbus-daemon(490)\n           \u251c\u2500sshd(345)\u2500\u2500\u2500sshd(1200)\u2500\u2500\u2500bash(1234)\u2500\u2500\u2500pstree(5678)\n           \u251c\u2500systemd-journal(234)\n           \u251c\u2500systemd-logind(500)\n           \u2514\u2500systemd-resolve(267)"
       },
       {
         "instruction": "Check how many processes are currently running on the system.",
@@ -676,7 +676,7 @@
     "id": "lab-processes-2",
     "chapterId": "processes",
     "title": "Sending Signals and Killing Processes",
-    "description": "Learn to control processes by sending signals — stop, continue, and terminate running programs.",
+    "description": "Learn to control processes by sending signals \u2014 stop, continue, and terminate running programs.",
     "steps": [
       {
         "instruction": "Start a background process that we can practice with. The & puts it in the background.",
@@ -808,7 +808,7 @@
     "id": "lab-text-processing-2",
     "chapterId": "text-processing",
     "title": "Text Manipulation with awk",
-    "description": "Use awk to process structured text data — extract fields, perform calculations, and generate reports.",
+    "description": "Use awk to process structured text data \u2014 extract fields, perform calculations, and generate reports.",
     "steps": [
       {
         "instruction": "Use awk to print the name and salary columns from the CSV file. -F sets the field separator.",
@@ -841,7 +841,7 @@
     "id": "lab-text-processing-3",
     "chapterId": "text-processing",
     "title": "Stream Editing with sed",
-    "description": "Use sed to transform text — find and replace, delete lines, and restructure file contents.",
+    "description": "Use sed to transform text \u2014 find and replace, delete lines, and restructure file contents.",
     "steps": [
       {
         "instruction": "Replace all occurrences of 'Marketing' with 'Growth' in the employee file (without modifying the original).",
@@ -887,7 +887,7 @@
         "expectedOutput": "1,2d0\n< Alice\n< Bob\n3a2,3\n> Eve\n> Frank"
       },
       {
-        "instruction": "Use tr to transform text — convert to uppercase.",
+        "instruction": "Use tr to transform text \u2014 convert to uppercase.",
         "command": "cut -d',' -f1 /tmp/employees.csv | tr '[:lower:]' '[:upper:]'",
         "expectedOutput": "ALICE\nBOB\nCHARLIE\nDIANA\nEVE\nFRANK\nGRACE\nHANK"
       },
@@ -907,7 +907,7 @@
       {
         "instruction": "Check the status of the SSH service. This shows whether it is running, its PID, and recent log entries.",
         "command": "systemctl status sshd --no-pager | head -15",
-        "expectedOutput": "● sshd.service - OpenBSD Secure Shell server\n     Loaded: loaded (/lib/systemd/system/sshd.service; enabled; vendor preset: enabled)\n     Active: active (running) since Mon 2023-10-07 12:00:00 UTC; 3 days ago\n       Docs: man:sshd(8)\n   Main PID: 345 (sshd)\n      Tasks: 1 (limit: 4915)\n     Memory: 3.2M\n        CPU: 156ms\n     CGroup: /system.slice/sshd.service\n             └─345 sshd: /usr/sbin/sshd -D"
+        "expectedOutput": "\u25cf sshd.service - OpenBSD Secure Shell server\n     Loaded: loaded (/lib/systemd/system/sshd.service; enabled; vendor preset: enabled)\n     Active: active (running) since Mon 2023-10-07 12:00:00 UTC; 3 days ago\n       Docs: man:sshd(8)\n   Main PID: 345 (sshd)\n      Tasks: 1 (limit: 4915)\n     Memory: 3.2M\n        CPU: 156ms\n     CGroup: /system.slice/sshd.service\n             \u2514\u2500345 sshd: /usr/sbin/sshd -D"
       },
       {
         "instruction": "List all active services on the system.",
@@ -935,7 +935,7 @@
     "id": "lab-systemd-services-2",
     "chapterId": "systemd-services",
     "title": "Starting, Stopping, and Restarting Services",
-    "description": "Practice controlling services — start, stop, restart, and reload. These are daily sysadmin tasks.",
+    "description": "Practice controlling services \u2014 start, stop, restart, and reload. These are daily sysadmin tasks.",
     "steps": [
       {
         "instruction": "Stop the cron service (the task scheduler). You will need sudo for service management.",
@@ -948,9 +948,9 @@
         "expectedOutput": "active"
       },
       {
-        "instruction": "Restart the cron service. Restart stops and starts the service — useful after config changes.",
+        "instruction": "Restart the cron service. Restart stops and starts the service \u2014 useful after config changes.",
         "command": "sudo systemctl restart cron && systemctl status cron --no-pager | head -5",
-        "expectedOutput": "● cron.service - Regular background program processing daemon\n     Loaded: loaded (/lib/systemd/system/cron.service; enabled; vendor preset: enabled)\n     Active: active (running) since Tue 2023-10-10 15:30:00 UTC; 0s ago\n       Docs: man:cron(8)\n   Main PID: 6789 (cron)"
+        "expectedOutput": "\u25cf cron.service - Regular background program processing daemon\n     Loaded: loaded (/lib/systemd/system/cron.service; enabled; vendor preset: enabled)\n     Active: active (running) since Tue 2023-10-10 15:30:00 UTC; 0s ago\n       Docs: man:cron(8)\n   Main PID: 6789 (cron)"
       },
       {
         "instruction": "Reload a service configuration without restarting it (if supported). This avoids downtime.",
@@ -978,7 +978,7 @@
       {
         "instruction": "Reload systemd to pick up the new unit file, then start and enable the service.",
         "command": "sudo systemctl daemon-reload && sudo systemctl start mymonitor && sudo systemctl enable mymonitor && systemctl status mymonitor --no-pager | head -8",
-        "expectedOutput": "● mymonitor.service - My Custom Monitor Service\n     Loaded: loaded (/etc/systemd/system/mymonitor.service; enabled; vendor preset: enabled)\n     Active: active (running) since Tue 2023-10-10 15:35:00 UTC; 0s ago\n   Main PID: 7890 (mymonitor.sh)\n      Tasks: 2 (limit: 4915)\n     Memory: 1.0M\n     CGroup: /system.slice/mymonitor.service\n             └─7890 /bin/bash /usr/local/bin/mymonitor.sh"
+        "expectedOutput": "\u25cf mymonitor.service - My Custom Monitor Service\n     Loaded: loaded (/etc/systemd/system/mymonitor.service; enabled; vendor preset: enabled)\n     Active: active (running) since Tue 2023-10-10 15:35:00 UTC; 0s ago\n   Main PID: 7890 (mymonitor.sh)\n      Tasks: 2 (limit: 4915)\n     Memory: 1.0M\n     CGroup: /system.slice/mymonitor.service\n             \u2514\u25007890 /bin/bash /usr/local/bin/mymonitor.sh"
       },
       {
         "instruction": "Check that the service is producing log output.",
@@ -996,7 +996,7 @@
     "id": "lab-systemd-services-4",
     "chapterId": "systemd-services",
     "title": "Viewing Logs with journalctl",
-    "description": "Use journalctl to read systemd journal logs — filter by service, time, priority, and more.",
+    "description": "Use journalctl to read systemd journal logs \u2014 filter by service, time, priority, and more.",
     "steps": [
       {
         "instruction": "View the most recent journal entries. The -n flag limits the number of lines.",
@@ -1029,7 +1029,7 @@
     "id": "lab-filesystem-deep-dive-1",
     "chapterId": "filesystem-deep-dive",
     "title": "Disk Usage and Filesystem Information",
-    "description": "Investigate disk space usage, filesystem types, and mount points — essential for capacity planning.",
+    "description": "Investigate disk space usage, filesystem types, and mount points \u2014 essential for capacity planning.",
     "steps": [
       {
         "instruction": "Display disk space usage for all mounted filesystems in human-readable format.",
@@ -1065,12 +1065,12 @@
     "description": "Understand the difference between hard links and symbolic links, and when to use each.",
     "steps": [
       {
-        "instruction": "Create a file and a hard link to it. Hard links share the same inode — they are the same file with two names.",
+        "instruction": "Create a file and a hard link to it. Hard links share the same inode \u2014 they are the same file with two names.",
         "command": "echo 'Original content' > /tmp/original.txt && ln /tmp/original.txt /tmp/hardlink.txt && ls -li /tmp/original.txt /tmp/hardlink.txt",
         "expectedOutput": "1234567 -rw-r--r-- 2 student student 17 Oct 10 16:00 /tmp/hardlink.txt\n1234567 -rw-r--r-- 2 student student 17 Oct 10 16:00 /tmp/original.txt"
       },
       {
-        "instruction": "Create a symbolic (soft) link. Symlinks are pointers to a path — they have their own inode.",
+        "instruction": "Create a symbolic (soft) link. Symlinks are pointers to a path \u2014 they have their own inode.",
         "command": "ln -s /tmp/original.txt /tmp/symlink.txt && ls -li /tmp/original.txt /tmp/symlink.txt",
         "expectedOutput": "1234567 -rw-r--r-- 2 student student 17 Oct 10 16:00 /tmp/original.txt\n1234568 lrwxrwxrwx 1 student student 17 Oct 10 16:00 /tmp/symlink.txt -> /tmp/original.txt"
       },
@@ -1260,7 +1260,7 @@
     "id": "lab-bash-scripting-4",
     "chapterId": "bash-scripting",
     "title": "Practical Script: Log Analyser",
-    "description": "Build a real-world script that analyses log files — a common sysadmin automation task.",
+    "description": "Build a real-world script that analyses log files \u2014 a common sysadmin automation task.",
     "steps": [
       {
         "instruction": "First, create a sample access log to analyse.",
@@ -1288,7 +1288,7 @@
     "id": "lab-networking-fundamentals-1",
     "chapterId": "networking-fundamentals",
     "title": "Investigating Network Interfaces",
-    "description": "Examine your system's network configuration — interfaces, IP addresses, routes, and DNS. This is the starting point for any network troubleshooting.",
+    "description": "Examine your system's network configuration \u2014 interfaces, IP addresses, routes, and DNS. This is the starting point for any network troubleshooting.",
     "steps": [
       {
         "instruction": "Display all network interfaces and their IP addresses using the modern 'ip' command.",
@@ -1301,7 +1301,7 @@
         "expectedOutput": "default via 172.17.0.1 dev eth0\n172.17.0.0/16 dev eth0 proto kernel scope link src 172.17.0.2"
       },
       {
-        "instruction": "Check DNS resolver configuration — which DNS servers your system queries.",
+        "instruction": "Check DNS resolver configuration \u2014 which DNS servers your system queries.",
         "command": "cat /etc/resolv.conf",
         "expectedOutput": "nameserver 127.0.0.53\noptions edns0 trust-ad\nsearch localdomain"
       },
@@ -1321,7 +1321,7 @@
     "id": "lab-networking-fundamentals-2",
     "chapterId": "networking-fundamentals",
     "title": "DNS Troubleshooting",
-    "description": "Investigate DNS resolution issues using dig, nslookup, and host — critical skills for diagnosing 'cannot reach server' problems.",
+    "description": "Investigate DNS resolution issues using dig, nslookup, and host \u2014 critical skills for diagnosing 'cannot reach server' problems.",
     "steps": [
       {
         "instruction": "Resolve a domain name to its IP address using dig. Look at the ANSWER SECTION.",
@@ -1339,7 +1339,7 @@
         "expectedOutput": "10 smtp.google.com.\n20 smtp2.google.com.\n30 smtp3.google.com.\n40 smtp4.google.com."
       },
       {
-        "instruction": "Perform a reverse DNS lookup — find the hostname associated with an IP address.",
+        "instruction": "Perform a reverse DNS lookup \u2014 find the hostname associated with an IP address.",
         "command": "dig -x 8.8.8.8 +short",
         "expectedOutput": "dns.google."
       },
@@ -1390,7 +1390,7 @@
         "expectedOutput": "State   Recv-Q  Send-Q   Local Address:Port   Peer Address:Port  Process\nLISTEN  0       128      0.0.0.0:22            0.0.0.0:*          users:((\"sshd\",pid=345,fd=3))\nLISTEN  0       511      0.0.0.0:80            0.0.0.0:*          users:((\"nginx\",pid=678,fd=6))\nLISTEN  0       128      [::]:22               [::]:*             users:((\"sshd\",pid=345,fd=4))"
       },
       {
-        "instruction": "Show all established connections — who is currently connected to your system.",
+        "instruction": "Show all established connections \u2014 who is currently connected to your system.",
         "command": "ss -tn state established",
         "expectedOutput": "Recv-Q  Send-Q   Local Address:Port   Peer Address:Port\n0       0        172.17.0.2:22        192.168.1.100:54321"
       },
@@ -1448,7 +1448,7 @@
     "id": "lab-networking-advanced-2",
     "chapterId": "networking-advanced",
     "title": "SSH Configuration and Key Management",
-    "description": "Configure SSH securely — generate keys, manage known hosts, and harden the SSH server configuration.",
+    "description": "Configure SSH securely \u2014 generate keys, manage known hosts, and harden the SSH server configuration.",
     "steps": [
       {
         "instruction": "Generate an SSH key pair. The -t flag specifies the algorithm, -b the key size, -C adds a comment.",
@@ -1481,7 +1481,7 @@
     "id": "lab-networking-advanced-3",
     "chapterId": "networking-advanced",
     "title": "Network Packet Analysis with tcpdump",
-    "description": "Capture and analyse network packets to understand what is happening on the wire — essential for debugging network issues.",
+    "description": "Capture and analyse network packets to understand what is happening on the wire \u2014 essential for debugging network issues.",
     "steps": [
       {
         "instruction": "Capture 5 packets on the main network interface. This shows raw network traffic.",
@@ -1514,7 +1514,7 @@
     "id": "lab-networking-advanced-4",
     "chapterId": "networking-advanced",
     "title": "Network Troubleshooting Scenario",
-    "description": "Work through a realistic network troubleshooting scenario — a web application is unreachable. Diagnose the issue layer by layer.",
+    "description": "Work through a realistic network troubleshooting scenario \u2014 a web application is unreachable. Diagnose the issue layer by layer.",
     "steps": [
       {
         "instruction": "Step 1: Check if the network interface is up and has an IP address.",
@@ -1552,7 +1552,7 @@
     "id": "lab-monitoring-troubleshooting-1",
     "chapterId": "monitoring-troubleshooting",
     "title": "System Resource Investigation",
-    "description": "Diagnose CPU, memory, and I/O bottlenecks using top, vmstat, iostat, and free — the core monitoring toolkit.",
+    "description": "Diagnose CPU, memory, and I/O bottlenecks using top, vmstat, iostat, and free \u2014 the core monitoring toolkit.",
     "steps": [
       {
         "instruction": "Get a snapshot of CPU and memory usage with top in batch mode. Identify the busiest processes.",
@@ -1560,7 +1560,7 @@
         "expectedOutput": "top - 17:00:00 up 3 days,  4:52,  1 user,  load average: 0.15, 0.10, 0.05\nTasks:  92 total,   1 running,  91 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  2.3 us,  1.0 sy,  0.0 ni, 96.5 id,  0.1 wa,  0.0 hi,  0.1 si\nMiB Mem :   7957.1 total,   2100.3 free,   1456.5 used,   4400.3 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   5320.2 avail Mem\n\n    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n      1 root      20   0  169584  13256   8432 S   0.0   0.2   0:08.12 systemd\n    345 root      20   0   72308   5648   4896 S   0.0   0.1   0:01.23 sshd\n..."
       },
       {
-        "instruction": "Check memory usage in detail with free. Look at the 'available' column — that is the real free memory.",
+        "instruction": "Check memory usage in detail with free. Look at the 'available' column \u2014 that is the real free memory.",
         "command": "free -h",
         "expectedOutput": "               total        used        free      shared  buff/cache   available\nMem:           7.8Gi       1.4Gi       2.1Gi        12Mi       4.3Gi       5.2Gi\nSwap:          2.0Gi          0B       2.0Gi"
       },
@@ -1593,7 +1593,7 @@
         "expectedOutput": "Oct 10 03:00:01 myhost systemd[1]: apt-daily.service: Deactivated successfully.\nOct 10 08:15:23 myhost kernel: [UFW BLOCK] IN=eth0 OUT= SRC=10.0.0.99 DST=172.17.0.2 PROTO=TCP DPT=3306\nOct 10 12:30:45 myhost sshd[4567]: Failed password for invalid user admin from 203.0.113.50 port 45678 ssh2\n..."
       },
       {
-        "instruction": "Search for failed SSH login attempts — a common security investigation task.",
+        "instruction": "Search for failed SSH login attempts \u2014 a common security investigation task.",
         "command": "sudo grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn | head -5",
         "expectedOutput": "     15 203.0.113.50\n      8 198.51.100.25\n      3 10.0.0.99"
       },
@@ -1613,7 +1613,7 @@
     "id": "lab-monitoring-troubleshooting-3",
     "chapterId": "monitoring-troubleshooting",
     "title": "Troubleshooting a Slow System",
-    "description": "Walk through a systematic approach to diagnosing why a Linux system is running slowly — a common interview scenario.",
+    "description": "Walk through a systematic approach to diagnosing why a Linux system is running slowly \u2014 a common interview scenario.",
     "steps": [
       {
         "instruction": "Step 1: Check the load average. Values above the number of CPU cores indicate the system is overloaded.",
@@ -1626,7 +1626,7 @@
         "expectedOutput": "Swap In: 0 Swap Out: 0 IO Wait: 0%"
       },
       {
-        "instruction": "Step 3: Find processes in uninterruptible sleep (D state) — these are usually waiting on I/O.",
+        "instruction": "Step 3: Find processes in uninterruptible sleep (D state) \u2014 these are usually waiting on I/O.",
         "command": "ps aux | awk '$8 ~ /D/ {print}' | head -5 || echo 'No processes in D state'",
         "expectedOutput": "No processes in D state"
       },
@@ -1636,7 +1636,7 @@
         "expectedOutput": "No zombie processes"
       },
       {
-        "instruction": "Step 5: Check disk space — a full filesystem can cause many services to fail.",
+        "instruction": "Step 5: Check disk space \u2014 a full filesystem can cause many services to fail.",
         "command": "df -h | awk '$5+0 > 80 {print \"WARNING:\", $0}' || echo 'All filesystems below 80% usage'",
         "expectedOutput": "All filesystems below 80% usage"
       },
@@ -1651,7 +1651,7 @@
     "id": "lab-monitoring-troubleshooting-4",
     "chapterId": "monitoring-troubleshooting",
     "title": "Disk Space Emergency Response",
-    "description": "Respond to a 'disk full' alert — find what is consuming space, identify large files, and reclaim space safely.",
+    "description": "Respond to a 'disk full' alert \u2014 find what is consuming space, identify large files, and reclaim space safely.",
     "steps": [
       {
         "instruction": "Identify which filesystem is full or nearly full.",
@@ -1745,32 +1745,32 @@
     "id": "lab-boot-raid-virtualisation-3",
     "chapterId": "boot-raid-virtualisation",
     "title": "LVM: Logical Volume Management",
-    "description": "Inspect and understand LVM — the flexible storage layer that sits between physical disks and filesystems.",
+    "description": "Inspect and understand LVM \u2014 the flexible storage layer that sits between physical disks and filesystems.",
     "steps": [
       {
-        "instruction": "List physical volumes (PVs) — the raw disks or partitions used by LVM.",
+        "instruction": "List physical volumes (PVs) \u2014 the raw disks or partitions used by LVM.",
         "command": "sudo pvs 2>/dev/null || echo 'PV         VG        Fmt  Attr PSize   PFree\n/dev/sda3  ubuntu-vg lvm2 a--  <48.00g  <24.00g'",
         "expectedOutput": "PV         VG        Fmt  Attr PSize   PFree\n/dev/sda3  ubuntu-vg lvm2 a--  <48.00g  <24.00g"
       },
       {
-        "instruction": "List volume groups (VGs) — pools of storage made from one or more PVs.",
+        "instruction": "List volume groups (VGs) \u2014 pools of storage made from one or more PVs.",
         "command": "sudo vgs 2>/dev/null || echo 'VG        #PV #LV #SN Attr   VSize   VFree\nubuntu-vg   1   1   0 wz--n- <48.00g <24.00g'",
         "expectedOutput": "VG        #PV #LV #SN Attr   VSize   VFree\nubuntu-vg   1   1   0 wz--n- <48.00g <24.00g"
       },
       {
-        "instruction": "List logical volumes (LVs) — the virtual partitions carved from VGs that you format and mount.",
+        "instruction": "List logical volumes (LVs) \u2014 the virtual partitions carved from VGs that you format and mount.",
         "command": "sudo lvs 2>/dev/null || echo 'LV        VG        Attr       LSize  Pool Origin Data%  Meta%\nubuntu-lv ubuntu-vg -wi-ao---- 24.00g'",
         "expectedOutput": "LV        VG        Attr       LSize  Pool Origin Data%  Meta%\nubuntu-lv ubuntu-vg -wi-ao---- 24.00g"
       },
       {
-        "instruction": "Display the full LVM hierarchy showing the relationship between PV → VG → LV.",
+        "instruction": "Display the full LVM hierarchy showing the relationship between PV \u2192 VG \u2192 LV.",
         "command": "sudo lvdisplay 2>/dev/null | head -15 || echo '--- Logical volume ---\nLV Path                /dev/ubuntu-vg/ubuntu-lv\nLV Name                ubuntu-lv\nVG Name                ubuntu-vg\nLV Size                24.00 GiB\nCurrent LE             6144\nSegments               1\nAllocation             inherit\nRead ahead sectors     auto\nBlock device           253:0'",
         "expectedOutput": "--- Logical volume ---\nLV Path                /dev/ubuntu-vg/ubuntu-lv\nLV Name                ubuntu-lv\nVG Name                ubuntu-vg\nLV Size                24.00 GiB\nCurrent LE             6144\nSegments               1\nAllocation             inherit\nRead ahead sectors     auto\nBlock device           253:0"
       },
       {
         "instruction": "Show how LVM maps to actual block devices using lsblk.",
         "command": "lsblk -f | head -15",
-        "expectedOutput": "NAME                  FSTYPE      LABEL UUID                                 MOUNTPOINT\nsda\n├─sda1                vfat              ABCD-1234                            /boot/efi\n├─sda2                ext4              12345678-abcd-efgh-ijkl-123456789012 /boot\n└─sda3                LVM2_member       abcdef01-2345-6789-abcd-ef0123456789\n  └─ubuntu--vg-ubuntu--lv\n                      ext4              fedcba98-7654-3210-fedc-ba9876543210 /"
+        "expectedOutput": "NAME                  FSTYPE      LABEL UUID                                 MOUNTPOINT\nsda\n\u251c\u2500sda1                vfat              ABCD-1234                            /boot/efi\n\u251c\u2500sda2                ext4              12345678-abcd-efgh-ijkl-123456789012 /boot\n\u2514\u2500sda3                LVM2_member       abcdef01-2345-6789-abcd-ef0123456789\n  \u2514\u2500ubuntu--vg-ubuntu--lv\n                      ext4              fedcba98-7654-3210-fedc-ba9876543210 /"
       }
     ]
   },
@@ -1778,7 +1778,7 @@
     "id": "lab-boot-raid-virtualisation-4",
     "chapterId": "boot-raid-virtualisation",
     "title": "Virtualisation and Containers Overview",
-    "description": "Explore virtualisation technologies available on your system — detect hypervisors, check container runtimes, and understand the virtualisation stack.",
+    "description": "Explore virtualisation technologies available on your system \u2014 detect hypervisors, check container runtimes, and understand the virtualisation stack.",
     "steps": [
       {
         "instruction": "Detect if the system is running inside a virtual machine or on bare metal.",
@@ -1796,7 +1796,7 @@
         "expectedOutput": "Docker version 24.0.6, build ed223bc\nCONTAINER ID   IMAGE   COMMAND   CREATED   STATUS   PORTS   NAMES"
       },
       {
-        "instruction": "Check kernel support for namespaces and cgroups — the building blocks of containers.",
+        "instruction": "Check kernel support for namespaces and cgroups \u2014 the building blocks of containers.",
         "command": "echo 'Namespaces:' && ls /proc/self/ns/ && echo '---' && echo 'Cgroup controllers:' && cat /sys/fs/cgroup/cgroup.controllers 2>/dev/null || cat /proc/cgroups | head -10",
         "expectedOutput": "Namespaces:\ncgroup  ipc  mnt  net  pid  pid_for_children  time  user  uts\n---\nCgroup controllers:\ncpuset cpu io memory hugetlb pids rdma misc"
       },
@@ -1852,7 +1852,7 @@
     "description": "The monitoring system alerts that / is at 98%. Walk through the investigation and remediation an interviewer expects.",
     "steps": [
       {
-        "instruction": "Step 1: Confirm the alert — check all filesystem usage.",
+        "instruction": "Step 1: Confirm the alert \u2014 check all filesystem usage.",
         "command": "df -h | awk 'NR==1 || $5+0 > 50'",
         "expectedOutput": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        50G   49G  512M  98% /"
       },
@@ -1862,7 +1862,7 @@
         "expectedOutput": "49G\t/\n25G\t/var\n12G\t/usr\n8G\t/home\n2G\t/opt\n1G\t/tmp"
       },
       {
-        "instruction": "Step 3: Drill into /var which is the largest — find the culprit.",
+        "instruction": "Step 3: Drill into /var which is the largest \u2014 find the culprit.",
         "command": "sudo du -h /var --max-depth=2 2>/dev/null | sort -rh | head -10",
         "expectedOutput": "25G\t/var\n20G\t/var/log\n3G\t/var/cache\n1G\t/var/lib\n500M\t/var/log/app\n..."
       },
@@ -1877,7 +1877,7 @@
         "expectedOutput": "COMMAND    PID   USER   FD   TYPE DEVICE     SIZE/OFF NLINK  NODE NAME\njava      2345   app   15w   REG    8,1  5368709120     0 67890 /var/log/app/old.log (deleted)"
       },
       {
-        "instruction": "Step 6: Explain the fix — truncate the large log, restart the process holding deleted files, set up log rotation.",
+        "instruction": "Step 6: Explain the fix \u2014 truncate the large log, restart the process holding deleted files, set up log rotation.",
         "command": "echo '=== Remediation Plan ==='\necho '1. Truncate oversized log: sudo truncate -s 0 /var/log/app/application.log'\necho '2. Restart process holding deleted file: sudo systemctl restart app'\necho '3. Set up logrotate: create /etc/logrotate.d/app'\necho '4. Verify: df -h /'\necho '5. Long-term: add monitoring alert at 80%'",
         "expectedOutput": "=== Remediation Plan ===\n1. Truncate oversized log: sudo truncate -s 0 /var/log/app/application.log\n2. Restart process holding deleted file: sudo systemctl restart app\n3. Set up logrotate: create /etc/logrotate.d/app\n4. Verify: df -h /\n5. Long-term: add monitoring alert at 80%"
       }
@@ -1900,7 +1900,7 @@
         "expectedOutput": "USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\napp         2345 98.5  2.3 456789 187654 ?       R    16:00  45:23 /usr/bin/python3 /opt/app/worker.py\nroot           1  0.1  0.3 169584  13256 ?        Ss   Oct07   0:08 /sbin/init\nroot         345  0.0  0.1  72308   5648 ?        Ss   Oct07   0:01 /usr/sbin/sshd -D\n..."
       },
       {
-        "instruction": "Step 3: Investigate the offending process — check what files it has open and what it is doing.",
+        "instruction": "Step 3: Investigate the offending process \u2014 check what files it has open and what it is doing.",
         "command": "echo 'Process details:' && ps -p 2345 -o pid,ppid,user,%cpu,%mem,etime,cmd --no-headers 2>/dev/null || echo 'PID 2345: python3 /opt/app/worker.py, running for 01:20:00, 98.5% CPU'",
         "expectedOutput": "Process details:\nPID 2345: python3 /opt/app/worker.py, running for 01:20:00, 98.5% CPU"
       },
@@ -1939,18 +1939,18 @@
       },
       {
         "instruction": "Step 3: Analyse the permission mismatch. The file is owned by root:appgroup with mode 640.",
-        "command": "echo '=== Permission Analysis ==='\necho 'File: -rw-r----- root:appgroup'\necho 'User: developer (groups: developer, sudo)'\necho ''\necho 'Owner (root): rw- ✓ can read/write'\necho 'Group (appgroup): r-- ✓ can read'\necho 'Others: --- ✗ no access'\necho ''\necho 'Problem: developer is NOT in appgroup → falls into \"others\" → denied'",
-        "expectedOutput": "=== Permission Analysis ===\nFile: -rw-r----- root:appgroup\nUser: developer (groups: developer, sudo)\n\nOwner (root): rw- ✓ can read/write\nGroup (appgroup): r-- ✓ can read\nOthers: --- ✗ no access\n\nProblem: developer is NOT in appgroup → falls into \"others\" → denied"
+        "command": "echo '=== Permission Analysis ==='\necho 'File: -rw-r----- root:appgroup'\necho 'User: developer (groups: developer, sudo)'\necho ''\necho 'Owner (root): rw- \u2713 can read/write'\necho 'Group (appgroup): r-- \u2713 can read'\necho 'Others: --- \u2717 no access'\necho ''\necho 'Problem: developer is NOT in appgroup \u2192 falls into \"others\" \u2192 denied'",
+        "expectedOutput": "=== Permission Analysis ===\nFile: -rw-r----- root:appgroup\nUser: developer (groups: developer, sudo)\n\nOwner (root): rw- \u2713 can read/write\nGroup (appgroup): r-- \u2713 can read\nOthers: --- \u2717 no access\n\nProblem: developer is NOT in appgroup \u2192 falls into \"others\" \u2192 denied"
       },
       {
-        "instruction": "Step 4: Also check directory permissions — you need execute on every directory in the path.",
+        "instruction": "Step 4: Also check directory permissions \u2014 you need execute on every directory in the path.",
         "command": "namei -l /opt/app/config.yml 2>/dev/null || echo 'f: /opt/app/config.yml\ndrwxr-xr-x root root /\ndrwxr-xr-x root root opt\ndrwxr-x--- root appgroup app\n-rw-r----- root appgroup config.yml'",
         "expectedOutput": "f: /opt/app/config.yml\ndrwxr-xr-x root root /\ndrwxr-xr-x root root opt\ndrwxr-x--- root appgroup app\n-rw-r----- root appgroup config.yml"
       },
       {
-        "instruction": "Step 5: Identify TWO permission barriers — both the directory and the file block access.",
-        "command": "echo '=== Root Cause ==='\necho '1. /opt/app/ directory is drwxr-x--- (750) owned by root:appgroup'\necho '   → developer cannot even enter the directory'\necho '2. config.yml is -rw-r----- (640) owned by root:appgroup'\necho '   → even if they could enter, they cannot read the file'\necho ''\necho '=== Fix ==='\necho 'sudo usermod -aG appgroup developer'\necho '(User must log out and back in for group change to take effect)'",
-        "expectedOutput": "=== Root Cause ===\n1. /opt/app/ directory is drwxr-x--- (750) owned by root:appgroup\n   → developer cannot even enter the directory\n2. config.yml is -rw-r----- (640) owned by root:appgroup\n   → even if they could enter, they cannot read the file\n\n=== Fix ===\nsudo usermod -aG appgroup developer\n(User must log out and back in for group change to take effect)"
+        "instruction": "Step 5: Identify TWO permission barriers \u2014 both the directory and the file block access.",
+        "command": "echo '=== Root Cause ==='\necho '1. /opt/app/ directory is drwxr-x--- (750) owned by root:appgroup'\necho '   \u2192 developer cannot even enter the directory'\necho '2. config.yml is -rw-r----- (640) owned by root:appgroup'\necho '   \u2192 even if they could enter, they cannot read the file'\necho ''\necho '=== Fix ==='\necho 'sudo usermod -aG appgroup developer'\necho '(User must log out and back in for group change to take effect)'",
+        "expectedOutput": "=== Root Cause ===\n1. /opt/app/ directory is drwxr-x--- (750) owned by root:appgroup\n   \u2192 developer cannot even enter the directory\n2. config.yml is -rw-r----- (640) owned by root:appgroup\n   \u2192 even if they could enter, they cannot read the file\n\n=== Fix ===\nsudo usermod -aG appgroup developer\n(User must log out and back in for group change to take effect)"
       }
     ]
   },
@@ -1961,9 +1961,9 @@
     "description": "A systemd service starts but crashes repeatedly. Investigate using logs, unit configuration, and process inspection.",
     "steps": [
       {
-        "instruction": "Step 1: Check the service status — look for the 'failed' state and exit code.",
-        "command": "echo '● myapp.service - My Application Server\n     Loaded: loaded (/etc/systemd/system/myapp.service; enabled)\n     Active: failed (Result: exit-code) since Tue 2023-10-10 17:00:00 UTC; 30s ago\n    Process: 9012 ExecStart=/opt/myapp/bin/server (code=exited, status=1/FAILURE)\n   Main PID: 9012 (code=exited, status=1/FAILURE)\n\nOct 10 17:00:00 myhost myapp[9012]: Error: Cannot bind to port 8080: Address already in use\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Main process exited, code=exited, status=1/FAILURE\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Failed with result exit-code.'",
-        "expectedOutput": "● myapp.service - My Application Server\n     Loaded: loaded (/etc/systemd/system/myapp.service; enabled)\n     Active: failed (Result: exit-code) since Tue 2023-10-10 17:00:00 UTC; 30s ago\n    Process: 9012 ExecStart=/opt/myapp/bin/server (code=exited, status=1/FAILURE)\n   Main PID: 9012 (code=exited, status=1/FAILURE)\n\nOct 10 17:00:00 myhost myapp[9012]: Error: Cannot bind to port 8080: Address already in use\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Main process exited, code=exited, status=1/FAILURE\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Failed with result exit-code."
+        "instruction": "Step 1: Check the service status \u2014 look for the 'failed' state and exit code.",
+        "command": "echo '\u25cf myapp.service - My Application Server\n     Loaded: loaded (/etc/systemd/system/myapp.service; enabled)\n     Active: failed (Result: exit-code) since Tue 2023-10-10 17:00:00 UTC; 30s ago\n    Process: 9012 ExecStart=/opt/myapp/bin/server (code=exited, status=1/FAILURE)\n   Main PID: 9012 (code=exited, status=1/FAILURE)\n\nOct 10 17:00:00 myhost myapp[9012]: Error: Cannot bind to port 8080: Address already in use\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Main process exited, code=exited, status=1/FAILURE\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Failed with result exit-code.'",
+        "expectedOutput": "\u25cf myapp.service - My Application Server\n     Loaded: loaded (/etc/systemd/system/myapp.service; enabled)\n     Active: failed (Result: exit-code) since Tue 2023-10-10 17:00:00 UTC; 30s ago\n    Process: 9012 ExecStart=/opt/myapp/bin/server (code=exited, status=1/FAILURE)\n   Main PID: 9012 (code=exited, status=1/FAILURE)\n\nOct 10 17:00:00 myhost myapp[9012]: Error: Cannot bind to port 8080: Address already in use\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Main process exited, code=exited, status=1/FAILURE\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Failed with result exit-code."
       },
       {
         "instruction": "Step 2: The error says 'Address already in use'. Find what is using port 8080.",
@@ -1971,19 +1971,389 @@
         "expectedOutput": "LISTEN  0  128  0.0.0.0:8080  0.0.0.0:*  users:((\"nginx\",pid=678,fd=8))"
       },
       {
-        "instruction": "Step 3: Check the journal for the full crash history — how many times has it restarted?",
+        "instruction": "Step 3: Check the journal for the full crash history \u2014 how many times has it restarted?",
         "command": "journalctl -u myapp --no-pager -n 20 2>/dev/null || echo 'Oct 10 16:55:00 myhost systemd[1]: Started My Application Server.\nOct 10 16:55:01 myhost myapp[8900]: Error: Cannot bind to port 8080: Address already in use\nOct 10 16:55:01 myhost systemd[1]: myapp.service: Failed with result exit-code.\nOct 10 16:55:06 myhost systemd[1]: myapp.service: Scheduled restart job.\nOct 10 16:55:06 myhost systemd[1]: Started My Application Server.\nOct 10 16:55:07 myhost myapp[8950]: Error: Cannot bind to port 8080: Address already in use\nOct 10 16:55:07 myhost systemd[1]: myapp.service: Failed with result exit-code.\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Start request repeated too quickly.\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Failed with result exit-code.'",
         "expectedOutput": "Oct 10 16:55:00 myhost systemd[1]: Started My Application Server.\nOct 10 16:55:01 myhost myapp[8900]: Error: Cannot bind to port 8080: Address already in use\nOct 10 16:55:01 myhost systemd[1]: myapp.service: Failed with result exit-code.\nOct 10 16:55:06 myhost systemd[1]: myapp.service: Scheduled restart job.\nOct 10 16:55:06 myhost systemd[1]: Started My Application Server.\nOct 10 16:55:07 myhost myapp[8950]: Error: Cannot bind to port 8080: Address already in use\nOct 10 16:55:07 myhost systemd[1]: myapp.service: Failed with result exit-code.\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Start request repeated too quickly.\nOct 10 17:00:00 myhost systemd[1]: myapp.service: Failed with result exit-code."
       },
       {
         "instruction": "Step 4: Check the unit file for restart configuration and dependencies.",
-        "command": "echo '[Unit]\nDescription=My Application Server\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=/opt/myapp/bin/server\nRestart=on-failure\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target'\necho ''\necho 'Issue: No dependency on nginx — both try to use port 8080'",
-        "expectedOutput": "[Unit]\nDescription=My Application Server\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=/opt/myapp/bin/server\nRestart=on-failure\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target\n\nIssue: No dependency on nginx — both try to use port 8080"
+        "command": "echo '[Unit]\nDescription=My Application Server\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=/opt/myapp/bin/server\nRestart=on-failure\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target'\necho ''\necho 'Issue: No dependency on nginx \u2014 both try to use port 8080'",
+        "expectedOutput": "[Unit]\nDescription=My Application Server\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=/opt/myapp/bin/server\nRestart=on-failure\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target\n\nIssue: No dependency on nginx \u2014 both try to use port 8080"
       },
       {
         "instruction": "Step 5: Summarise the diagnosis and provide the fix.",
         "command": "echo '=== Diagnosis ==='\necho 'myapp.service crashes because nginx is already listening on port 8080.'\necho 'The service has Restart=on-failure, so systemd keeps restarting it, but it'\necho 'fails every time because the port conflict persists.'\necho ''\necho '=== Fix Options ==='\necho '1. Change myapp to use a different port (e.g., 8081)'\necho '2. Configure nginx as a reverse proxy and remove direct port binding'\necho '3. Stop nginx if it should not be running: sudo systemctl stop nginx'\necho '4. Add Conflicts=nginx.service to the unit file if they are mutually exclusive'\necho ''\necho '=== After fixing, reset the failed state: ==='\necho 'sudo systemctl reset-failed myapp'\necho 'sudo systemctl start myapp'",
         "expectedOutput": "=== Diagnosis ===\nmyapp.service crashes because nginx is already listening on port 8080.\nThe service has Restart=on-failure, so systemd keeps restarting it, but it\nfails every time because the port conflict persists.\n\n=== Fix Options ===\n1. Change myapp to use a different port (e.g., 8081)\n2. Configure nginx as a reverse proxy and remove direct port binding\n3. Stop nginx if it should not be running: sudo systemctl stop nginx\n4. Add Conflicts=nginx.service to the unit file if they are mutually exclusive\n\n=== After fixing, reset the failed state: ===\nsudo systemctl reset-failed myapp\nsudo systemctl start myapp"
+      }
+    ]
+  },
+  {
+    "id": "lab-command-reference-1",
+    "chapterId": "command-reference",
+    "title": "CPU & Memory Investigation",
+    "description": "Use top, free, vmstat, and ps to investigate CPU and memory usage on a live system. These are the first commands to run when a server feels slow.",
+    "steps": [
+      {
+        "instruction": "Run top in batch mode to get a single snapshot of CPU and memory usage. The summary area shows load averages, CPU percentages, and memory totals.",
+        "command": "top -bn1 | head -12",
+        "expectedOutput": "top - 14:00:00 up 3 days,  2:15,  1 user,  load average: 0.15, 0.10, 0.05\nTasks:  92 total,   1 running,  91 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  2.3 us,  1.0 sy,  0.0 ni, 96.5 id,  0.1 wa,  0.0 hi,  0.1 si\nMiB Mem :   7957.1 total,   2100.3 free,   1456.5 used,   4400.3 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   5320.2 avail Mem\n\n    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n      1 root      20   0  169584  13256   8432 S   0.0   0.2   0:08.12 systemd\n    345 root      20   0   72308   5648   4896 S   0.0   0.1   0:01.23 sshd\n..."
+      },
+      {
+        "instruction": "Display memory usage in human-readable format with free -h. Focus on the 'available' column \u2014 that is the real amount of memory your applications can use.",
+        "command": "free -h",
+        "expectedOutput": "               total        used        free      shared  buff/cache   available\nMem:           7.8Gi       1.4Gi       2.1Gi        12Mi       4.3Gi       5.2Gi\nSwap:          2.0Gi          0B       2.0Gi"
+      },
+      {
+        "instruction": "Use vmstat to see CPU, memory, swap, and I/O statistics over 3 one-second intervals. Watch the 'si' and 'so' columns \u2014 non-zero values mean the system is swapping.",
+        "command": "vmstat 1 3",
+        "expectedOutput": "procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----\n r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st\n 1  0      0 2150000 234000 4300000    0    0    12    45  123  456  2  1 97  0  0\n 0  0      0 2148000 234000 4300000    0    0     0    12   98  345  1  0 99  0  0\n 0  0      0 2149000 234000 4300000    0    0     0     8  102  350  1  1 98  0  0"
+      },
+      {
+        "instruction": "Find the top 5 processes consuming the most memory using ps aux sorted by memory usage descending.",
+        "command": "ps aux --sort=-%mem | head -6",
+        "expectedOutput": "USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nroot           1  0.0  0.3 169584 13256 ?        Ss   Oct07   0:08 /sbin/init\nroot         345  0.0  0.1  72308  5648 ?        Ss   Oct07   0:01 /usr/sbin/sshd -D\nstudent     1234  0.0  0.1  21464  5120 pts/0    Ss   14:00   0:00 -bash\nroot         267  0.0  0.1  24500  4200 ?        Ss   Oct07   0:02 /lib/systemd/systemd-resolved\nroot         489  0.0  0.0   8536  3200 ?        Ss   Oct07   0:00 /usr/sbin/cron -f"
+      },
+      {
+        "instruction": "Find the top 5 processes consuming the most CPU using ps aux sorted by CPU usage descending.",
+        "command": "ps aux --sort=-%cpu | head -6",
+        "expectedOutput": "USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nroot           1  0.1  0.3 169584 13256 ?        Ss   Oct07   0:08 /sbin/init\nstudent     1234  0.0  0.1  21464  5120 pts/0    Ss   14:00   0:00 -bash\nroot         345  0.0  0.1  72308  5648 ?        Ss   Oct07   0:01 /usr/sbin/sshd -D\nroot         267  0.0  0.1  24500  4200 ?        Ss   Oct07   0:02 /lib/systemd/systemd-resolved\nroot         489  0.0  0.0   8536  3200 ?        Ss   Oct07   0:00 /usr/sbin/cron -f"
+      },
+      {
+        "instruction": "Combine free and vmstat into a quick one-liner health check that shows the key memory metrics at a glance.",
+        "command": "echo \"=== Memory Health ===\"\necho \"Available: $(free -h | awk '/Mem:/ {print $7}')\"\necho \"Swap Used: $(free -h | awk '/Swap:/ {print $3}')\"\necho \"Load Avg: $(cat /proc/loadavg | cut -d' ' -f1-3)\"",
+        "expectedOutput": "=== Memory Health ===\nAvailable: 5.2Gi\nSwap Used: 0B\nLoad Avg: 0.15 0.10 0.05"
+      }
+    ]
+  },
+  {
+    "id": "lab-command-reference-2",
+    "chapterId": "command-reference",
+    "title": "Disk Space Analysis",
+    "description": "Investigate disk space usage with df, du, find, and lsof. These commands help you answer the critical question: where did all the disk space go?",
+    "steps": [
+      {
+        "instruction": "Check disk space usage on all mounted filesystems in human-readable format. The Use% column tells you how full each filesystem is.",
+        "command": "df -h | grep -v tmpfs",
+        "expectedOutput": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        50G   12G   35G  26% /\n/dev/sda2       200G   45G  145G  24% /home"
+      },
+      {
+        "instruction": "Check inode usage with df -i. You can run out of inodes (file slots) even with free disk space if you have millions of tiny files.",
+        "command": "df -i | grep -v tmpfs",
+        "expectedOutput": "Filesystem      Inodes  IUsed   IFree IUse% Mounted on\n/dev/sda1      3276800 234567 3042233    8% /\n/dev/sda2     13107200  45678 13061522    1% /home"
+      },
+      {
+        "instruction": "Use du -sh to get the total size of specific directories. This is faster than a recursive listing when you just need totals.",
+        "command": "sudo du -sh /var/log /var/cache /tmp /home 2>/dev/null",
+        "expectedOutput": "456M\t/var/log\n234M\t/var/cache\n12M\t/tmp\n8.0G\t/home"
+      },
+      {
+        "instruction": "Find the 10 largest files on the system. This quickly identifies space hogs like old logs, core dumps, or forgotten downloads.",
+        "command": "sudo find / -type f -size +50M -not -path '/proc/*' -not -path '/sys/*' 2>/dev/null -exec ls -lh {} \\; | sort -k5 -rh | head -10",
+        "expectedOutput": "-rw-r--r-- 1 root root 234M Oct  5 12:00 /var/cache/apt/pkgcache.bin\n-rw-r----- 1 syslog adm  120M Oct 10 15:00 /var/log/syslog.1\n-rw-r----- 1 syslog adm   85M Oct  9 23:59 /var/log/kern.log.1\n..."
+      },
+      {
+        "instruction": "Check for deleted files still held open by processes. These consume disk space but are invisible to du and find.",
+        "command": "sudo lsof +L1 2>/dev/null | head -10 || echo 'No deleted files held open by processes'",
+        "expectedOutput": "COMMAND   PID   USER   FD   TYPE DEVICE SIZE/OFF NLINK  NODE NAME\nrsyslogd  456 syslog    5w   REG    8,1 52428800     0 12345 /var/log/syslog.1 (deleted)\n..."
+      }
+    ]
+  },
+  {
+    "id": "lab-command-reference-3",
+    "chapterId": "command-reference",
+    "title": "Process Management",
+    "description": "Master process management with ps, kill, killall, jobs, fg, bg, and nohup. Control what runs on your system and how.",
+    "steps": [
+      {
+        "instruction": "List all running processes with full details. The aux flags show all users, user-oriented format, and processes without a terminal.",
+        "command": "ps aux | head -10",
+        "expectedOutput": "USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nroot           1  0.0  0.3 169584 13256 ?        Ss   Oct07   0:08 /sbin/init\nroot           2  0.0  0.0      0     0 ?        S    Oct07   0:00 [kthreadd]\nroot         345  0.0  0.1  72308  5648 ?        Ss   Oct07   0:01 /usr/sbin/sshd -D\nstudent     1234  0.0  0.1  21464  5120 pts/0    Ss   14:00   0:00 -bash\n..."
+      },
+      {
+        "instruction": "Start two background processes, then list them with the jobs command.",
+        "command": "sleep 300 & sleep 301 & jobs -l",
+        "expectedOutput": "[1]-  5432 Running                 sleep 300 &\n[2]+  5433 Running                 sleep 301 &"
+      },
+      {
+        "instruction": "Stop job 1 with kill, then use killall to stop all sleep processes at once.",
+        "command": "kill %1 && sleep 1 && killall sleep 2>/dev/null; jobs",
+        "expectedOutput": "[1]-  Terminated              sleep 300\n[2]+  Terminated              sleep 301"
+      },
+      {
+        "instruction": "Start a background job, suspend it, then resume it in the foreground and background using fg and bg.",
+        "command": "sleep 200 &\nkill -STOP %1 && echo 'Stopped:' && jobs\nbg %1 && echo 'Resumed in bg:' && jobs",
+        "expectedOutput": "Stopped:\n[1]+  Stopped                 sleep 200\nResumed in bg:\n[1]+ sleep 200 &\n[1]+  Running                 sleep 200 &"
+      },
+      {
+        "instruction": "Use nohup to start a process that survives after you log out. Output goes to nohup.out by default.",
+        "command": "nohup sleep 60 > /tmp/nohup_test.out 2>&1 &\necho \"PID: $!\" && ls -la /tmp/nohup_test.out",
+        "expectedOutput": "PID: 5500\n-rw------- 1 student student 0 Oct 10 14:30 /tmp/nohup_test.out"
+      },
+      {
+        "instruction": "Clean up all test processes and files.",
+        "command": "killall sleep 2>/dev/null; rm -f /tmp/nohup_test.out; echo 'Done'",
+        "expectedOutput": "Done"
+      }
+    ]
+  },
+  {
+    "id": "lab-command-reference-4",
+    "chapterId": "command-reference",
+    "title": "Network Diagnostics",
+    "description": "Diagnose network issues with ip, ss, ping, dig, curl, and nc. These six commands cover 90% of network troubleshooting.",
+    "steps": [
+      {
+        "instruction": "Show all network interfaces and their IP addresses using the ip command.",
+        "command": "ip addr show | grep -E 'state|inet '",
+        "expectedOutput": "1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    inet 127.0.0.1/8 scope host lo\n2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000\n    inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0"
+      },
+      {
+        "instruction": "List all listening TCP and UDP ports with the process names using ss.",
+        "command": "sudo ss -tulnp",
+        "expectedOutput": "Netid  State   Recv-Q  Send-Q   Local Address:Port   Peer Address:Port  Process\ntcp    LISTEN  0       128      0.0.0.0:22            0.0.0.0:*          users:((\"sshd\",pid=345,fd=3))\nudp    UNCONN  0       0        127.0.0.53%lo:53      0.0.0.0:*          users:((\"systemd-resolve\",pid=267,fd=12))"
+      },
+      {
+        "instruction": "Test basic network connectivity with ping and DNS resolution with dig.",
+        "command": "ping -c 2 8.8.8.8 && echo '---' && dig example.com +short",
+        "expectedOutput": "PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.\n64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=1.23 ms\n64 bytes from 8.8.8.8: icmp_seq=2 ttl=118 time=1.15 ms\n\n--- 8.8.8.8 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1001ms\n---\n93.184.216.34"
+      },
+      {
+        "instruction": "Use curl to test HTTP connectivity and get response details including status code and timing.",
+        "command": "curl -s -o /dev/null -w 'HTTP Code: %{http_code}\\nTime Total: %{time_total}s\\nRemote IP: %{remote_ip}\\n' https://example.com",
+        "expectedOutput": "HTTP Code: 200\nTime Total: 0.234s\nRemote IP: 93.184.216.34"
+      },
+      {
+        "instruction": "Use nc (netcat) to test if a specific port is open on a remote host. This is useful when ping works but a service seems unreachable.",
+        "command": "nc -zv -w3 example.com 443 2>&1 && echo 'Port 443 is OPEN' || echo 'Port 443 is CLOSED'",
+        "expectedOutput": "Connection to example.com (93.184.216.34) 443 port [tcp/https] succeeded!\nPort 443 is OPEN"
+      }
+    ]
+  },
+  {
+    "id": "lab-command-reference-5",
+    "chapterId": "command-reference",
+    "title": "Log Investigation",
+    "description": "Investigate system logs with journalctl, tail, grep, and dmesg. Logs are your primary evidence when diagnosing any issue.",
+    "steps": [
+      {
+        "instruction": "View the most recent systemd journal entries. The -n flag limits output and -p filters by priority level.",
+        "command": "journalctl -n 10 --no-pager",
+        "expectedOutput": "Oct 10 14:00:00 myhost systemd[1]: Started Regular background program processing daemon.\nOct 10 14:00:01 myhost CRON[6789]: (root) CMD (test -x /usr/sbin/anacron)\nOct 10 14:05:00 myhost sshd[1200]: Accepted publickey for student from 192.168.1.100 port 54321 ssh2\n..."
+      },
+      {
+        "instruction": "View logs for a specific service and time range using journalctl filters.",
+        "command": "journalctl -u ssh --since '1 hour ago' --no-pager | tail -10",
+        "expectedOutput": "Oct 10 13:15:00 myhost sshd[1200]: Accepted publickey for student from 192.168.1.100 port 54321 ssh2\nOct 10 13:15:00 myhost sshd[1200]: pam_unix(sshd:session): session opened for user student\n..."
+      },
+      {
+        "instruction": "Monitor a log file in real-time using tail -f. This is how you watch for events as they happen. We use timeout to auto-exit.",
+        "command": "timeout 3 sudo tail -f /var/log/syslog 2>/dev/null | head -5 || echo 'Log monitoring demo complete'",
+        "expectedOutput": "Oct 10 14:10:01 myhost CRON[7890]: (root) CMD (test -x /usr/sbin/anacron)\nLog monitoring demo complete"
+      },
+      {
+        "instruction": "Search authentication logs for failed login attempts using grep. This is a key security investigation technique.",
+        "command": "sudo grep 'Failed password' /var/log/auth.log 2>/dev/null | tail -5 || echo 'No failed password attempts found'",
+        "expectedOutput": "Oct 10 12:30:45 myhost sshd[4567]: Failed password for invalid user admin from 203.0.113.50 port 45678 ssh2\nOct 10 12:31:12 myhost sshd[4568]: Failed password for invalid user test from 203.0.113.50 port 45679 ssh2\n..."
+      },
+      {
+        "instruction": "Check kernel messages with dmesg for hardware errors, driver issues, and OOM (out-of-memory) events.",
+        "command": "sudo dmesg --level=err,warn | tail -10 || echo 'No kernel errors or warnings found'",
+        "expectedOutput": "[ 1234.567890] EXT4-fs warning (device sda1): ext4_dx_add_entry:2086: Directory inode 12345 index full\n..."
+      },
+      {
+        "instruction": "Combine journalctl filters to find only errors from the current boot \u2014 a powerful troubleshooting starting point.",
+        "command": "journalctl -b -p err --no-pager | head -10 || echo 'No errors in current boot'",
+        "expectedOutput": "Oct 07 12:00:01 myhost kernel: ACPI Error: Namespace lookup failure\n..."
+      }
+    ]
+  },
+  {
+    "id": "lab-troubleshooting-playbook-1",
+    "chapterId": "troubleshooting-playbook",
+    "title": "Slow Server Diagnosis",
+    "description": "Walk through the systematic workflow for diagnosing a slow server: uptime, top, vmstat, free, and iostat. This is the exact sequence experienced sysadmins follow.",
+    "steps": [
+      {
+        "instruction": "Step 1: Check uptime and load averages. If the load average exceeds the number of CPU cores, the system is overloaded.",
+        "command": "uptime && echo \"CPU cores: $(nproc)\"",
+        "expectedOutput": " 14:00:00 up 3 days,  2:15,  1 user,  load average: 0.15, 0.10, 0.05\nCPU cores: 4"
+      },
+      {
+        "instruction": "Step 2: Run top in batch mode to identify the top CPU and memory consumers. Look at %CPU, %MEM, and the process STATE column.",
+        "command": "top -bn1 -o %CPU | head -15",
+        "expectedOutput": "top - 14:00:00 up 3 days,  2:15,  1 user,  load average: 0.15, 0.10, 0.05\nTasks:  92 total,   1 running,  91 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  2.3 us,  1.0 sy,  0.0 ni, 96.5 id,  0.1 wa,  0.0 hi,  0.1 si\nMiB Mem :   7957.1 total,   2100.3 free,   1456.5 used,   4400.3 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   5320.2 avail Mem\n\n    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n      1 root      20   0  169584  13256   8432 S   0.0   0.2   0:08.12 systemd\n..."
+      },
+      {
+        "instruction": "Step 3: Use vmstat to check for swapping and I/O wait. Non-zero si/so means the system is swapping \u2014 a major performance killer.",
+        "command": "vmstat 1 3",
+        "expectedOutput": "procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----\n r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st\n 1  0      0 2150000 234000 4300000    0    0    12    45  123  456  2  1 97  0  0\n 0  0      0 2148000 234000 4300000    0    0     0    12   98  345  1  0 99  0  0\n 0  0      0 2149000 234000 4300000    0    0     0     8  102  350  1  1 98  0  0"
+      },
+      {
+        "instruction": "Step 4: Check memory in detail with free. Compare 'used' vs 'available' \u2014 Linux uses free RAM for cache, so 'free' being low is normal.",
+        "command": "free -h",
+        "expectedOutput": "               total        used        free      shared  buff/cache   available\nMem:           7.8Gi       1.4Gi       2.1Gi        12Mi       4.3Gi       5.2Gi\nSwap:          2.0Gi          0B       2.0Gi"
+      },
+      {
+        "instruction": "Step 5: Check disk I/O with iostat. High await times or high %util indicate a storage bottleneck.",
+        "command": "iostat -xh 1 1 | head -15",
+        "expectedOutput": "Linux 5.15.0-88-generic (myhost)\n\navg-cpu:  %user   %nice %system %iowait  %steal   %idle\n           2.3    0.0     1.0     0.1     0.0    96.5\n\nDevice      r/s     rkB/s   w/s     wkB/s  await  %util\nsda        1.23    45.6    2.34    89.0    1.23   0.5%"
+      },
+      {
+        "instruction": "Step 6: Generate a quick summary report combining all findings into a single diagnostic overview.",
+        "command": "echo '=== Slow Server Diagnostic Summary ==='\necho \"Load: $(cat /proc/loadavg | cut -d' ' -f1-3) ($(nproc) cores)\"\necho \"Memory: $(free -h | awk '/Mem:/ {print $3, \"used,\", $7, \"available\"}')\"\necho \"Swap: $(free -h | awk '/Swap:/ {print $3, \"used\"}')\"\necho \"Disk: $(df -h / | awk 'NR==2 {print $5, \"used\"}')\"\necho \"Zombies: $(ps aux | awk '$8~/Z/' | wc -l)\"\necho \"IO Wait: $(vmstat 1 2 | tail -1 | awk '{print $16\"%\"}')\"\necho '=== End ==='",
+        "expectedOutput": "=== Slow Server Diagnostic Summary ===\nLoad: 0.15 0.10 0.05 (4 cores)\nMemory: 1.4Gi used, 5.2Gi available\nSwap: 0B used\nDisk: 26% used\nZombies: 0\nIO Wait: 0%\n=== End ==="
+      }
+    ]
+  },
+  {
+    "id": "lab-troubleshooting-playbook-2",
+    "chapterId": "troubleshooting-playbook",
+    "title": "Disk Full Emergency",
+    "description": "Respond to a disk full alert: identify the full filesystem, drill down with du, find large files, truncate logs, and reclaim space from deleted files held open by processes.",
+    "steps": [
+      {
+        "instruction": "Step 1: Identify which filesystem is full or nearly full using df.",
+        "command": "df -h | awk 'NR==1 || $5+0 > 20'",
+        "expectedOutput": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        50G   12G   35G  26% /\n/dev/sda2       200G   45G  145G  24% /home"
+      },
+      {
+        "instruction": "Step 2: Drill down into the largest mount point to find which top-level directories are consuming the most space.",
+        "command": "sudo du -h / --max-depth=1 --exclude=/proc --exclude=/sys --exclude=/dev 2>/dev/null | sort -rh | head -10",
+        "expectedOutput": "12G\t/\n4.5G\t/var\n3.2G\t/usr\n2.1G\t/home\n1.2G\t/opt\n500M\t/tmp\n..."
+      },
+      {
+        "instruction": "Step 3: Drill deeper into the largest directory to pinpoint the culprit.",
+        "command": "sudo du -h /var --max-depth=2 2>/dev/null | sort -rh | head -10",
+        "expectedOutput": "4.5G\t/var\n2.1G\t/var/log\n1.2G\t/var/cache\n800M\t/var/cache/apt\n500M\t/var/log/app\n300M\t/var/lib\n..."
+      },
+      {
+        "instruction": "Step 4: Find the specific large files that can be truncated or deleted.",
+        "command": "sudo find /var/log -type f -size +50M -exec ls -lh {} \\; 2>/dev/null | sort -k5 -rh | head -10",
+        "expectedOutput": "-rw-r--r-- 1 root root 1.5G Oct 10 14:00 /var/log/app/application.log\n-rw-r----- 1 syslog adm  120M Oct 10 14:00 /var/log/syslog.1\n-rw-r----- 1 syslog adm   85M Oct  9 23:59 /var/log/kern.log.1\n..."
+      },
+      {
+        "instruction": "Step 5: Check for deleted files still held open by processes \u2014 these are invisible to du but still consume space.",
+        "command": "sudo lsof +L1 2>/dev/null | awk 'NR==1 || $7+0 > 1000000' | head -10",
+        "expectedOutput": "COMMAND   PID   USER   FD   TYPE DEVICE     SIZE/OFF NLINK  NODE NAME\njava     2345   app   15w   REG    8,1  5368709120     0 67890 /var/log/app/old.log (deleted)"
+      },
+      {
+        "instruction": "Step 6: Show the remediation commands \u2014 truncate the large log and reclaim deleted file space by restarting the holding process.",
+        "command": "echo '=== Emergency Remediation ==='\necho '1. Truncate oversized log (keeps file handle valid):'\necho '   sudo truncate -s 0 /var/log/app/application.log'\necho '2. Reclaim deleted file space (restart holding process):'\necho '   sudo systemctl restart app'\necho '3. Clean package cache:'\necho '   sudo apt-get clean'\necho '4. Verify space reclaimed:'\necho '   df -h /'\necho '5. Prevent recurrence \u2014 set up logrotate'",
+        "expectedOutput": "=== Emergency Remediation ===\n1. Truncate oversized log (keeps file handle valid):\n   sudo truncate -s 0 /var/log/app/application.log\n2. Reclaim deleted file space (restart holding process):\n   sudo systemctl restart app\n3. Clean package cache:\n   sudo apt-get clean\n4. Verify space reclaimed:\n   df -h /\n5. Prevent recurrence \u2014 set up logrotate"
+      }
+    ]
+  },
+  {
+    "id": "lab-troubleshooting-playbook-3",
+    "chapterId": "troubleshooting-playbook",
+    "title": "SSH Troubleshooting",
+    "description": "Diagnose SSH connection failures step by step: test network connectivity, check the port, use verbose SSH, and verify the sshd service.",
+    "steps": [
+      {
+        "instruction": "Step 1: Test basic network connectivity to the target host with ping.",
+        "command": "ping -c 3 localhost",
+        "expectedOutput": "PING localhost (127.0.0.1) 56(84) bytes of data.\n64 bytes from localhost (127.0.0.1): icmp_seq=1 ttl=64 time=0.023 ms\n64 bytes from localhost (127.0.0.1): icmp_seq=2 ttl=64 time=0.031 ms\n64 bytes from localhost (127.0.0.1): icmp_seq=3 ttl=64 time=0.028 ms\n\n--- localhost ping statistics ---\n3 packets transmitted, 3 received, 0% packet loss"
+      },
+      {
+        "instruction": "Step 2: Check if the SSH port (22) is open using nc (netcat). If this fails, the service is down or a firewall is blocking.",
+        "command": "nc -zv -w3 localhost 22 2>&1 || echo 'Port 22 is NOT reachable'",
+        "expectedOutput": "Connection to localhost (127.0.0.1) 22 port [tcp/ssh] succeeded!"
+      },
+      {
+        "instruction": "Step 3: Attempt an SSH connection with verbose output to see exactly where it fails. The -v flag shows the handshake steps.",
+        "command": "ssh -v -o ConnectTimeout=5 -o BatchMode=yes localhost 'echo SSH OK' 2>&1 | grep -E 'debug1: (Connecting|Connection established|Authentication|Authenticated)' | head -10",
+        "expectedOutput": "debug1: Connecting to localhost [127.0.0.1] port 22.\ndebug1: Connection established.\ndebug1: Authentication succeeded (publickey).\n..."
+      },
+      {
+        "instruction": "Step 4: Check if the sshd service is running and listening on the correct port.",
+        "command": "systemctl is-active sshd && sudo ss -tlnp | grep sshd",
+        "expectedOutput": "active\nLISTEN  0  128  0.0.0.0:22  0.0.0.0:*  users:((\"sshd\",pid=345,fd=3))\nLISTEN  0  128     [::]:22     [::]:*  users:((\"sshd\",pid=345,fd=4))"
+      },
+      {
+        "instruction": "Step 5: Check the SSH server configuration for common issues like wrong port, disabled password auth, or denied users.",
+        "command": "sudo sshd -T 2>/dev/null | grep -iE 'port|permitrootlogin|passwordauthentication|pubkeyauthentication|maxauthtries' | head -10",
+        "expectedOutput": "port 22\npermitroot prohibit-password\npubkeyauthentication yes\npasswordauthentication yes\nmaxauthtries 6"
+      },
+      {
+        "instruction": "Step 6: Check auth logs for SSH-related errors to see why specific users are being rejected.",
+        "command": "sudo grep 'sshd' /var/log/auth.log | tail -10",
+        "expectedOutput": "Oct 10 14:00:00 myhost sshd[1200]: Accepted publickey for student from 192.168.1.100 port 54321 ssh2\nOct 10 14:00:00 myhost sshd[1200]: pam_unix(sshd:session): session opened for user student\n..."
+      }
+    ]
+  },
+  {
+    "id": "lab-troubleshooting-playbook-4",
+    "chapterId": "troubleshooting-playbook",
+    "title": "Service Won't Start",
+    "description": "Diagnose why a systemd service fails to start: check status, read journal logs, validate configuration, and detect port conflicts.",
+    "steps": [
+      {
+        "instruction": "Step 1: Check the service status to see the error message and exit code.",
+        "command": "systemctl status cron --no-pager | head -12",
+        "expectedOutput": "\u25cf cron.service - Regular background program processing daemon\n     Loaded: loaded (/lib/systemd/system/cron.service; enabled; vendor preset: enabled)\n     Active: active (running) since Mon 2023-10-07 12:00:00 UTC; 3 days ago\n       Docs: man:cron(8)\n   Main PID: 489 (cron)\n      Tasks: 1 (limit: 4915)\n     Memory: 1.0M\n        CPU: 45ms\n     CGroup: /system.slice/cron.service\n             \u2514\u2500489 /usr/sbin/cron -f"
+      },
+      {
+        "instruction": "Step 2: Read the journal logs for the service to find the actual error message. This is where the root cause usually appears.",
+        "command": "journalctl -u cron --no-pager -n 15",
+        "expectedOutput": "Oct 07 12:00:00 myhost systemd[1]: Started Regular background program processing daemon.\nOct 10 14:00:01 myhost CRON[6789]: (root) CMD (test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.hourly ))\n..."
+      },
+      {
+        "instruction": "Step 3: Validate the service's configuration file for syntax errors. Many services have a config-test mode.",
+        "command": "sudo sshd -t 2>&1 && echo 'SSH config syntax OK' || echo 'SSH config has errors'",
+        "expectedOutput": "SSH config syntax OK"
+      },
+      {
+        "instruction": "Step 4: Check for port conflicts \u2014 another process may already be using the port your service needs.",
+        "command": "sudo ss -tlnp | grep -E ':22|:80|:443|:8080' || echo 'No conflicts on common ports'",
+        "expectedOutput": "LISTEN  0  128  0.0.0.0:22  0.0.0.0:*  users:((\"sshd\",pid=345,fd=3))"
+      },
+      {
+        "instruction": "Step 5: Check if the service's binary exists and is executable, and verify required directories exist.",
+        "command": "which cron && ls -l $(which cron) && echo '---' && ls -ld /var/spool/cron/ 2>/dev/null || echo '/var/spool/cron not found'",
+        "expectedOutput": "/usr/sbin/cron\n-rwxr-xr-x 1 root root 43568 Oct  5 12:00 /usr/sbin/cron\n---\ndrwxr-xr-x 2 root root 4096 Oct  5 12:00 /var/spool/cron/"
+      },
+      {
+        "instruction": "Step 6: Show the full troubleshooting checklist for a service that won't start.",
+        "command": "echo '=== Service Won't Start Checklist ==='\necho '1. systemctl status <service>     \u2192 check Active state and exit code'\necho '2. journalctl -u <service> -n 50  \u2192 read the actual error message'\necho '3. <service> -t / --check-config   \u2192 validate config syntax'\necho '4. ss -tlnp | grep :<port>         \u2192 check for port conflicts'\necho '5. ls -l <binary>                  \u2192 verify binary exists'\necho '6. systemctl cat <service>         \u2192 review unit file for typos'\necho '7. sudo systemctl reset-failed <service> \u2192 clear failed state'\necho '8. sudo systemctl restart <service>      \u2192 try again'",
+        "expectedOutput": "=== Service Won't Start Checklist ===\n1. systemctl status <service>     \u2192 check Active state and exit code\n2. journalctl -u <service> -n 50  \u2192 read the actual error message\n3. <service> -t / --check-config   \u2192 validate config syntax\n4. ss -tlnp | grep :<port>         \u2192 check for port conflicts\n5. ls -l <binary>                  \u2192 verify binary exists\n6. systemctl cat <service>         \u2192 review unit file for typos\n7. sudo systemctl reset-failed <service> \u2192 clear failed state\n8. sudo systemctl restart <service>      \u2192 try again"
+      }
+    ]
+  },
+  {
+    "id": "lab-troubleshooting-playbook-5",
+    "chapterId": "troubleshooting-playbook",
+    "title": "Permission Denied Investigation",
+    "description": "Systematically diagnose 'Permission denied' errors: check file permissions, user identity, parent directory access, and fix with chmod/chown.",
+    "steps": [
+      {
+        "instruction": "Step 1: Check the file's permissions and ownership with ls -la. Identify who owns it and what access each category has.",
+        "command": "ls -la /etc/shadow",
+        "expectedOutput": "-rw-r----- 1 root shadow 987 Oct  5 12:00 /etc/shadow"
+      },
+      {
+        "instruction": "Step 2: Check who you are and what groups you belong to using id. Compare this against the file's owner and group.",
+        "command": "id",
+        "expectedOutput": "uid=1000(student) gid=1000(student) groups=1000(student),4(adm),27(sudo)"
+      },
+      {
+        "instruction": "Step 3: Use stat to see the full permission details including numeric mode, owner, and group.",
+        "command": "stat /etc/shadow | grep -E 'Access.*Uid|File'",
+        "expectedOutput": "  File: /etc/shadow\nAccess: (0640/-rw-r-----)  Uid: (    0/    root)   Gid: (   42/  shadow)"
+      },
+      {
+        "instruction": "Step 4: Check parent directory permissions. You need execute (x) permission on EVERY directory in the path to reach a file.",
+        "command": "namei -l /etc/shadow 2>/dev/null || echo 'f: /etc/shadow\ndrwxr-xr-x root root /\ndrwxr-xr-x root root etc\n-rw-r----- root shadow shadow'",
+        "expectedOutput": "f: /etc/shadow\ndrwxr-xr-x root root /\ndrwxr-xr-x root root etc\n-rw-r----- root shadow shadow"
+      },
+      {
+        "instruction": "Step 5: Demonstrate fixing permissions \u2014 create a test file, restrict it, then fix access with chmod and chown.",
+        "command": "touch /tmp/permfix.txt && chmod 600 /tmp/permfix.txt && echo 'Before:' && ls -l /tmp/permfix.txt\nchmod 644 /tmp/permfix.txt && echo 'After chmod 644:' && ls -l /tmp/permfix.txt",
+        "expectedOutput": "Before:\n-rw------- 1 student student 0 Oct 10 14:30 /tmp/permfix.txt\nAfter chmod 644:\n-rw-r--r-- 1 student student 0 Oct 10 14:30 /tmp/permfix.txt"
+      },
+      {
+        "instruction": "Step 6: Show the complete permission denied diagnostic checklist and clean up.",
+        "command": "rm /tmp/permfix.txt\necho '=== Permission Denied Checklist ==='\necho '1. ls -la <file>        \u2192 check file permissions and ownership'\necho '2. id                   \u2192 check your UID and groups'\necho '3. stat <file>          \u2192 see numeric mode (e.g., 0640)'\necho '4. namei -l <path>      \u2192 check ALL parent directory permissions'\necho '5. Fix options:'\necho '   chmod g+r <file>     \u2192 add group read permission'\necho '   chown :mygroup <file> \u2192 change group ownership'\necho '   usermod -aG group user \u2192 add user to the file group'\necho '   (user must re-login for group changes to take effect)'",
+        "expectedOutput": "=== Permission Denied Checklist ===\n1. ls -la <file>        \u2192 check file permissions and ownership\n2. id                   \u2192 check your UID and groups\n3. stat <file>          \u2192 see numeric mode (e.g., 0640)\n4. namei -l <path>      \u2192 check ALL parent directory permissions\n5. Fix options:\n   chmod g+r <file>     \u2192 add group read permission\n   chown :mygroup <file> \u2192 change group ownership\n   usermod -aG group user \u2192 add user to the file group\n   (user must re-login for group changes to take effect)"
       }
     ]
   }

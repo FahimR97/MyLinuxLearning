@@ -1363,5 +1363,213 @@
     ],
     "correctAnswer": 1,
     "explanation": "GRUB rescue means the bootloader can't find its configuration. Quick fix: use 'ls' to identify partitions, set the root and prefix variables to point to the correct /boot/grub directory, load the normal module, and boot. For a permanent fix: boot from live media, mount the root filesystem, chroot in, and run 'grub-install /dev/sdX' followed by 'update-grub' to regenerate the configuration."
+  },
+  {
+    "id": "cr-q1",
+    "chapterId": "command-reference",
+    "question": "A server feels slow and you need a quick overview. What is your first command?",
+    "options": [
+      "ps aux",
+      "top (or htop) — it shows CPU, memory, load average, and top processes in one view",
+      "free -h",
+      "df -h"
+    ],
+    "correctAnswer": 1,
+    "explanation": "top (or htop) is the best first command because it gives you a real-time dashboard: load average, CPU breakdown (%us, %sy, %wa, %id), memory/swap usage, and the processes consuming the most resources. From there you can decide whether the bottleneck is CPU, memory, I/O, or a specific process, and drill down with specialised tools."
+  },
+  {
+    "id": "cr-q2",
+    "chapterId": "command-reference",
+    "question": "'free -h' shows low 'free' memory but high 'available' memory. Is this a problem?",
+    "options": [
+      "Yes — low free memory means the system is running out of RAM",
+      "No — Linux uses free RAM for disk cache (buff/cache). The 'available' column shows memory that can be reclaimed for applications, which is the number that matters",
+      "It depends on swap usage only",
+      "You need to restart to reclaim the cached memory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Linux aggressively uses unused RAM for disk caching (buff/cache), which speeds up I/O. This cached memory is immediately reclaimable when applications need it. The 'available' column accounts for this reclaimable memory. A system with 500MB 'free' but 12GB 'available' is perfectly healthy. Only worry when 'available' is low and swap is being used heavily."
+  },
+  {
+    "id": "cr-q3",
+    "chapterId": "command-reference",
+    "question": "How do you find which process is using port 80?",
+    "options": [
+      "ps aux | grep 80",
+      "ss -tlnp | grep :80 (or: lsof -i :80)",
+      "netstat -r | grep 80",
+      "find / -port 80"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'ss -tlnp | grep :80' shows TCP listening sockets with process info. -t filters TCP, -l shows listening sockets, -n uses numeric ports, -p shows the process. 'lsof -i :80' is an alternative that lists all processes with open file descriptors on port 80. Both require root for full process details. 'ps aux | grep 80' would match any process with '80' in its command line, giving false positives."
+  },
+  {
+    "id": "cr-q4",
+    "chapterId": "command-reference",
+    "question": "How do you find large files consuming disk space?",
+    "options": [
+      "ls -la /",
+      "find / -type f -size +100M -exec ls -lh {} + (or: du -ah / | sort -rh | head -20)",
+      "df -h",
+      "cat /proc/diskstats"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'find / -type f -size +100M' locates files larger than 100MB. Adding '-exec ls -lh {} +' shows their sizes in human-readable format. Alternatively, 'du -ah / | sort -rh | head -20' shows the 20 largest files and directories. 'du -sh /var/log/*' is useful for checking log directory sizes specifically. df shows filesystem usage but not individual files."
+  },
+  {
+    "id": "cr-q5",
+    "chapterId": "command-reference",
+    "question": "What is the difference between 'kill <PID>' and 'kill -9 <PID>'?",
+    "options": [
+      "There is no difference — both terminate the process immediately",
+      "'kill' sends SIGTERM (graceful shutdown, process can clean up); 'kill -9' sends SIGKILL (immediate forced termination, no cleanup possible)",
+      "'kill -9' is gentler because 9 is the priority level",
+      "'kill' only works on your own processes; 'kill -9' works on any process"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'kill <PID>' sends SIGTERM (signal 15) by default — the process can catch this signal, save state, close files, and exit cleanly. 'kill -9' sends SIGKILL — the kernel terminates the process immediately with no chance to clean up. Always try SIGTERM first and wait a few seconds. Use SIGKILL only as a last resort, as it can leave temporary files, locks, and corrupted data behind."
+  },
+  {
+    "id": "cr-q6",
+    "chapterId": "command-reference",
+    "question": "How do you follow a log file in real-time?",
+    "options": [
+      "cat -f /var/log/syslog",
+      "tail -f /var/log/syslog (or: journalctl -f for systemd logs)",
+      "less -r /var/log/syslog",
+      "watch cat /var/log/syslog"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'tail -f' follows a file, printing new lines as they are appended — essential for watching logs during troubleshooting. 'tail -F' also handles log rotation (when the file is replaced). For systemd services, 'journalctl -f -u servicename' follows that unit's logs. Press Ctrl+C to stop following. 'less +F' also offers a follow mode with the ability to switch back to scrolling."
+  },
+  {
+    "id": "cr-q7",
+    "chapterId": "command-reference",
+    "question": "How do you find deleted files that are still consuming disk space?",
+    "options": [
+      "find / -deleted",
+      "lsof +L1 (lists open files with a link count less than 1, i.e., deleted but still held open by a process)",
+      "du -sh /proc",
+      "df -i"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'lsof +L1' finds files that have been deleted (link count 0) but are still held open by a running process. The disk space isn't freed until the process closes the file descriptor. This is a classic scenario: you 'rm' a huge log file but 'df' still shows the disk as full. Fix by restarting the process or truncating the file descriptor via /proc/<PID>/fd/."
+  },
+  {
+    "id": "cr-q8",
+    "chapterId": "command-reference",
+    "question": "'vmstat 1' shows a consistently high 'wa' column. What does this indicate?",
+    "options": [
+      "High network wait time — check DNS",
+      "High I/O wait — the CPU is idle waiting for disk operations to complete, indicating a storage bottleneck",
+      "High memory wait — the system needs more RAM",
+      "High process wait — too many processes in the run queue"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The 'wa' (iowait) column in vmstat shows the percentage of time the CPU spends waiting for I/O operations (typically disk). High iowait means the storage subsystem is the bottleneck, not the CPU. Next steps: use 'iostat -x 1' to identify which disk is slow, 'iotop' to find which process is generating the I/O, and check for failing disks with 'smartctl'."
+  },
+  {
+    "id": "tp-q1",
+    "chapterId": "troubleshooting-playbook",
+    "question": "A server is slow. vmstat shows high 'wa' (I/O wait) and the 'b' column (blocked processes) is consistently above 0. What is the bottleneck?",
+    "options": [
+      "CPU — too many processes competing for CPU time",
+      "Disk I/O — processes are blocked waiting for storage. Investigate with 'iostat -x 1' and 'iotop' to find the cause",
+      "Memory — the system is swapping heavily",
+      "Network — packets are being dropped"
+    ],
+    "correctAnswer": 1,
+    "explanation": "High 'wa' (iowait) combined with blocked processes (b > 0) is the classic signature of a disk I/O bottleneck. Processes are stuck in uninterruptible sleep waiting for disk operations. Diagnose with: 'iostat -x 1' (look at %util, await, avgqu-sz), 'iotop' (identify the I/O-heavy process), and check for failing disks, full filesystems, or excessive logging/swapping."
+  },
+  {
+    "id": "tp-q2",
+    "chapterId": "troubleshooting-playbook",
+    "question": "'df -h' shows disk space available, but you cannot create new files and get 'No space left on device'. What is wrong?",
+    "options": [
+      "The filesystem is mounted read-only",
+      "The filesystem has run out of inodes — check with 'df -i'. All inodes are allocated even though data blocks remain",
+      "The disk is physically failing",
+      "You don't have write permission to the directory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Each file requires an inode (metadata structure). Filesystems have a fixed number of inodes set at creation time. If millions of tiny files exhaust all inodes, no new files can be created even with free disk space. Check with 'df -i'. Common culprits: mail spools, session files, cache directories. Fix by deleting unnecessary small files or recreating the filesystem with more inodes."
+  },
+  {
+    "id": "tp-q3",
+    "chapterId": "troubleshooting-playbook",
+    "question": "You 'rm' a large log file but 'df' still shows the disk as full. Why?",
+    "options": [
+      "rm doesn't actually delete files — it moves them to trash",
+      "A process still has the file open. The disk space isn't freed until the process closes its file descriptor. Find it with 'lsof +L1'",
+      "The filesystem cache hasn't been flushed yet",
+      "You need to run 'sync' to update the disk usage"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When you 'rm' a file, the directory entry is removed but if a process still has the file open, the kernel keeps the data blocks allocated. The space is only freed when the last file descriptor is closed. Use 'lsof +L1' to find the process. Fix: restart the process, or truncate the open file with '> /proc/<PID>/fd/<FD>' or 'truncate -s 0 /path/to/file' before deleting."
+  },
+  {
+    "id": "tp-q4",
+    "chapterId": "troubleshooting-playbook",
+    "question": "SSH to a server times out, but ping works fine. What is the most likely cause?",
+    "options": [
+      "The server is completely down",
+      "A firewall is blocking TCP port 22 (SSH) while allowing ICMP (ping). Check iptables/security groups, or sshd may not be running",
+      "DNS is not resolving the hostname",
+      "The SSH client is misconfigured"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Ping uses ICMP, SSH uses TCP port 22 — they are different protocols. If ping works but SSH times out, a firewall (iptables, cloud security group, or network ACL) is likely blocking port 22. Other possibilities: sshd is not running or is listening on a different port, or TCP wrappers (/etc/hosts.deny) are blocking the connection. Check with 'nc -zv server 22' from the client side."
+  },
+  {
+    "id": "tp-q5",
+    "chapterId": "troubleshooting-playbook",
+    "question": "'systemctl status myapp' shows 'Active: failed'. What is your next step?",
+    "options": [
+      "Immediately run 'systemctl start myapp' to retry",
+      "Check the logs with 'journalctl -u myapp -e --no-pager' to see why it failed before attempting a restart",
+      "Delete and recreate the unit file",
+      "Reboot the server"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Always diagnose before restarting. 'journalctl -u myapp -e' shows the end of the journal for that unit, revealing the actual error: missing config files, permission denied, port already in use, dependency failures, etc. Blindly restarting without understanding the failure leads to the same crash. After fixing the root cause, then restart with 'systemctl start myapp'."
+  },
+  {
+    "id": "tp-q6",
+    "chapterId": "troubleshooting-playbook",
+    "question": "A website returns HTTP 502 Bad Gateway. Where do you look first?",
+    "options": [
+      "The client's browser cache",
+      "The reverse proxy (nginx/Apache) error logs and the upstream backend application — 502 means the proxy could not get a valid response from the backend",
+      "DNS records for the domain",
+      "The server's disk usage"
+    ],
+    "correctAnswer": 1,
+    "explanation": "502 Bad Gateway means the reverse proxy (nginx, Apache, ALB) received an invalid response or no response from the upstream backend. Check: (1) Is the backend process running? ('systemctl status', 'ss -tlnp'), (2) Backend application logs for crashes or errors, (3) Proxy error logs (e.g., /var/log/nginx/error.log), (4) Resource exhaustion (connections, memory, file descriptors). The backend is the problem, not the proxy itself."
+  },
+  {
+    "id": "tp-q7",
+    "chapterId": "troubleshooting-playbook",
+    "question": "'dmesg' shows 'Out of memory: Kill process 1234 (java)'. What happened?",
+    "options": [
+      "The Java process had a bug that corrupted memory",
+      "The Linux OOM (Out of Memory) killer terminated the process because the system ran out of available memory and swap. The kernel chose this process based on its OOM score",
+      "The disk ran out of space",
+      "The process exceeded its CPU time limit"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When the system exhausts all RAM and swap, the kernel's OOM killer selects a process to terminate based on OOM scores (memory usage, process age, privileges). It logs the event in dmesg/kernel log. Prevention: set memory limits with cgroups or systemd MemoryMax=, tune vm.overcommit settings, add swap, or fix the memory leak. Check 'journalctl -k | grep -i oom' for details."
+  },
+  {
+    "id": "tp-q8",
+    "chapterId": "troubleshooting-playbook",
+    "question": "You need to truncate a log file that a process is actively writing to. What command do you use?",
+    "options": [
+      "rm /var/log/app.log && touch /var/log/app.log",
+      "truncate -s 0 /var/log/app.log (or: > /var/log/app.log) — this empties the file without removing the inode, so the writing process continues normally",
+      "echo '' > /var/log/app.log",
+      "mv /var/log/app.log /var/log/app.log.old"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'truncate -s 0 file' or '> file' empties the file in place, preserving the inode and file descriptor. The writing process continues logging to the same file without interruption. 'rm' followed by 'touch' creates a new inode — the old process still writes to the deleted file (wasting space). 'mv' has the same problem. 'echo \"\"' writes a newline rather than truly emptying the file."
   }
 ]
