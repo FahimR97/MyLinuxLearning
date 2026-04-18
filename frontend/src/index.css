@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Backgrounds — neutral dark navy, no purple tinge */
-  --bg: #0f1117;
-  --bg-card: #151d2e;
-  --bg-elevated: #1c2640;
-  --bg-hover: #243050;
+  /* Backgrounds — mid dark navy, lifted from pitch black */
+  --bg: #192030;
+  --bg-card: #1f2d42;
+  --bg-elevated: #263652;
+  --bg-hover: #2e4060;
 
   /* Borders */
-  --border: #243352;
-  --border-soft: #2e4268;
+  --border: #2e4260;
+  --border-soft: #3a5278;
 
-  /* Text — slightly cool off-white, easy on eyes */
-  --text: #dde8f5;
-  --text-dim: #8aa3be;
-  --text-muted: #5a7590;
+  /* Text — bright readable off-white */
+  --text: #e8f0fa;
+  --text-dim: #a0b8d0;
+  --text-muted: #6e8fac;
 
   /* Ocean accent palette — teal primary, no purple */
   --lavender: #2dd4bf;   /* teal — primary brand */
@@ -868,15 +868,15 @@ a:hover { color: var(--lavender); }
 .chapter-toc-list a:hover { color: var(--lavender); }
 
 /* Chapter markdown content */
-.chapter-content { line-height: 1.85; font-size: 1.02rem; }
+.chapter-content { line-height: 1.9; font-size: 1.13rem; }
 
 .md-h1 {
-  font-size: 1.9rem; font-weight: 800;
+  font-size: 2.1rem; font-weight: 800;
   margin: 2.5rem 0 1rem;
   padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
 }
 .md-h2 {
-  font-size: 1.35rem; font-weight: 700;
+  font-size: 1.52rem; font-weight: 700;
   margin: 2rem 0 0.75rem; color: var(--lavender);
   display: flex; align-items: center; gap: 0.5rem; scroll-margin-top: 1rem;
 }
@@ -884,10 +884,10 @@ a:hover { color: var(--lavender); }
   content: '##'; font-family: var(--font-mono);
   font-size: 0.65em; color: var(--border-soft); flex-shrink: 0;
 }
-.md-h3 { font-size: 1.12rem; font-weight: 700; margin: 1.5rem 0 0.5rem; color: var(--text); }
-.md-p { margin: 0.85rem 0; color: var(--text); }
-.md-list { padding-left: 1.5rem; margin: 0.85rem 0; }
-.md-list li { margin: 0.4rem 0; color: var(--text); }
+.md-h3 { font-size: 1.25rem; font-weight: 700; margin: 1.5rem 0 0.5rem; color: var(--text); }
+.md-p { margin: 1rem 0; color: var(--text); }
+.md-list { padding-left: 1.5rem; margin: 0.9rem 0; }
+.md-list li { margin: 0.5rem 0; color: var(--text); }
 .md-list li::marker { color: var(--lavender); }
 
 .inline-code {
