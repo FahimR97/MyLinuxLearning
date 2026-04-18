@@ -17,33 +17,10 @@ export class FrontendStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
-    const authFunction = new cloudfront.Function(this, 'BasicAuthFunction', {
-      code: cloudfront.FunctionCode.fromInline(`
-function handler(event) {
-  var request = event.request;
-  var headers = request.headers;
-  var authString = "Basic " + "ZmFoaW06U2hlbGx5Y2hpbXAyMDI2IQ==";
-  if (typeof headers.authorization === "undefined" || headers.authorization.value !== authString) {
-    return {
-      statusCode: 401,
-      statusDescription: "Unauthorized",
-      headers: { "www-authenticate": { value: "Basic realm=\\"Linux Learning Lab\\"" } }
-    };
-  }
-  return request;
-}
-      `.trim()),
-      runtime: cloudfront.FunctionRuntime.JS_2_0,
-    });
-
     this.distribution = new cloudfront.Distribution(this, 'Distribution', {
       defaultBehavior: {
         origin: origins.S3BucketOrigin.withOriginAccessControl(this.bucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        functionAssociations: [{
-          function: authFunction,
-          eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-        }],
       },
       defaultRootObject: 'index.html',
       errorResponses: [
