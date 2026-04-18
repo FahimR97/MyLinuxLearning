@@ -22,7 +22,7 @@ export class FrontendStack extends cdk.Stack {
 function handler(event) {
   var request = event.request;
   var headers = request.headers;
-  var authString = "Basic " + "ZmFoaW06bGludXhsYWI=";
+  var authString = "Basic " + "ZmFoaW06U2hlbGx5Y2hpbXAyMDI2IQ==";
   if (typeof headers.authorization === "undefined" || headers.authorization.value !== authString) {
     return {
       statusCode: 401,
