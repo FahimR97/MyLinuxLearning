@@ -1,52 +1,2123 @@
 [
-  {"id":"lab-fp-1","chapterId":"file-permissions","title":"Reading File Permissions","description":"Learn to read and interpret ls -l output.","steps":[{"instruction":"Create a test file","command":"touch ~/testfile.txt","expectedOutput":""},{"instruction":"View its permissions","command":"ls -l ~/testfile.txt","expectedOutput":"-rw-r--r--"},{"instruction":"Check who owns it","command":"stat ~/testfile.txt","expectedOutput":"Uid and Gid fields show your user"}]},
-  {"id":"lab-fp-2","chapterId":"file-permissions","title":"Changing Permissions with Octal Mode","description":"Practice setting permissions using numbers.","steps":[{"instruction":"Make the file executable by owner","command":"chmod 755 ~/testfile.txt","expectedOutput":""},{"instruction":"Verify the change","command":"ls -l ~/testfile.txt","expectedOutput":"-rwxr-xr-x"},{"instruction":"Make it private (owner only)","command":"chmod 700 ~/testfile.txt","expectedOutput":""},{"instruction":"Verify","command":"ls -l ~/testfile.txt","expectedOutput":"-rwx------"}]},
-  {"id":"lab-fp-3","chapterId":"file-permissions","title":"Symbolic Permission Changes","description":"Use letter-based chmod to modify permissions.","steps":[{"instruction":"Reset permissions","command":"chmod 644 ~/testfile.txt","expectedOutput":""},{"instruction":"Add execute for owner","command":"chmod u+x ~/testfile.txt","expectedOutput":""},{"instruction":"Remove read for others","command":"chmod o-r ~/testfile.txt","expectedOutput":""},{"instruction":"Verify final permissions","command":"ls -l ~/testfile.txt","expectedOutput":"-rwxr--r--  minus the other read"}]},
-  {"id":"lab-fp-4","chapterId":"file-permissions","title":"Understanding umask","description":"See how umask affects new file permissions.","steps":[{"instruction":"Check current umask","command":"umask","expectedOutput":"0022 (or similar)"},{"instruction":"Create a file and check permissions","command":"touch ~/umask_test.txt && ls -l ~/umask_test.txt","expectedOutput":"-rw-r--r-- (666 - 022 = 644)"},{"instruction":"Create a directory and check","command":"mkdir ~/umask_test_dir && ls -ld ~/umask_test_dir","expectedOutput":"drwxr-xr-x (777 - 022 = 755)"},{"instruction":"Clean up","command":"rm ~/umask_test.txt ~/testfile.txt && rmdir ~/umask_test_dir","expectedOutput":""}]},
-  {"id":"lab-pm-1","chapterId":"process-management","title":"Viewing Processes","description":"Learn to list and inspect running processes.","steps":[{"instruction":"List all processes","command":"ps aux | head -20","expectedOutput":"USER PID %CPU %MEM ... columns"},{"instruction":"Find your shell process","command":"ps aux | grep bash","expectedOutput":"Your bash process listed"},{"instruction":"View the process tree","command":"pstree | head -20","expectedOutput":"Tree structure starting from systemd or init"},{"instruction":"Check your shell's PID","command":"echo $$","expectedOutput":"A number (your shell's PID)"}]},
-  {"id":"lab-pm-2","chapterId":"process-management","title":"Sending Signals","description":"Practice sending signals to processes.","steps":[{"instruction":"Start a background process","command":"sleep 300 &","expectedOutput":"[1] PID_NUMBER"},{"instruction":"List background jobs","command":"jobs","expectedOutput":"[1]+  Running  sleep 300 &"},{"instruction":"Send SIGTERM to stop it","command":"kill %1","expectedOutput":"[1]+  Terminated  sleep 300"},{"instruction":"Verify it's gone","command":"jobs","expectedOutput":"No output (no jobs)"}]},
-  {"id":"lab-pm-3","chapterId":"process-management","title":"Job Control","description":"Move processes between foreground and background.","steps":[{"instruction":"Start a long-running command","command":"sleep 200","expectedOutput":"(appears to hang — that's normal)"},{"instruction":"Pause it with Ctrl+Z","command":"Press Ctrl+Z","expectedOutput":"[1]+  Stopped  sleep 200"},{"instruction":"Resume in background","command":"bg %1","expectedOutput":"[1]+ sleep 200 &"},{"instruction":"Bring back to foreground and kill","command":"fg %1 then press Ctrl+C","expectedOutput":"Process terminated"}]},
-  {"id":"lab-pm-4","chapterId":"process-management","title":"Exploring /proc","description":"Read process information from the /proc filesystem.","steps":[{"instruction":"View CPU info","command":"cat /proc/cpuinfo | head -10","expectedOutput":"processor, model name, cpu MHz"},{"instruction":"View memory info","command":"cat /proc/meminfo | head -5","expectedOutput":"MemTotal, MemFree, MemAvailable"},{"instruction":"Check your shell's status","command":"cat /proc/$$/status | head -10","expectedOutput":"Name: bash, State, Pid fields"}]},
-  {"id":"lab-tp-1","chapterId":"text-processing","title":"grep Basics","description":"Search for patterns in text files.","steps":[{"instruction":"Search for your user in passwd","command":"grep $USER /etc/passwd","expectedOutput":"Your user's passwd entry"},{"instruction":"Count lines in passwd","command":"wc -l /etc/passwd","expectedOutput":"Number of lines"},{"instruction":"Find lines with /bin/bash","command":"grep '/bin/bash' /etc/passwd","expectedOutput":"Users with bash shell"},{"instruction":"Case-insensitive search","command":"grep -i 'root' /etc/passwd","expectedOutput":"root user entry"}]},
-  {"id":"lab-tp-2","chapterId":"text-processing","title":"Pipes and Redirects","description":"Chain commands together and redirect output.","steps":[{"instruction":"Count users with bash shell","command":"grep '/bin/bash' /etc/passwd | wc -l","expectedOutput":"A number"},{"instruction":"Save output to a file","command":"ps aux > ~/processes.txt","expectedOutput":""},{"instruction":"Append more data","command":"echo '--- END ---' >> ~/processes.txt","expectedOutput":""},{"instruction":"View the last few lines","command":"tail -3 ~/processes.txt","expectedOutput":"Last processes and --- END ---"},{"instruction":"Clean up","command":"rm ~/processes.txt","expectedOutput":""}]},
-  {"id":"lab-tp-3","chapterId":"text-processing","title":"awk Column Extraction","description":"Extract and process specific columns from text.","steps":[{"instruction":"Extract usernames from passwd","command":"awk -F: '{print $1}' /etc/passwd | head -10","expectedOutput":"List of usernames"},{"instruction":"Show username and shell","command":"awk -F: '{print $1, $7}' /etc/passwd | head -10","expectedOutput":"username shell pairs"},{"instruction":"Extract PIDs from ps","command":"ps aux | awk '{print $2}' | head -10","expectedOutput":"List of PIDs"}]},
-  {"id":"lab-tp-4","chapterId":"text-processing","title":"The Counting Pipeline","description":"Use sort | uniq -c | sort -rn to count occurrences.","steps":[{"instruction":"Count shells used by users","command":"awk -F: '{print $7}' /etc/passwd | sort | uniq -c | sort -rn","expectedOutput":"Counts of each shell, most common first"},{"instruction":"Count words in a command's output","command":"echo 'the cat sat on the mat the cat' | tr ' ' '\\n' | sort | uniq -c | sort -rn","expectedOutput":"3 the, 2 cat, 1 sat, 1 on, 1 mat"}]},
-  {"id":"lab-tp-5","chapterId":"text-processing","title":"sed Find and Replace","description":"Transform text with sed.","steps":[{"instruction":"Create a test file","command":"echo -e 'Hello World\\nHello Linux\\nGoodbye World' > ~/sed_test.txt","expectedOutput":""},{"instruction":"Replace World with Earth","command":"sed 's/World/Earth/' ~/sed_test.txt","expectedOutput":"Hello Earth, Hello Linux, Goodbye Earth"},{"instruction":"Delete lines with Goodbye","command":"sed '/Goodbye/d' ~/sed_test.txt","expectedOutput":"Hello World, Hello Linux"},{"instruction":"Clean up","command":"rm ~/sed_test.txt","expectedOutput":""}]},
-  {"id":"lab-um-1","chapterId":"user-management","title":"Exploring User Files","description":"Read the key user management files.","steps":[{"instruction":"View your entry in passwd","command":"grep $USER /etc/passwd","expectedOutput":"Your username:x:UID:GID:..."},{"instruction":"Check your UID and groups","command":"id","expectedOutput":"uid=XXXX(you) gid=XXXX groups=..."},{"instruction":"List all groups","command":"cat /etc/group | head -20","expectedOutput":"Group entries"}]},
-  {"id":"lab-um-2","chapterId":"user-management","title":"Understanding /etc/passwd Fields","description":"Parse and understand each field in /etc/passwd.","steps":[{"instruction":"Show just usernames and shells","command":"awk -F: '{print $1, $7}' /etc/passwd","expectedOutput":"username shell pairs"},{"instruction":"Find system accounts (UID < 1000)","command":"awk -F: '$3 < 1000 {print $1, $3}' /etc/passwd","expectedOutput":"System accounts with low UIDs"},{"instruction":"Count total users","command":"wc -l /etc/passwd","expectedOutput":"Number of user entries"}]},
-  {"id":"lab-um-3","chapterId":"user-management","title":"Group Management","description":"Work with groups on the system.","steps":[{"instruction":"List your groups","command":"groups","expectedOutput":"Your group memberships"},{"instruction":"View group file","command":"cat /etc/group | grep $USER","expectedOutput":"Groups containing your user"},{"instruction":"Check group details with id","command":"id $USER","expectedOutput":"Full uid, gid, groups output"}]},
-  {"id":"lab-um-4","chapterId":"user-management","title":"sudo vs su","description":"Understand the difference between sudo and su.","steps":[{"instruction":"Run a command as root with sudo","command":"sudo whoami","expectedOutput":"root"},{"instruction":"Check sudo log (if accessible)","command":"sudo grep 'sudo' /var/log/auth.log 2>/dev/null || sudo journalctl _COMM=sudo | tail -5","expectedOutput":"Recent sudo usage entries"},{"instruction":"Check who can use sudo","command":"sudo cat /etc/sudoers | grep -v '^#' | grep -v '^$' | head -10","expectedOutput":"Sudoers rules"}]},
-  {"id":"lab-fs-1","chapterId":"filesystem","title":"Exploring the Hierarchy","description":"Navigate and understand the Linux directory structure.","steps":[{"instruction":"List top-level directories","command":"ls /","expectedOutput":"bin boot dev etc home lib ..."},{"instruction":"Check what's in /etc","command":"ls /etc | head -20","expectedOutput":"Configuration files and directories"},{"instruction":"Look at /proc","command":"ls /proc | head -20","expectedOutput":"Numbers (PIDs) and system files"},{"instruction":"Check /dev","command":"ls /dev | head -20","expectedOutput":"Device files"}]},
-  {"id":"lab-fs-2","chapterId":"filesystem","title":"Inodes and Links","description":"Understand inodes and create hard and symbolic links.","steps":[{"instruction":"Create a test file","command":"echo 'Hello' > ~/link_test.txt","expectedOutput":""},{"instruction":"View its inode","command":"ls -i ~/link_test.txt","expectedOutput":"INODE_NUMBER link_test.txt"},{"instruction":"Create a hard link","command":"ln ~/link_test.txt ~/hardlink.txt","expectedOutput":""},{"instruction":"Verify same inode","command":"ls -li ~/link_test.txt ~/hardlink.txt","expectedOutput":"Both show the same inode number"},{"instruction":"Create a symbolic link","command":"ln -s ~/link_test.txt ~/symlink.txt","expectedOutput":""},{"instruction":"Compare inodes","command":"ls -li ~/link_test.txt ~/symlink.txt","expectedOutput":"Different inode numbers, symlink shows ->"}]},
-  {"id":"lab-fs-3","chapterId":"filesystem","title":"Link Behavior When Deleting","description":"See what happens when you delete the original file.","steps":[{"instruction":"Delete the original file","command":"rm ~/link_test.txt","expectedOutput":""},{"instruction":"Hard link still works","command":"cat ~/hardlink.txt","expectedOutput":"Hello"},{"instruction":"Symlink is broken","command":"cat ~/symlink.txt","expectedOutput":"No such file or directory"},{"instruction":"Clean up","command":"rm ~/hardlink.txt ~/symlink.txt","expectedOutput":""}]},
-  {"id":"lab-fs-4","chapterId":"filesystem","title":"Disk Usage","description":"Check disk space and directory sizes.","steps":[{"instruction":"Check disk space","command":"df -h","expectedOutput":"Filesystem Size Used Avail Use% Mounted"},{"instruction":"Check inode usage","command":"df -i | head -5","expectedOutput":"Inode usage per filesystem"},{"instruction":"Size of /var","command":"sudo du -sh /var 2>/dev/null","expectedOutput":"Size of /var directory"},{"instruction":"Find large directories","command":"sudo du -sh /* 2>/dev/null | sort -rh | head -10","expectedOutput":"Largest directories first"}]},
-  {"id":"lab-sd-1","chapterId":"systemd-services","title":"Viewing Service Status","description":"Check the status of system services.","steps":[{"instruction":"List running services","command":"systemctl list-units --type=service --state=running | head -20","expectedOutput":"List of active services"},{"instruction":"Check a specific service","command":"systemctl status sshd 2>/dev/null || systemctl status ssh 2>/dev/null || echo 'SSH not found'","expectedOutput":"Service status with recent logs"},{"instruction":"Check if a service is enabled","command":"systemctl is-enabled sshd 2>/dev/null || systemctl is-enabled ssh 2>/dev/null || echo 'SSH not found'","expectedOutput":"enabled or disabled"}]},
-  {"id":"lab-sd-2","chapterId":"systemd-services","title":"Checking Failed Services","description":"Find and diagnose failed services.","steps":[{"instruction":"List failed services","command":"systemctl --failed","expectedOutput":"List of failed units (may be empty)"},{"instruction":"Check the default target","command":"systemctl get-default","expectedOutput":"multi-user.target or graphical.target"},{"instruction":"List all targets","command":"systemctl list-units --type=target","expectedOutput":"Active targets"}]},
-  {"id":"lab-sd-3","chapterId":"systemd-services","title":"Reading Service Logs","description":"Use journalctl to view service logs.","steps":[{"instruction":"View recent system logs","command":"journalctl --since '10 minutes ago' | tail -20","expectedOutput":"Recent log entries"},{"instruction":"View logs for a service","command":"journalctl -u sshd --since today 2>/dev/null || journalctl -u ssh --since today 2>/dev/null | tail -10","expectedOutput":"SSH service logs"},{"instruction":"View only errors","command":"journalctl -p err --since today | head -20","expectedOutput":"Error-level messages"}]},
-  {"id":"lab-sd-4","chapterId":"systemd-services","title":"Examining Unit Files","description":"Read and understand systemd unit files.","steps":[{"instruction":"Find a unit file","command":"systemctl cat sshd 2>/dev/null || systemctl cat ssh 2>/dev/null || echo 'SSH not found'","expectedOutput":"Unit file contents with [Unit], [Service], [Install]"},{"instruction":"List unit file locations","command":"ls /etc/systemd/system/ | head -10","expectedOutput":"Custom unit files and symlinks"}]},
-  {"id":"lab-mp-1","chapterId":"monitoring-performance","title":"Checking System Load","description":"Read and interpret load averages.","steps":[{"instruction":"View uptime and load","command":"uptime","expectedOutput":"load average: X.XX, X.XX, X.XX"},{"instruction":"Count CPU cores","command":"nproc","expectedOutput":"Number of cores"},{"instruction":"View detailed load info","command":"cat /proc/loadavg","expectedOutput":"Load averages and process counts"}]},
-  {"id":"lab-mp-2","chapterId":"monitoring-performance","title":"Memory Analysis","description":"Check memory usage and understand the output.","steps":[{"instruction":"View memory usage","command":"free -h","expectedOutput":"total, used, free, buff/cache, available"},{"instruction":"Check what available means","command":"free -h | awk '/Mem:/ {print \"Available for programs: \" $7}'","expectedOutput":"Available memory amount"},{"instruction":"Check swap usage","command":"free -h | awk '/Swap:/ {print \"Swap used: \" $3}'","expectedOutput":"Swap usage"}]},
-  {"id":"lab-mp-3","chapterId":"monitoring-performance","title":"Process Monitoring with top","description":"Use top to find resource-hungry processes.","steps":[{"instruction":"View top (exit with q)","command":"top -bn1 | head -20","expectedOutput":"System summary and top processes"},{"instruction":"Find top CPU consumers","command":"ps aux --sort=-%cpu | head -5","expectedOutput":"Processes sorted by CPU usage"},{"instruction":"Find top memory consumers","command":"ps aux --sort=-%mem | head -5","expectedOutput":"Processes sorted by memory usage"}]},
-  {"id":"lab-mp-4","chapterId":"monitoring-performance","title":"I/O and Open Files","description":"Check disk I/O and open file descriptors.","steps":[{"instruction":"Check open files count","command":"lsof 2>/dev/null | wc -l || echo 'lsof not available'","expectedOutput":"Number of open files"},{"instruction":"Check what's using a common port","command":"sudo lsof -i :22 2>/dev/null || sudo ss -tlnp | grep :22","expectedOutput":"SSH process on port 22"},{"instruction":"View vmstat snapshot","command":"vmstat 1 3","expectedOutput":"3 snapshots of system stats"}]},
-  {"id":"lab-lg-1","chapterId":"logging","title":"Exploring Log Files","description":"Navigate the /var/log directory.","steps":[{"instruction":"List log files","command":"ls /var/log/ | head -20","expectedOutput":"syslog, auth.log, kern.log, etc."},{"instruction":"View recent system logs","command":"tail -10 /var/log/syslog 2>/dev/null || tail -10 /var/log/messages 2>/dev/null || journalctl | tail -10","expectedOutput":"Recent log entries"},{"instruction":"Check auth logs","command":"sudo tail -10 /var/log/auth.log 2>/dev/null || sudo tail -10 /var/log/secure 2>/dev/null || sudo journalctl _COMM=sshd | tail -10","expectedOutput":"Authentication events"}]},
-  {"id":"lab-lg-2","chapterId":"logging","title":"journalctl Filtering","description":"Use journalctl to find specific log entries.","steps":[{"instruction":"Logs since last boot","command":"journalctl -b | tail -20","expectedOutput":"Boot logs"},{"instruction":"Filter by priority","command":"journalctl -p warning --since today | head -20","expectedOutput":"Warnings and above"},{"instruction":"Check disk usage of journal","command":"journalctl --disk-usage","expectedOutput":"Archived and active journal size"}]},
-  {"id":"lab-lg-3","chapterId":"logging","title":"Kernel Messages","description":"Read kernel messages with dmesg.","steps":[{"instruction":"View recent kernel messages","command":"dmesg | tail -20","expectedOutput":"Recent kernel messages"},{"instruction":"Check for errors","command":"dmesg | grep -i error | tail -10","expectedOutput":"Kernel errors (may be empty)"},{"instruction":"Check for USB devices","command":"dmesg | grep -i usb | tail -10","expectedOutput":"USB-related kernel messages"}]},
-  {"id":"lab-lg-4","chapterId":"logging","title":"Checking for OOM Events","description":"Look for Out of Memory killer activity.","steps":[{"instruction":"Search dmesg for OOM","command":"dmesg | grep -i 'oom\\|out of memory' || echo 'No OOM events found'","expectedOutput":"OOM events or 'No OOM events found'"},{"instruction":"Check journal for OOM","command":"journalctl -k | grep -i oom | tail -5 || echo 'No OOM in journal'","expectedOutput":"OOM events from journal"},{"instruction":"View logrotate config","command":"cat /etc/logrotate.conf | head -20","expectedOutput":"Logrotate settings"}]},
-  {"id":"lab-nw-1","chapterId":"networking","title":"Network Configuration","description":"View your network settings.","steps":[{"instruction":"View IP addresses","command":"ip addr | head -20","expectedOutput":"Interface names and IP addresses"},{"instruction":"View routing table","command":"ip route","expectedOutput":"default via GATEWAY dev INTERFACE"},{"instruction":"Quick IP check","command":"hostname -I","expectedOutput":"Your IP address(es)"}]},
-  {"id":"lab-nw-2","chapterId":"networking","title":"Checking Ports and Connections","description":"Use ss to view network connections.","steps":[{"instruction":"List listening TCP ports","command":"ss -tlnp","expectedOutput":"TCP listening sockets with ports"},{"instruction":"List all TCP connections","command":"ss -tn | head -20","expectedOutput":"Active TCP connections"},{"instruction":"Summary of connections","command":"ss -s","expectedOutput":"TCP, UDP connection summary"}]},
-  {"id":"lab-nw-3","chapterId":"networking","title":"DNS Lookups","description":"Resolve domain names to IP addresses.","steps":[{"instruction":"Look up a domain","command":"dig google.com +short","expectedOutput":"IP address(es)"},{"instruction":"View DNS servers","command":"cat /etc/resolv.conf","expectedOutput":"nameserver entries"},{"instruction":"Check /etc/hosts","command":"cat /etc/hosts","expectedOutput":"localhost and any custom entries"}]},
-  {"id":"lab-nw-4","chapterId":"networking","title":"Connectivity Testing","description":"Test network connectivity with various tools.","steps":[{"instruction":"Ping a host","command":"ping -c 3 google.com","expectedOutput":"3 packets transmitted, 3 received"},{"instruction":"Trace the route","command":"traceroute -m 10 google.com 2>/dev/null || tracepath google.com 2>/dev/null | head -10","expectedOutput":"Hops to destination"},{"instruction":"Fetch HTTP headers","command":"curl -I https://google.com 2>/dev/null | head -5","expectedOutput":"HTTP/2 301 or 200 status"},{"instruction":"Test if a port is open","command":"nc -zv google.com 443 2>&1 || echo 'nc not available'","expectedOutput":"Connection succeeded or refused"}]},
-  {"id":"lab-nw-5","chapterId":"networking","title":"SSH Key Setup","description":"Generate and understand SSH keys.","steps":[{"instruction":"Check for existing keys","command":"ls -la ~/.ssh/ 2>/dev/null || echo 'No .ssh directory'","expectedOutput":"Existing keys or no directory"},{"instruction":"View SSH config if it exists","command":"cat ~/.ssh/config 2>/dev/null || echo 'No SSH config file'","expectedOutput":"SSH config or message"},{"instruction":"Check SSH key permissions","command":"stat -c '%a %n' ~/.ssh/* 2>/dev/null || echo 'No SSH files'","expectedOutput":"Permission numbers for SSH files"}]},
-  {"id":"lab-bs-1","chapterId":"bash-scripting","title":"Your First Script","description":"Create and run a basic bash script.","steps":[{"instruction":"Create a script file","command":"echo '#!/bin/bash\nset -euo pipefail\necho \"Hello from my first script!\"\necho \"Today is $(date)\"\necho \"You are $(whoami)\"' > ~/myscript.sh","expectedOutput":""},{"instruction":"Make it executable","command":"chmod +x ~/myscript.sh","expectedOutput":""},{"instruction":"Run it","command":"~/myscript.sh","expectedOutput":"Hello from my first script! + date + username"},{"instruction":"Clean up","command":"rm ~/myscript.sh","expectedOutput":""}]},
-  {"id":"lab-bs-2","chapterId":"bash-scripting","title":"Variables and Arguments","description":"Work with variables and script arguments.","steps":[{"instruction":"Create a greeting script","command":"echo '#!/bin/bash\nset -euo pipefail\nname=\"${1:-World}\"\necho \"Hello, $name!\"\necho \"Script: $0\"\necho \"Args: $#\"' > ~/greet.sh && chmod +x ~/greet.sh","expectedOutput":""},{"instruction":"Run without arguments","command":"~/greet.sh","expectedOutput":"Hello, World!"},{"instruction":"Run with an argument","command":"~/greet.sh Linux","expectedOutput":"Hello, Linux!"},{"instruction":"Clean up","command":"rm ~/greet.sh","expectedOutput":""}]},
-  {"id":"lab-bs-3","chapterId":"bash-scripting","title":"Conditionals and Loops","description":"Use if statements and for loops.","steps":[{"instruction":"Create a file checker script","command":"echo '#!/bin/bash\nset -euo pipefail\nfor f in /etc/passwd /etc/shadow /nonexistent; do\n  if [ -f \"$f\" ]; then\n    echo \"EXISTS: $f\"\n  else\n    echo \"MISSING: $f\"\n  fi\ndone' > ~/checker.sh && chmod +x ~/checker.sh","expectedOutput":""},{"instruction":"Run it","command":"~/checker.sh","expectedOutput":"EXISTS: /etc/passwd, EXISTS: /etc/shadow, MISSING: /nonexistent"},{"instruction":"Clean up","command":"rm ~/checker.sh","expectedOutput":""}]},
-  {"id":"lab-bs-4","chapterId":"bash-scripting","title":"Functions and Exit Codes","description":"Write functions and check exit codes.","steps":[{"instruction":"Create a function script","command":"echo '#!/bin/bash\nset -euo pipefail\ncheck_file() {\n  local file=\"$1\"\n  if [ -f \"$file\" ]; then\n    echo \"Found: $file ($(wc -l < \"$file\") lines)\"\n    return 0\n  else\n    echo \"Not found: $file\"\n    return 1\n  fi\n}\ncheck_file /etc/passwd\ncheck_file /etc/hostname || true' > ~/funcs.sh && chmod +x ~/funcs.sh","expectedOutput":""},{"instruction":"Run it","command":"~/funcs.sh","expectedOutput":"Found: /etc/passwd (N lines) and hostname result"},{"instruction":"Clean up","command":"rm ~/funcs.sh","expectedOutput":""}]},
-  {"id":"lab-bp-1","chapterId":"boot-process","title":"Kernel Information","description":"Examine your running kernel.","steps":[{"instruction":"Check kernel version","command":"uname -r","expectedOutput":"Kernel version string"},{"instruction":"View full kernel info","command":"uname -a","expectedOutput":"Kernel name, version, architecture"},{"instruction":"List installed kernels","command":"ls /boot/vmlinuz* 2>/dev/null || ls /boot/kernel* 2>/dev/null || echo 'Kernel files not in expected location'","expectedOutput":"Kernel file(s)"}]},
-  {"id":"lab-bp-2","chapterId":"boot-process","title":"Boot Time Analysis","description":"Analyze how long your system took to boot.","steps":[{"instruction":"Check boot time","command":"systemd-analyze 2>/dev/null || echo 'systemd-analyze not available'","expectedOutput":"Startup finished in X.XXXs"},{"instruction":"Slowest services","command":"systemd-analyze blame 2>/dev/null | head -10 || echo 'Not available'","expectedOutput":"Services sorted by startup time"},{"instruction":"View boot logs","command":"journalctl -b | head -20","expectedOutput":"First messages from current boot"}]},
-  {"id":"lab-bp-3","chapterId":"boot-process","title":"Kernel Modules","description":"View and understand kernel modules.","steps":[{"instruction":"List loaded modules","command":"lsmod | head -20","expectedOutput":"Module names, sizes, and dependencies"},{"instruction":"Count loaded modules","command":"lsmod | wc -l","expectedOutput":"Number of loaded modules"},{"instruction":"Get info about a module","command":"modinfo ext4 2>/dev/null || modinfo xfs 2>/dev/null || echo 'Module not found'","expectedOutput":"Module description, author, license"}]},
-  {"id":"lab-bp-4","chapterId":"boot-process","title":"GRUB Configuration","description":"Examine the bootloader configuration.","steps":[{"instruction":"View GRUB defaults","command":"cat /etc/default/grub 2>/dev/null || echo 'GRUB config not found (may use different bootloader)'","expectedOutput":"GRUB_TIMEOUT, GRUB_CMDLINE_LINUX settings"},{"instruction":"Check boot parameters","command":"cat /proc/cmdline","expectedOutput":"Kernel command line parameters"}]},
-  {"id":"lab-qa-1","chapterId":"interview-qa","title":"Hard Links vs Symlinks Hands-On","description":"Demonstrate the difference with real commands.","steps":[{"instruction":"Create a file","command":"echo 'original content' > ~/qa_test.txt","expectedOutput":""},{"instruction":"Create both link types","command":"ln ~/qa_test.txt ~/qa_hard.txt && ln -s ~/qa_test.txt ~/qa_sym.txt","expectedOutput":""},{"instruction":"Compare inodes","command":"ls -li ~/qa_test.txt ~/qa_hard.txt ~/qa_sym.txt","expectedOutput":"Hard link has same inode, symlink has different inode"},{"instruction":"Delete original and test","command":"rm ~/qa_test.txt && echo '--- Hard link: ---' && cat ~/qa_hard.txt && echo '--- Symlink: ---' && cat ~/qa_sym.txt 2>&1 || true","expectedOutput":"Hard link works, symlink fails"},{"instruction":"Clean up","command":"rm -f ~/qa_hard.txt ~/qa_sym.txt","expectedOutput":""}]},
-  {"id":"lab-qa-2","chapterId":"interview-qa","title":"Process States Investigation","description":"Find processes in different states.","steps":[{"instruction":"Find running processes","command":"ps aux | awk '$8 ~ /R/ {print $2, $8, $11}' | head -5","expectedOutput":"PIDs in R state"},{"instruction":"Find sleeping processes","command":"ps aux | awk '$8 ~ /S/ {print $2, $8, $11}' | head -5","expectedOutput":"PIDs in S state"},{"instruction":"Check for zombies","command":"ps aux | awk '$8 ~ /Z/' || echo 'No zombie processes'","expectedOutput":"Zombie processes or none found"}]},
-  {"id":"lab-qa-3","chapterId":"interview-qa","title":"PATH Troubleshooting","description":"Understand and fix PATH issues.","steps":[{"instruction":"View your PATH","command":"echo $PATH | tr ':' '\\n'","expectedOutput":"Each directory in PATH on its own line"},{"instruction":"Find where a command lives","command":"which ls","expectedOutput":"/bin/ls or /usr/bin/ls"},{"instruction":"Simulate a PATH issue","command":"PATH=/tmp which ls 2>&1 || echo 'ls not found — PATH is wrong!'","expectedOutput":"ls not found message"},{"instruction":"Verify PATH is restored","command":"which ls","expectedOutput":"/bin/ls or /usr/bin/ls (PATH is fine in this shell)"}]},
-  {"id":"lab-qa-4","chapterId":"interview-qa","title":"System Diagnosis Practice","description":"Practice the diagnostic workflow for a slow system.","steps":[{"instruction":"Check load average","command":"uptime","expectedOutput":"Load averages"},{"instruction":"Check memory","command":"free -h","expectedOutput":"Memory usage summary"},{"instruction":"Check top CPU processes","command":"ps aux --sort=-%cpu | head -5","expectedOutput":"Top CPU consumers"},{"instruction":"Check disk space","command":"df -h | grep -v tmpfs","expectedOutput":"Disk usage per filesystem"},{"instruction":"Check for errors in logs","command":"journalctl -p err --since '1 hour ago' 2>/dev/null | tail -10 || dmesg | grep -i error | tail -10","expectedOutput":"Recent errors if any"}]}
+  {
+    "id": "lab-hlw-01",
+    "chapterId": "how-linux-works",
+    "title": "Explore the Linux Kernel",
+    "description": "Discover your running kernel version and key system information.",
+    "steps": [
+      {
+        "instruction": "Check your current kernel version",
+        "command": "uname -r",
+        "expectedOutput": "5.15.0-91-generic"
+      },
+      {
+        "instruction": "View detailed system information",
+        "command": "uname -a",
+        "expectedOutput": "Linux hostname 5.15.0-91-generic #101-Ubuntu SMP x86_64 GNU/Linux"
+      },
+      {
+        "instruction": "Check the OS release info",
+        "command": "cat /etc/os-release | head -4",
+        "expectedOutput": "NAME=\"Ubuntu\"\nVERSION=\"22.04.3 LTS (Jammy Jellyfish)\"\nID=ubuntu\nID_LIKE=debian"
+      },
+      {
+        "instruction": "List loaded kernel modules",
+        "command": "lsmod | head -5",
+        "expectedOutput": "Module                  Size  Used by\nxt_conntrack           16384  1\nnf_conntrack          172032  1 xt_conntrack"
+      },
+      {
+        "instruction": "Check system uptime",
+        "command": "uptime",
+        "expectedOutput": " 14:32:07 up 3 days, 2:15, 1 user, load average: 0.08, 0.03, 0.01"
+      }
+    ]
+  },
+  {
+    "id": "lab-hlw-02",
+    "chapterId": "how-linux-works",
+    "title": "Navigate the Filesystem Hierarchy",
+    "description": "Explore the standard Linux directory structure.",
+    "steps": [
+      {
+        "instruction": "List the top-level directories",
+        "command": "ls /",
+        "expectedOutput": "bin boot dev etc home lib media mnt opt proc root run sbin srv sys tmp usr var"
+      },
+      {
+        "instruction": "Check configuration files in /etc",
+        "command": "ls /etc | head -8",
+        "expectedOutput": "adduser.conf\nalternatives\napt\nbash.bashrc\ncron.d\ncron.daily\ncrontab\ndefault"
+      },
+      {
+        "instruction": "View CPU info from /proc",
+        "command": "cat /proc/cpuinfo | grep 'model name' | head -1",
+        "expectedOutput": "model name\t: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz"
+      },
+      {
+        "instruction": "Check memory info from /proc",
+        "command": "cat /proc/meminfo | head -3",
+        "expectedOutput": "MemTotal:        8154368 kB\nMemFree:         2345678 kB\nMemAvailable:    5678901 kB"
+      },
+      {
+        "instruction": "Explore the /var directory for logs and caches",
+        "command": "ls /var",
+        "expectedOutput": "backups cache crash lib local lock log mail opt run spool tmp"
+      }
+    ]
+  },
+  {
+    "id": "lab-hlw-03",
+    "chapterId": "how-linux-works",
+    "title": "Shells and Fork/Exec",
+    "description": "Understand how the shell forks child processes.",
+    "steps": [
+      {
+        "instruction": "Identify your current shell",
+        "command": "echo $SHELL",
+        "expectedOutput": "/bin/bash"
+      },
+      {
+        "instruction": "List available shells",
+        "command": "cat /etc/shells",
+        "expectedOutput": "/bin/sh\n/bin/bash\n/usr/bin/bash\n/bin/zsh"
+      },
+      {
+        "instruction": "See your shell PID",
+        "command": "echo $$",
+        "expectedOutput": "12345"
+      },
+      {
+        "instruction": "Observe fork/exec with parent PID",
+        "command": "bash -c 'echo PID: $$ PPID: $PPID'",
+        "expectedOutput": "PID: 12400 PPID: 12345"
+      },
+      {
+        "instruction": "View the process tree",
+        "command": "pstree -p $$ | head -3",
+        "expectedOutput": "bash(12345)---pstree(12456)"
+      }
+    ]
+  },
+  {
+    "id": "lab-hlw-04",
+    "chapterId": "how-linux-works",
+    "title": "Disk Usage: du vs df",
+    "description": "Compare du and df to understand disk space reporting.",
+    "steps": [
+      {
+        "instruction": "Check disk space with df",
+        "command": "df -h /",
+        "expectedOutput": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        50G   15G   33G  31% /"
+      },
+      {
+        "instruction": "Check usage of /var",
+        "command": "du -sh /var 2>/dev/null",
+        "expectedOutput": "2.3G\t/var"
+      },
+      {
+        "instruction": "Top 5 largest dirs under /var",
+        "command": "du -h /var --max-depth=1 2>/dev/null | sort -hr | head -5",
+        "expectedOutput": "2.3G\t/var\n1.1G\t/var/log\n800M\t/var/cache\n200M\t/var/lib"
+      },
+      {
+        "instruction": "Check inode usage",
+        "command": "df -i / | head -2",
+        "expectedOutput": "Filesystem      Inodes  IUsed   IFree IUse% Mounted on\n/dev/sda1      3276800 234567 3042233    8% /"
+      }
+    ]
+  },
+  {
+    "id": "lab-hlw-05",
+    "chapterId": "how-linux-works",
+    "title": "Environment Variables",
+    "description": "Learn how environment variables work and are inherited.",
+    "steps": [
+      {
+        "instruction": "View environment variables",
+        "command": "env | head -5",
+        "expectedOutput": "SHELL=/bin/bash\nPWD=/home/user\nHOME=/home/user\nLANG=en_US.UTF-8"
+      },
+      {
+        "instruction": "Check the PATH",
+        "command": "echo $PATH",
+        "expectedOutput": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      },
+      {
+        "instruction": "Local var does not pass to child",
+        "command": "MYVAR='hello' && bash -c 'echo MYVAR is: $MYVAR'",
+        "expectedOutput": "MYVAR is:"
+      },
+      {
+        "instruction": "Exported var passes to child",
+        "command": "export MYVAR='hello' && bash -c 'echo MYVAR is: $MYVAR'",
+        "expectedOutput": "MYVAR is: hello"
+      }
+    ]
+  },
+  {
+    "id": "lab-ifs-01",
+    "chapterId": "inodes-and-filesystem",
+    "title": "Explore Inodes",
+    "description": "Understand inodes and how to inspect them.",
+    "steps": [
+      {
+        "instruction": "Create a test directory",
+        "command": "mkdir -p /tmp/inode-lab && echo 'ready'",
+        "expectedOutput": "ready"
+      },
+      {
+        "instruction": "Create a file and view its inode",
+        "command": "touch /tmp/inode-lab/testfile && ls -i /tmp/inode-lab/testfile",
+        "expectedOutput": "1234567 /tmp/inode-lab/testfile"
+      },
+      {
+        "instruction": "View detailed inode info with stat",
+        "command": "stat /tmp/inode-lab/testfile",
+        "expectedOutput": "  File: /tmp/inode-lab/testfile\n  Size: 0         \tBlocks: 0\nDevice: 801h/2049d\tInode: 1234567     Links: 1\nAccess: (0644/-rw-r--r--)  Uid: ( 1000/user)"
+      },
+      {
+        "instruction": "Check inode usage on filesystem",
+        "command": "df -i / | head -2",
+        "expectedOutput": "Filesystem      Inodes  IUsed   IFree IUse% Mounted on\n/dev/sda1      3276800 234567 3042233    8% /"
+      },
+      {
+        "instruction": "Directories also have inodes",
+        "command": "ls -id /tmp/inode-lab",
+        "expectedOutput": "2345678 /tmp/inode-lab"
+      }
+    ]
+  },
+  {
+    "id": "lab-ifs-02",
+    "chapterId": "inodes-and-filesystem",
+    "title": "Hard Links vs Soft Links",
+    "description": "Create and compare hard links and symbolic links.",
+    "steps": [
+      {
+        "instruction": "Create a file with content",
+        "command": "echo 'Hello from original' > /tmp/inode-lab/original.txt",
+        "expectedOutput": ""
+      },
+      {
+        "instruction": "Create a hard link and compare inodes",
+        "command": "ln /tmp/inode-lab/original.txt /tmp/inode-lab/hardlink.txt && ls -i /tmp/inode-lab/original.txt /tmp/inode-lab/hardlink.txt",
+        "expectedOutput": "1234567 /tmp/inode-lab/original.txt\n1234567 /tmp/inode-lab/hardlink.txt"
+      },
+      {
+        "instruction": "Create a symlink and compare inodes",
+        "command": "ln -s /tmp/inode-lab/original.txt /tmp/inode-lab/symlink.txt && ls -i /tmp/inode-lab/symlink.txt",
+        "expectedOutput": "7654321 /tmp/inode-lab/symlink.txt"
+      },
+      {
+        "instruction": "Check link count on original",
+        "command": "stat /tmp/inode-lab/original.txt | grep Links",
+        "expectedOutput": "Device: 801h/2049d\tInode: 1234567     Links: 2"
+      },
+      {
+        "instruction": "Delete original and test both links",
+        "command": "rm /tmp/inode-lab/original.txt && cat /tmp/inode-lab/hardlink.txt && cat /tmp/inode-lab/symlink.txt 2>&1 || true",
+        "expectedOutput": "Hello from original\ncat: /tmp/inode-lab/symlink.txt: No such file or directory"
+      }
+    ]
+  },
+  {
+    "id": "lab-ifs-03",
+    "chapterId": "inodes-and-filesystem",
+    "title": "Filesystem Types and Mounts",
+    "description": "Explore mounted filesystems and types.",
+    "steps": [
+      {
+        "instruction": "List mounted filesystems",
+        "command": "mount | head -5",
+        "expectedOutput": "sysfs on /sys type sysfs (rw,nosuid,nodev)\nproc on /proc type proc (rw,nosuid,nodev)\n/dev/sda1 on / type ext4 (rw,relatime)"
+      },
+      {
+        "instruction": "Show filesystems in a table",
+        "command": "df -Th | head -5",
+        "expectedOutput": "Filesystem     Type      Size  Used Avail Use% Mounted on\n/dev/sda1      ext4       50G   15G   33G  31% /\ntmpfs          tmpfs     4.0G     0  4.0G   0% /dev/shm"
+      },
+      {
+        "instruction": "Check root filesystem type",
+        "command": "findmnt / -o TARGET,SOURCE,FSTYPE",
+        "expectedOutput": "TARGET SOURCE    FSTYPE\n/      /dev/sda1 ext4"
+      },
+      {
+        "instruction": "View block devices",
+        "command": "lsblk -f | head -5",
+        "expectedOutput": "NAME   FSTYPE LABEL UUID                                 MOUNTPOINTS\nsda\n+-sda1 ext4         a1b2c3d4-e5f6-7890-abcd-ef1234567890 /"
+      }
+    ]
+  },
+  {
+    "id": "lab-ifs-04",
+    "chapterId": "inodes-and-filesystem",
+    "title": "Directory Entries and Metadata",
+    "description": "Explore how directories map names to inodes.",
+    "steps": [
+      {
+        "instruction": "Create test files",
+        "command": "echo 'small' > /tmp/inode-lab/small.txt && dd if=/dev/zero of=/tmp/inode-lab/big.txt bs=1K count=100 2>/dev/null && echo 'done'",
+        "expectedOutput": "done"
+      },
+      {
+        "instruction": "Compare metadata with stat",
+        "command": "stat /tmp/inode-lab/small.txt | grep -E '(File:|Size:)'",
+        "expectedOutput": "  File: /tmp/inode-lab/small.txt\n  Size: 6"
+      },
+      {
+        "instruction": "View directory entries with inodes",
+        "command": "ls -1i /tmp/inode-lab/ | head -5",
+        "expectedOutput": "1234567 big.txt\n1234568 hardlink.txt\n1234569 small.txt"
+      },
+      {
+        "instruction": "Check timestamps in inode",
+        "command": "stat /tmp/inode-lab/small.txt | grep -E '(Access|Modify|Change):'",
+        "expectedOutput": "Access: 2024-01-15 14:30:00.000000000 +0000\nModify: 2024-01-15 14:30:00.000000000 +0000\nChange: 2024-01-15 14:30:00.000000000 +0000"
+      },
+      {
+        "instruction": "Clean up lab files",
+        "command": "rm -rf /tmp/inode-lab && echo 'Cleanup complete'",
+        "expectedOutput": "Cleanup complete"
+      }
+    ]
+  },
+  {
+    "id": "lab-pad-01",
+    "chapterId": "processes-and-daemons",
+    "title": "Explore Running Processes",
+    "description": "View and understand running processes.",
+    "steps": [
+      {
+        "instruction": "View all running processes",
+        "command": "ps aux | head -6",
+        "expectedOutput": "USER       PID %CPU %MEM    VSZ   RSS TTY  STAT START   TIME COMMAND\nroot         1  0.0  0.1 169344 13256 ?   Ss   Jan15   0:05 /sbin/init\nroot         2  0.0  0.0      0     0 ?   S    Jan15   0:00 [kthreadd]"
+      },
+      {
+        "instruction": "View processes as a tree",
+        "command": "pstree | head -10",
+        "expectedOutput": "systemd-+-ModemManager---2*[{ModemManager}]\n        |-NetworkManager---2*[{NetworkManager}]\n        |-cron\n        |-sshd---sshd---bash---pstree"
+      },
+      {
+        "instruction": "Check PID 1",
+        "command": "ps -p 1 -o pid,comm,args",
+        "expectedOutput": "  PID COMMAND         COMMAND\n    1 systemd         /sbin/init"
+      },
+      {
+        "instruction": "View your own processes",
+        "command": "ps -u $USER --forest | head -8",
+        "expectedOutput": "  PID TTY      TIME CMD\n12345 ?    00:00:00 systemd\n12346 ?    00:00:00  \\_ (sd-pam)\n12400 pts/0 00:00:00 bash"
+      },
+      {
+        "instruction": "Count total processes",
+        "command": "ps aux | wc -l",
+        "expectedOutput": "142"
+      }
+    ]
+  },
+  {
+    "id": "lab-pad-02",
+    "chapterId": "processes-and-daemons",
+    "title": "Process States",
+    "description": "Observe different process states on a live system.",
+    "steps": [
+      {
+        "instruction": "Count processes by state",
+        "command": "ps aux | awk '{print $8}' | sort | uniq -c | sort -rn | head -6",
+        "expectedOutput": "     95 S\n     30 I\n      8 Ss\n      5 Sl\n      2 R"
+      },
+      {
+        "instruction": "Find sleeping processes",
+        "command": "ps aux | awk '$8 ~ /^S/ {print $2, $8, $11}' | head -3",
+        "expectedOutput": "1 Ss /sbin/init\n234 S /usr/sbin/cron\n567 Ss /usr/sbin/sshd"
+      },
+      {
+        "instruction": "Find running processes",
+        "command": "ps aux | awk '$8 ~ /R/ {print $2, $8, $11}'",
+        "expectedOutput": "12456 R+ ps"
+      },
+      {
+        "instruction": "Check for zombie processes",
+        "command": "ps aux | awk '$8 ~ /Z/' || echo 'No zombies found (good!)'",
+        "expectedOutput": "No zombies found (good!)"
+      },
+      {
+        "instruction": "Review process states",
+        "command": "echo 'R=Running S=Sleeping D=Uninterruptible T=Stopped Z=Zombie'",
+        "expectedOutput": "R=Running S=Sleeping D=Uninterruptible T=Stopped Z=Zombie"
+      }
+    ]
+  },
+  {
+    "id": "lab-pad-03",
+    "chapterId": "processes-and-daemons",
+    "title": "Explore /proc Filesystem",
+    "description": "Inspect process details via the /proc virtual filesystem.",
+    "steps": [
+      {
+        "instruction": "View your shell process status",
+        "command": "cat /proc/$$/status | head -8",
+        "expectedOutput": "Name:\tbash\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t12345\nPid:\t12345\nPPid:\t12300"
+      },
+      {
+        "instruction": "See the command that started your shell",
+        "command": "cat /proc/$$/cmdline | tr '\\0' ' ' && echo",
+        "expectedOutput": "bash"
+      },
+      {
+        "instruction": "View system load average",
+        "command": "cat /proc/loadavg",
+        "expectedOutput": "0.08 0.03 0.01 1/142 12456"
+      },
+      {
+        "instruction": "Check system uptime in seconds",
+        "command": "cat /proc/uptime",
+        "expectedOutput": "259200.45 518000.90"
+      }
+    ]
+  },
+  {
+    "id": "lab-pad-04",
+    "chapterId": "processes-and-daemons",
+    "title": "Background Jobs and Job Control",
+    "description": "Run processes in the background and manage them.",
+    "steps": [
+      {
+        "instruction": "Start a background process",
+        "command": "sleep 300 &",
+        "expectedOutput": "[1] 12500"
+      },
+      {
+        "instruction": "List background jobs",
+        "command": "jobs",
+        "expectedOutput": "[1]+  Running                 sleep 300 &"
+      },
+      {
+        "instruction": "Stop the background job",
+        "command": "kill -STOP %1 && jobs",
+        "expectedOutput": "[1]+  Stopped                 sleep 300"
+      },
+      {
+        "instruction": "Resume it in the background",
+        "command": "bg %1 && jobs",
+        "expectedOutput": "[1]+ sleep 300 &\n[1]+  Running                 sleep 300 &"
+      },
+      {
+        "instruction": "Kill the job",
+        "command": "kill %1 && sleep 1 && jobs",
+        "expectedOutput": "[1]+  Terminated              sleep 300"
+      }
+    ]
+  },
+  {
+    "id": "lab-pad-05",
+    "chapterId": "processes-and-daemons",
+    "title": "Monitor System Resources",
+    "description": "Use ps and free to monitor CPU and memory.",
+    "steps": [
+      {
+        "instruction": "Top processes by CPU",
+        "command": "ps aux --sort=-%cpu | head -5",
+        "expectedOutput": "USER       PID %CPU %MEM  VSZ   RSS TTY STAT COMMAND\nuser     12345  2.3  1.5 456789 12345 ?  Sl  gnome-shell"
+      },
+      {
+        "instruction": "Top processes by memory",
+        "command": "ps aux --sort=-%mem | head -5",
+        "expectedOutput": "USER       PID %CPU %MEM  VSZ     RSS TTY STAT COMMAND\nuser     12346  0.3  3.8 1234567 31234 ?  Sl  firefox"
+      },
+      {
+        "instruction": "Check memory usage",
+        "command": "free -h",
+        "expectedOutput": "              total   used   free  shared  buff/cache  available\nMem:          7.8Gi  2.1Gi  3.2Gi  256Mi   2.5Gi       5.2Gi\nSwap:         2.0Gi     0B  2.0Gi"
+      },
+      {
+        "instruction": "Check CPU count",
+        "command": "nproc",
+        "expectedOutput": "4"
+      }
+    ]
+  },
+  {
+    "id": "lab-spm-01",
+    "chapterId": "signals-and-process-management",
+    "title": "Send Signals to Processes",
+    "description": "Practice sending different signals to processes.",
+    "steps": [
+      {
+        "instruction": "Start a background sleep process",
+        "command": "sleep 600 & echo $!",
+        "expectedOutput": "12600"
+      },
+      {
+        "instruction": "Send SIGTERM (graceful stop)",
+        "command": "kill 12600 || kill %1",
+        "expectedOutput": ""
+      },
+      {
+        "instruction": "Start another and send SIGSTOP",
+        "command": "sleep 600 & BGPID=$! && kill -STOP $BGPID && ps -p $BGPID -o pid,stat,comm",
+        "expectedOutput": "  PID STAT COMMAND\n12601 T    sleep"
+      },
+      {
+        "instruction": "Resume with SIGCONT",
+        "command": "kill -CONT $BGPID && ps -p $BGPID -o pid,stat,comm",
+        "expectedOutput": "  PID STAT COMMAND\n12601 S    sleep"
+      },
+      {
+        "instruction": "Force kill with SIGKILL",
+        "command": "kill -9 $BGPID && sleep 1 && ps -p $BGPID 2>&1 || echo 'Process killed'",
+        "expectedOutput": "Process killed"
+      }
+    ]
+  },
+  {
+    "id": "lab-spm-02",
+    "chapterId": "signals-and-process-management",
+    "title": "List and Understand Signals",
+    "description": "Explore the full list of Linux signals.",
+    "steps": [
+      {
+        "instruction": "List all available signals",
+        "command": "kill -l",
+        "expectedOutput": " 1) SIGHUP\t 2) SIGINT\t 3) SIGQUIT\t 4) SIGILL\t 5) SIGTRAP\n 6) SIGABRT\t 7) SIGBUS\t 8) SIGFPE\t 9) SIGKILL\t10) SIGUSR1\n11) SIGSEGV\t12) SIGUSR2\t13) SIGPIPE\t14) SIGALRM\t15) SIGTERM"
+      },
+      {
+        "instruction": "Check signal number for SIGTERM",
+        "command": "kill -l SIGTERM",
+        "expectedOutput": "15"
+      },
+      {
+        "instruction": "Check signal number for SIGKILL",
+        "command": "kill -l SIGKILL",
+        "expectedOutput": "9"
+      },
+      {
+        "instruction": "Check signal number for SIGHUP",
+        "command": "kill -l SIGHUP",
+        "expectedOutput": "1"
+      },
+      {
+        "instruction": "Review key signals",
+        "command": "echo 'SIGTERM(15)=graceful stop, SIGKILL(9)=force kill, SIGHUP(1)=hangup/reload, SIGINT(2)=Ctrl+C'",
+        "expectedOutput": "SIGTERM(15)=graceful stop, SIGKILL(9)=force kill, SIGHUP(1)=hangup/reload, SIGINT(2)=Ctrl+C"
+      }
+    ]
+  },
+  {
+    "id": "lab-spm-03",
+    "chapterId": "signals-and-process-management",
+    "title": "Trapping Signals in a Script",
+    "description": "Write a script that traps signals and handles them gracefully.",
+    "steps": [
+      {
+        "instruction": "Create a script that traps SIGTERM",
+        "command": "cat > /tmp/trap_test.sh << 'EOF'\n#!/bin/bash\ntrap 'echo \"Caught SIGTERM! Cleaning up...\"; exit 0' SIGTERM\necho \"PID: $$. Send me SIGTERM to test.\"\nwhile true; do sleep 1; done\nEOF\nchmod +x /tmp/trap_test.sh && echo 'Script created'",
+        "expectedOutput": "Script created"
+      },
+      {
+        "instruction": "Run the script in background",
+        "command": "/tmp/trap_test.sh & TRAP_PID=$! && sleep 1 && echo \"Running as PID: $TRAP_PID\"",
+        "expectedOutput": "PID: 12700. Send me SIGTERM to test.\nRunning as PID: 12700"
+      },
+      {
+        "instruction": "Send SIGTERM and observe the trap",
+        "command": "kill $TRAP_PID && sleep 1",
+        "expectedOutput": "Caught SIGTERM! Cleaning up..."
+      },
+      {
+        "instruction": "Verify the process exited cleanly",
+        "command": "ps -p $TRAP_PID 2>&1 || echo 'Process exited cleanly'",
+        "expectedOutput": "Process exited cleanly"
+      },
+      {
+        "instruction": "Clean up",
+        "command": "rm /tmp/trap_test.sh && echo 'Done'",
+        "expectedOutput": "Done"
+      }
+    ]
+  },
+  {
+    "id": "lab-spm-04",
+    "chapterId": "signals-and-process-management",
+    "title": "Using kill, pkill, and killall",
+    "description": "Practice different ways to terminate processes.",
+    "steps": [
+      {
+        "instruction": "Start multiple sleep processes",
+        "command": "sleep 500 & sleep 500 & sleep 500 & echo 'Started 3 sleeps'",
+        "expectedOutput": "Started 3 sleeps"
+      },
+      {
+        "instruction": "Find them with pgrep",
+        "command": "pgrep -a sleep",
+        "expectedOutput": "12800 sleep 500\n12801 sleep 500\n12802 sleep 500"
+      },
+      {
+        "instruction": "Kill one by PID with kill",
+        "command": "kill $(pgrep sleep | head -1) && echo 'Killed one'",
+        "expectedOutput": "Killed one"
+      },
+      {
+        "instruction": "Kill remaining with killall",
+        "command": "killall sleep && echo 'All sleep processes killed'",
+        "expectedOutput": "All sleep processes killed"
+      },
+      {
+        "instruction": "Verify none remain",
+        "command": "pgrep sleep || echo 'No sleep processes running'",
+        "expectedOutput": "No sleep processes running"
+      }
+    ]
+  },
+  {
+    "id": "lab-sys-01",
+    "chapterId": "systemd-and-services",
+    "title": "Explore Systemd Basics",
+    "description": "Learn to use systemctl to inspect services.",
+    "steps": [
+      {
+        "instruction": "Check if systemd is running as PID 1",
+        "command": "ps -p 1 -o comm=",
+        "expectedOutput": "systemd"
+      },
+      {
+        "instruction": "List all active services",
+        "command": "systemctl list-units --type=service --state=active | head -10",
+        "expectedOutput": "UNIT                     LOAD   ACTIVE SUB     DESCRIPTION\ncron.service             loaded active running Regular background program processing\ndbus.service             loaded active running D-Bus System Message Bus\nnetworkd-dispatcher.svc  loaded active running Dispatcher daemon for systemd-networkd\nssh.service              loaded active running OpenBSD Secure Shell server"
+      },
+      {
+        "instruction": "Check the status of SSH service",
+        "command": "systemctl status ssh --no-pager | head -8",
+        "expectedOutput": "* ssh.service - OpenBSD Secure Shell server\n   Loaded: loaded (/lib/systemd/system/ssh.service; enabled)\n   Active: active (running) since Mon 2024-01-15 12:00:00 UTC\n Main PID: 567 (sshd)"
+      },
+      {
+        "instruction": "Check if SSH is enabled at boot",
+        "command": "systemctl is-enabled ssh",
+        "expectedOutput": "enabled"
+      },
+      {
+        "instruction": "List failed services",
+        "command": "systemctl --failed",
+        "expectedOutput": "0 loaded units listed."
+      }
+    ]
+  },
+  {
+    "id": "lab-sys-02",
+    "chapterId": "systemd-and-services",
+    "title": "Systemd Targets (Runlevels)",
+    "description": "Understand systemd targets and how they replace runlevels.",
+    "steps": [
+      {
+        "instruction": "Check the current default target",
+        "command": "systemctl get-default",
+        "expectedOutput": "graphical.target"
+      },
+      {
+        "instruction": "List all available targets",
+        "command": "systemctl list-units --type=target | head -10",
+        "expectedOutput": "UNIT                  LOAD   ACTIVE SUB    DESCRIPTION\nbasic.target          loaded active active Basic System\ngraphical.target      loaded active active Graphical Interface\nmulti-user.target     loaded active active Multi-User System\nnetwork.target        loaded active active Network"
+      },
+      {
+        "instruction": "Compare targets to old runlevels",
+        "command": "echo 'runlevel 0 = poweroff.target\nrunlevel 1 = rescue.target\nrunlevel 3 = multi-user.target\nrunlevel 5 = graphical.target\nrunlevel 6 = reboot.target'",
+        "expectedOutput": "runlevel 0 = poweroff.target\nrunlevel 1 = rescue.target\nrunlevel 3 = multi-user.target\nrunlevel 5 = graphical.target\nrunlevel 6 = reboot.target"
+      },
+      {
+        "instruction": "Check current runlevel",
+        "command": "runlevel",
+        "expectedOutput": "N 5"
+      }
+    ]
+  },
+  {
+    "id": "lab-sys-03",
+    "chapterId": "systemd-and-services",
+    "title": "Inspect a Unit File",
+    "description": "Read and understand a systemd unit file.",
+    "steps": [
+      {
+        "instruction": "View the SSH service unit file",
+        "command": "systemctl cat ssh 2>/dev/null || systemctl cat sshd 2>/dev/null | head -15",
+        "expectedOutput": "[Unit]\nDescription=OpenBSD Secure Shell server\nAfter=network.target\n\n[Service]\nType=notify\nExecStartPre=/usr/sbin/sshd -t\nExecStart=/usr/sbin/sshd -D\nExecReload=/bin/kill -HUP $MAINPID\nRestart=on-failure\n\n[Install]\nWantedBy=multi-user.target"
+      },
+      {
+        "instruction": "List all unit file locations",
+        "command": "systemctl show ssh -p FragmentPath 2>/dev/null || echo '/lib/systemd/system/ssh.service'",
+        "expectedOutput": "/lib/systemd/system/ssh.service"
+      },
+      {
+        "instruction": "Check service dependencies",
+        "command": "systemctl list-dependencies ssh --no-pager 2>/dev/null | head -8",
+        "expectedOutput": "ssh.service\n* |-system.slice\n* |-sysinit.target\n* | |-dev-hugepages.mount"
+      },
+      {
+        "instruction": "View service properties",
+        "command": "systemctl show ssh -p MainPID,ActiveState,SubState 2>/dev/null",
+        "expectedOutput": "MainPID=567\nActiveState=active\nSubState=running"
+      }
+    ]
+  },
+  {
+    "id": "lab-sys-04",
+    "chapterId": "systemd-and-services",
+    "title": "Journalctl Log Exploration",
+    "description": "Use journalctl to view and filter systemd logs.",
+    "steps": [
+      {
+        "instruction": "View recent system logs",
+        "command": "journalctl --no-pager -n 10",
+        "expectedOutput": "Jan 15 14:30:01 hostname CRON[1234]: (root) CMD (test -x /usr/sbin/anacron)\nJan 15 14:30:01 hostname systemd[1]: Started Session 5 of User user."
+      },
+      {
+        "instruction": "View logs for a specific service",
+        "command": "journalctl -u ssh --no-pager -n 5 2>/dev/null || echo 'SSH logs would appear here'",
+        "expectedOutput": "Jan 15 12:00:00 hostname sshd[567]: Server listening on 0.0.0.0 port 22.\nJan 15 12:00:00 hostname sshd[567]: Server listening on :: port 22."
+      },
+      {
+        "instruction": "View logs since last boot",
+        "command": "journalctl -b --no-pager | head -5",
+        "expectedOutput": "Jan 15 12:00:00 hostname kernel: Linux version 5.15.0-91-generic\nJan 15 12:00:00 hostname kernel: Command line: BOOT_IMAGE=/vmlinuz-5.15.0-91-generic"
+      },
+      {
+        "instruction": "View only error-level logs",
+        "command": "journalctl -p err --no-pager -n 5",
+        "expectedOutput": "Jan 14 03:00:01 hostname snapd[456]: cannot refresh: network error"
+      }
+    ]
+  },
+  {
+    "id": "lab-lsp-01",
+    "chapterId": "linux-startup",
+    "title": "Explore the Boot Process",
+    "description": "Investigate your system's boot sequence.",
+    "steps": [
+      {
+        "instruction": "View kernel boot messages",
+        "command": "dmesg | head -10",
+        "expectedOutput": "[    0.000000] Linux version 5.15.0-91-generic (buildd@lcy02-amd64-051)\n[    0.000000] Command line: BOOT_IMAGE=/vmlinuz-5.15.0-91-generic root=/dev/sda1\n[    0.000000] BIOS-provided physical RAM map:"
+      },
+      {
+        "instruction": "Check the boot loader config",
+        "command": "ls /boot/ | head -8",
+        "expectedOutput": "config-5.15.0-91-generic\ngrub\ninitrd.img-5.15.0-91-generic\nvmlinuz-5.15.0-91-generic"
+      },
+      {
+        "instruction": "View GRUB configuration",
+        "command": "cat /boot/grub/grub.cfg 2>/dev/null | grep menuentry | head -3",
+        "expectedOutput": "menuentry 'Ubuntu' --class ubuntu --class gnu-linux {\nmenuentry 'Ubuntu, with Linux 5.15.0-91-generic' --class ubuntu {"
+      },
+      {
+        "instruction": "Check initramfs contents",
+        "command": "lsinitramfs /boot/initrd.img-$(uname -r) 2>/dev/null | head -10 || echo 'lsinitramfs not available - initramfs contains early boot drivers'",
+        "expectedOutput": ".\nbin\nconf\netc\ninit\nlib\nlib64\nrun\nsbin\nscripts"
+      },
+      {
+        "instruction": "View boot time analysis",
+        "command": "systemd-analyze 2>/dev/null || echo 'Boot analysis not available'",
+        "expectedOutput": "Startup finished in 3.5s (kernel) + 8.2s (userspace) = 11.7s\ngraphical.target reached after 8.1s in userspace"
+      }
+    ]
+  },
+  {
+    "id": "lab-lsp-02",
+    "chapterId": "linux-startup",
+    "title": "Systemd Boot Analysis",
+    "description": "Analyze boot performance with systemd tools.",
+    "steps": [
+      {
+        "instruction": "View boot time breakdown",
+        "command": "systemd-analyze blame --no-pager | head -8",
+        "expectedOutput": "5.234s NetworkManager-wait-online.service\n2.123s snapd.service\n1.456s dev-sda1.device\n0.987s networkd-dispatcher.service\n0.654s accounts-daemon.service"
+      },
+      {
+        "instruction": "Check critical chain",
+        "command": "systemd-analyze critical-chain --no-pager | head -10",
+        "expectedOutput": "graphical.target @8.123s\n+-multi-user.target @8.100s\n  +-ssh.service @3.456s +0.123s\n    +-network.target @3.400s"
+      },
+      {
+        "instruction": "List services by start order",
+        "command": "systemctl list-units --type=service --all --no-pager | head -10",
+        "expectedOutput": "UNIT                          LOAD   ACTIVE   SUB     DESCRIPTION\naccounts-daemon.service       loaded active   running Accounts Service\ncron.service                  loaded active   running Regular background program"
+      },
+      {
+        "instruction": "Check default target",
+        "command": "systemctl get-default",
+        "expectedOutput": "graphical.target"
+      }
+    ]
+  },
+  {
+    "id": "lab-lsp-03",
+    "chapterId": "linux-startup",
+    "title": "Kernel Modules",
+    "description": "Explore loaded kernel modules and their dependencies.",
+    "steps": [
+      {
+        "instruction": "List loaded modules",
+        "command": "lsmod | head -10",
+        "expectedOutput": "Module                  Size  Used by\nxt_conntrack           16384  1\nnf_conntrack          172032  1 xt_conntrack\nnf_defrag_ipv6         24576  1 nf_conntrack"
+      },
+      {
+        "instruction": "Get info about a specific module",
+        "command": "modinfo ext4 2>/dev/null | head -8",
+        "expectedOutput": "filename:       /lib/modules/5.15.0-91-generic/kernel/fs/ext4/ext4.ko\nlicense:        GPL\ndescription:    Fourth Extended Filesystem\nauthor:         Remy Card, Stephen Tweedie, Andrew Morton"
+      },
+      {
+        "instruction": "Check module dependencies",
+        "command": "modinfo ext4 2>/dev/null | grep depends",
+        "expectedOutput": "depends:        mbcache,jbd2,crc16,crc32c_generic"
+      },
+      {
+        "instruction": "View modules directory",
+        "command": "ls /lib/modules/$(uname -r)/kernel/ 2>/dev/null || echo 'Modules in /lib/modules/<kernel-version>/kernel/'",
+        "expectedOutput": "arch  block  crypto  drivers  fs  lib  net  sound  virt"
+      },
+      {
+        "instruction": "Count loaded modules",
+        "command": "lsmod | tail -n +2 | wc -l",
+        "expectedOutput": "85"
+      }
+    ]
+  },
+  {
+    "id": "lab-lsp-04",
+    "chapterId": "linux-startup",
+    "title": "GRUB Bootloader Investigation",
+    "description": "Explore GRUB bootloader configuration.",
+    "steps": [
+      {
+        "instruction": "Check GRUB default settings",
+        "command": "grep -E '^GRUB_' /etc/default/grub 2>/dev/null | head -6",
+        "expectedOutput": "GRUB_DEFAULT=0\nGRUB_TIMEOUT_STYLE=hidden\nGRUB_TIMEOUT=0\nGRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`\nGRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"\nGRUB_CMDLINE_LINUX=\"\""
+      },
+      {
+        "instruction": "View kernel command line parameters",
+        "command": "cat /proc/cmdline",
+        "expectedOutput": "BOOT_IMAGE=/vmlinuz-5.15.0-91-generic root=/dev/sda1 ro quiet splash"
+      },
+      {
+        "instruction": "List installed kernels",
+        "command": "ls /boot/vmlinuz-* 2>/dev/null || echo 'Kernels in /boot/vmlinuz-*'",
+        "expectedOutput": "/boot/vmlinuz-5.15.0-88-generic\n/boot/vmlinuz-5.15.0-91-generic"
+      },
+      {
+        "instruction": "Check current kernel",
+        "command": "uname -r",
+        "expectedOutput": "5.15.0-91-generic"
+      }
+    ]
+  },
+  {
+    "id": "lab-fp-01",
+    "chapterId": "file-permissions",
+    "title": "Understanding rwx Permissions",
+    "description": "Learn to read and modify file permissions.",
+    "steps": [
+      {
+        "instruction": "Create test files",
+        "command": "mkdir -p /tmp/perm-lab && touch /tmp/perm-lab/test.txt && echo 'created'",
+        "expectedOutput": "created"
+      },
+      {
+        "instruction": "View current permissions",
+        "command": "ls -la /tmp/perm-lab/test.txt",
+        "expectedOutput": "-rw-r--r-- 1 user user 0 Jan 15 14:30 /tmp/perm-lab/test.txt"
+      },
+      {
+        "instruction": "Understand the permission string",
+        "command": "echo '-rw-r--r-- means:\n  Owner: read+write (rw-)\n  Group: read only (r--)\n  Others: read only (r--)'",
+        "expectedOutput": "-rw-r--r-- means:\n  Owner: read+write (rw-)\n  Group: read only (r--)\n  Others: read only (r--)"
+      },
+      {
+        "instruction": "Make the file executable",
+        "command": "chmod +x /tmp/perm-lab/test.txt && ls -la /tmp/perm-lab/test.txt",
+        "expectedOutput": "-rwxr-xr-x 1 user user 0 Jan 15 14:30 /tmp/perm-lab/test.txt"
+      },
+      {
+        "instruction": "Set specific permissions with octal",
+        "command": "chmod 644 /tmp/perm-lab/test.txt && ls -la /tmp/perm-lab/test.txt",
+        "expectedOutput": "-rw-r--r-- 1 user user 0 Jan 15 14:30 /tmp/perm-lab/test.txt"
+      }
+    ]
+  },
+  {
+    "id": "lab-fp-02",
+    "chapterId": "file-permissions",
+    "title": "Octal vs Symbolic Notation",
+    "description": "Practice both octal and symbolic permission notation.",
+    "steps": [
+      {
+        "instruction": "Set permissions using octal 755",
+        "command": "chmod 755 /tmp/perm-lab/test.txt && stat -c '%a %A' /tmp/perm-lab/test.txt",
+        "expectedOutput": "755 -rwxr-xr-x"
+      },
+      {
+        "instruction": "Set permissions using octal 600",
+        "command": "chmod 600 /tmp/perm-lab/test.txt && stat -c '%a %A' /tmp/perm-lab/test.txt",
+        "expectedOutput": "600 -rw-------"
+      },
+      {
+        "instruction": "Add group write with symbolic notation",
+        "command": "chmod g+w /tmp/perm-lab/test.txt && stat -c '%a %A' /tmp/perm-lab/test.txt",
+        "expectedOutput": "620 -rw--w----"
+      },
+      {
+        "instruction": "Set exact permissions with symbolic",
+        "command": "chmod u=rwx,g=rx,o=r /tmp/perm-lab/test.txt && stat -c '%a %A' /tmp/perm-lab/test.txt",
+        "expectedOutput": "754 -rwxr-xr--"
+      },
+      {
+        "instruction": "Remove all permissions for others",
+        "command": "chmod o= /tmp/perm-lab/test.txt && stat -c '%a %A' /tmp/perm-lab/test.txt",
+        "expectedOutput": "750 -rwxr-x---"
+      }
+    ]
+  },
+  {
+    "id": "lab-fp-03",
+    "chapterId": "file-permissions",
+    "title": "Special Permissions: setuid, setgid, sticky",
+    "description": "Explore special permission bits.",
+    "steps": [
+      {
+        "instruction": "Find setuid binaries on the system",
+        "command": "find /usr/bin -perm -4000 2>/dev/null | head -5",
+        "expectedOutput": "/usr/bin/sudo\n/usr/bin/passwd\n/usr/bin/chfn\n/usr/bin/chsh\n/usr/bin/newgrp"
+      },
+      {
+        "instruction": "Check the sticky bit on /tmp",
+        "command": "ls -ld /tmp",
+        "expectedOutput": "drwxrwxrwt 15 root root 4096 Jan 15 14:30 /tmp"
+      },
+      {
+        "instruction": "The t at the end means sticky bit is set",
+        "command": "stat -c '%a %A' /tmp",
+        "expectedOutput": "1777 drwxrwxrwt"
+      },
+      {
+        "instruction": "View setuid on passwd command",
+        "command": "ls -la /usr/bin/passwd",
+        "expectedOutput": "-rwsr-xr-x 1 root root 68208 Jan 15 2024 /usr/bin/passwd"
+      },
+      {
+        "instruction": "The s in owner execute means setuid",
+        "command": "echo 'setuid(4): runs as file owner\nsetgid(2): runs as file group\nsticky(1): only owner can delete in dir'",
+        "expectedOutput": "setuid(4): runs as file owner\nsetgid(2): runs as file group\nsticky(1): only owner can delete in dir"
+      }
+    ]
+  },
+  {
+    "id": "lab-fp-04",
+    "chapterId": "file-permissions",
+    "title": "Understanding umask",
+    "description": "Learn how umask controls default permissions.",
+    "steps": [
+      {
+        "instruction": "Check current umask",
+        "command": "umask",
+        "expectedOutput": "0022"
+      },
+      {
+        "instruction": "See umask in symbolic form",
+        "command": "umask -S",
+        "expectedOutput": "u=rwx,g=rx,o=rx"
+      },
+      {
+        "instruction": "Understand umask calculation",
+        "command": "echo 'Default file: 666 - 022 = 644 (rw-r--r--)\nDefault dir:  777 - 022 = 755 (rwxr-xr-x)'",
+        "expectedOutput": "Default file: 666 - 022 = 644 (rw-r--r--)\nDefault dir:  777 - 022 = 755 (rwxr-xr-x)"
+      },
+      {
+        "instruction": "Test by creating a new file",
+        "command": "touch /tmp/perm-lab/umask_test && ls -la /tmp/perm-lab/umask_test",
+        "expectedOutput": "-rw-r--r-- 1 user user 0 Jan 15 14:30 /tmp/perm-lab/umask_test"
+      },
+      {
+        "instruction": "Clean up",
+        "command": "rm -rf /tmp/perm-lab && echo 'Cleanup done'",
+        "expectedOutput": "Cleanup done"
+      }
+    ]
+  },
+  {
+    "id": "lab-um-01",
+    "chapterId": "user-management",
+    "title": "Explore User Information",
+    "description": "Inspect user accounts and their configuration.",
+    "steps": [
+      {
+        "instruction": "View your user info",
+        "command": "id",
+        "expectedOutput": "uid=1000(user) gid=1000(user) groups=1000(user),4(adm),27(sudo)"
+      },
+      {
+        "instruction": "Check current username",
+        "command": "whoami",
+        "expectedOutput": "user"
+      },
+      {
+        "instruction": "View your entry in /etc/passwd",
+        "command": "grep $USER /etc/passwd",
+        "expectedOutput": "user:x:1000:1000:User Name,,,:/home/user:/bin/bash"
+      },
+      {
+        "instruction": "Understand /etc/passwd fields",
+        "command": "echo 'username:password:UID:GID:comment:home:shell'",
+        "expectedOutput": "username:password:UID:GID:comment:home:shell"
+      },
+      {
+        "instruction": "Count total users on the system",
+        "command": "wc -l < /etc/passwd",
+        "expectedOutput": "42"
+      }
+    ]
+  },
+  {
+    "id": "lab-um-02",
+    "chapterId": "user-management",
+    "title": "Groups and Membership",
+    "description": "Explore groups and group membership.",
+    "steps": [
+      {
+        "instruction": "List your groups",
+        "command": "groups",
+        "expectedOutput": "user adm sudo"
+      },
+      {
+        "instruction": "View all groups on the system",
+        "command": "cat /etc/group | head -10",
+        "expectedOutput": "root:x:0:\ndaemon:x:1:\nbin:x:2:\nsys:x:3:\nadm:x:4:syslog,user\ntty:x:5:"
+      },
+      {
+        "instruction": "Find which groups a user belongs to",
+        "command": "id -Gn $USER",
+        "expectedOutput": "user adm sudo"
+      },
+      {
+        "instruction": "Check the sudo group members",
+        "command": "grep sudo /etc/group",
+        "expectedOutput": "sudo:x:27:user"
+      },
+      {
+        "instruction": "View group IDs",
+        "command": "id -G $USER",
+        "expectedOutput": "1000 4 27"
+      }
+    ]
+  },
+  {
+    "id": "lab-um-03",
+    "chapterId": "user-management",
+    "title": "Password and Shadow File",
+    "description": "Understand how passwords are stored securely.",
+    "steps": [
+      {
+        "instruction": "Check that passwords are shadowed in /etc/passwd",
+        "command": "awk -F: '{print $1, $2}' /etc/passwd | head -5",
+        "expectedOutput": "root x\ndaemon x\nbin x\nsys x\nsync x"
+      },
+      {
+        "instruction": "The x means password is in /etc/shadow",
+        "command": "echo 'x in field 2 = password stored in /etc/shadow (not readable by normal users)'",
+        "expectedOutput": "x in field 2 = password stored in /etc/shadow (not readable by normal users)"
+      },
+      {
+        "instruction": "Check shadow file permissions",
+        "command": "ls -la /etc/shadow",
+        "expectedOutput": "-rw-r----- 1 root shadow 1234 Jan 15 12:00 /etc/shadow"
+      },
+      {
+        "instruction": "View password aging info",
+        "command": "chage -l $USER 2>/dev/null || echo 'Password aging info requires root'",
+        "expectedOutput": "Last password change\t\t\t: Jan 01, 2024\nPassword expires\t\t\t: never\nAccount expires\t\t\t\t: never"
+      },
+      {
+        "instruction": "Check login shells for system accounts",
+        "command": "awk -F: '$7 ~ /nologin|false/ {print $1}' /etc/passwd | head -5",
+        "expectedOutput": "daemon\nbin\nsys\ngames\nman"
+      }
+    ]
+  },
+  {
+    "id": "lab-um-04",
+    "chapterId": "user-management",
+    "title": "Sudo and Privilege Escalation",
+    "description": "Understand sudo configuration and usage.",
+    "steps": [
+      {
+        "instruction": "Check if you can use sudo",
+        "command": "sudo -l 2>/dev/null | head -5 || echo 'sudo access check'",
+        "expectedOutput": "User user may run the following commands on hostname:\n    (ALL : ALL) ALL"
+      },
+      {
+        "instruction": "View sudoers file location",
+        "command": "ls -la /etc/sudoers",
+        "expectedOutput": "-r--r----- 1 root root 1671 Jan 15 2024 /etc/sudoers"
+      },
+      {
+        "instruction": "Check sudoers.d directory",
+        "command": "ls /etc/sudoers.d/ 2>/dev/null",
+        "expectedOutput": "README"
+      },
+      {
+        "instruction": "View who logged in recently",
+        "command": "last | head -5",
+        "expectedOutput": "user     pts/0        192.168.1.100    Mon Jan 15 14:00   still logged in\nuser     pts/0        192.168.1.100    Mon Jan 15 12:00 - 13:00  (01:00)\nreboot   system boot  5.15.0-91-generi Mon Jan 15 12:00   still running"
+      }
+    ]
+  },
+  {
+    "id": "lab-ctp-01",
+    "chapterId": "commands-and-text-processing",
+    "title": "Mastering grep",
+    "description": "Learn to search text with grep and its variants.",
+    "steps": [
+      {
+        "instruction": "Create a sample log file",
+        "command": "printf 'INFO: Server started\\nERROR: Connection refused\\nWARN: Disk space low\\nINFO: Request processed\\nERROR: Timeout occurred\\nINFO: Server stopped\\n' > /tmp/sample.log && echo 'created'",
+        "expectedOutput": "created"
+      },
+      {
+        "instruction": "Search for ERROR lines",
+        "command": "grep 'ERROR' /tmp/sample.log",
+        "expectedOutput": "ERROR: Connection refused\nERROR: Timeout occurred"
+      },
+      {
+        "instruction": "Count matching lines",
+        "command": "grep -c 'ERROR' /tmp/sample.log",
+        "expectedOutput": "2"
+      },
+      {
+        "instruction": "Show line numbers",
+        "command": "grep -n 'INFO' /tmp/sample.log",
+        "expectedOutput": "1:INFO: Server started\n4:INFO: Request processed\n6:INFO: Server stopped"
+      },
+      {
+        "instruction": "Case-insensitive search",
+        "command": "grep -i 'error' /tmp/sample.log",
+        "expectedOutput": "ERROR: Connection refused\nERROR: Timeout occurred"
+      },
+      {
+        "instruction": "Invert match (show non-ERROR lines)",
+        "command": "grep -v 'ERROR' /tmp/sample.log",
+        "expectedOutput": "INFO: Server started\nWARN: Disk space low\nINFO: Request processed\nINFO: Server stopped"
+      }
+    ]
+  },
+  {
+    "id": "lab-ctp-02",
+    "chapterId": "commands-and-text-processing",
+    "title": "Text Processing with awk",
+    "description": "Use awk to extract and transform data.",
+    "steps": [
+      {
+        "instruction": "Create a CSV-like data file",
+        "command": "printf 'Name,Age,City\\nAlice,30,London\\nBob,25,Paris\\nCharlie,35,Berlin\\nDiana,28,Madrid\\n' > /tmp/data.csv && echo 'created'",
+        "expectedOutput": "created"
+      },
+      {
+        "instruction": "Print specific columns",
+        "command": "awk -F',' '{print $1, $3}' /tmp/data.csv",
+        "expectedOutput": "Name City\nAlice London\nBob Paris\nCharlie Berlin\nDiana Madrid"
+      },
+      {
+        "instruction": "Filter rows by condition",
+        "command": "awk -F',' '$2 > 28 {print $1, $2}' /tmp/data.csv",
+        "expectedOutput": "Alice 30\nCharlie 35"
+      },
+      {
+        "instruction": "Add line numbers",
+        "command": "awk '{print NR\": \"$0}' /tmp/data.csv",
+        "expectedOutput": "1: Name,Age,City\n2: Alice,30,London\n3: Bob,25,Paris\n4: Charlie,35,Berlin\n5: Diana,28,Madrid"
+      },
+      {
+        "instruction": "Calculate sum of ages",
+        "command": "awk -F',' 'NR>1 {sum+=$2} END {print \"Total age:\", sum}' /tmp/data.csv",
+        "expectedOutput": "Total age: 118"
+      }
+    ]
+  },
+  {
+    "id": "lab-ctp-03",
+    "chapterId": "commands-and-text-processing",
+    "title": "Stream Editing with sed",
+    "description": "Use sed for find-and-replace and text transformations.",
+    "steps": [
+      {
+        "instruction": "Replace text in a file",
+        "command": "sed 's/ERROR/CRITICAL/' /tmp/sample.log",
+        "expectedOutput": "INFO: Server started\nCRITICAL: Connection refused\nWARN: Disk space low\nINFO: Request processed\nCRITICAL: Timeout occurred\nINFO: Server stopped"
+      },
+      {
+        "instruction": "Delete lines matching a pattern",
+        "command": "sed '/WARN/d' /tmp/sample.log",
+        "expectedOutput": "INFO: Server started\nERROR: Connection refused\nINFO: Request processed\nERROR: Timeout occurred\nINFO: Server stopped"
+      },
+      {
+        "instruction": "Print only specific lines",
+        "command": "sed -n '2,4p' /tmp/sample.log",
+        "expectedOutput": "ERROR: Connection refused\nWARN: Disk space low\nINFO: Request processed"
+      },
+      {
+        "instruction": "Insert text before a line",
+        "command": "sed '1i\\--- LOG START ---' /tmp/sample.log | head -3",
+        "expectedOutput": "--- LOG START ---\nINFO: Server started\nERROR: Connection refused"
+      },
+      {
+        "instruction": "Multiple substitutions",
+        "command": "sed -e 's/INFO/[I]/' -e 's/ERROR/[E]/' -e 's/WARN/[W]/' /tmp/sample.log",
+        "expectedOutput": "[I]: Server started\n[E]: Connection refused\n[W]: Disk space low\n[I]: Request processed\n[E]: Timeout occurred\n[I]: Server stopped"
+      }
+    ]
+  },
+  {
+    "id": "lab-ctp-04",
+    "chapterId": "commands-and-text-processing",
+    "title": "Pipes and Redirection",
+    "description": "Chain commands together with pipes and redirect output.",
+    "steps": [
+      {
+        "instruction": "Pipe ps output to grep",
+        "command": "ps aux | grep sshd | grep -v grep | head -3",
+        "expectedOutput": "root       567  0.0  0.1  12345  6789 ?  Ss  12:00  0:00 /usr/sbin/sshd -D"
+      },
+      {
+        "instruction": "Count files in /etc",
+        "command": "ls /etc | wc -l",
+        "expectedOutput": "187"
+      },
+      {
+        "instruction": "Redirect output to a file",
+        "command": "echo 'Hello World' > /tmp/redirect_test.txt && cat /tmp/redirect_test.txt",
+        "expectedOutput": "Hello World"
+      },
+      {
+        "instruction": "Append to a file",
+        "command": "echo 'Second line' >> /tmp/redirect_test.txt && cat /tmp/redirect_test.txt",
+        "expectedOutput": "Hello World\nSecond line"
+      },
+      {
+        "instruction": "Redirect stderr",
+        "command": "ls /nonexistent 2>/tmp/error.log; cat /tmp/error.log",
+        "expectedOutput": "ls: cannot access '/nonexistent': No such file or directory"
+      },
+      {
+        "instruction": "Clean up",
+        "command": "rm -f /tmp/sample.log /tmp/data.csv /tmp/redirect_test.txt /tmp/error.log && echo 'Done'",
+        "expectedOutput": "Done"
+      }
+    ]
+  },
+  {
+    "id": "lab-ctp-05",
+    "chapterId": "commands-and-text-processing",
+    "title": "Sorting, Counting, and Unique",
+    "description": "Use sort, uniq, wc, and cut for data analysis.",
+    "steps": [
+      {
+        "instruction": "Create sample data",
+        "command": "printf 'banana\\napple\\ncherry\\napple\\nbanana\\napple\\ndate\\n' > /tmp/fruits.txt && echo 'created'",
+        "expectedOutput": "created"
+      },
+      {
+        "instruction": "Sort the data",
+        "command": "sort /tmp/fruits.txt",
+        "expectedOutput": "apple\napple\napple\nbanana\nbanana\ncherry\ndate"
+      },
+      {
+        "instruction": "Get unique values",
+        "command": "sort /tmp/fruits.txt | uniq",
+        "expectedOutput": "apple\nbanana\ncherry\ndate"
+      },
+      {
+        "instruction": "Count occurrences",
+        "command": "sort /tmp/fruits.txt | uniq -c | sort -rn",
+        "expectedOutput": "      3 apple\n      2 banana\n      1 date\n      1 cherry"
+      },
+      {
+        "instruction": "Use cut to extract fields",
+        "command": "echo 'user:x:1000:1000:User:/home/user:/bin/bash' | cut -d: -f1,6,7",
+        "expectedOutput": "user:/home/user:/bin/bash"
+      },
+      {
+        "instruction": "Clean up",
+        "command": "rm -f /tmp/fruits.txt && echo 'Done'",
+        "expectedOutput": "Done"
+      }
+    ]
+  },
+  {
+    "id": "lab-net-01",
+    "chapterId": "networking",
+    "title": "Network Interface Inspection",
+    "description": "Explore your network interfaces and IP configuration.",
+    "steps": [
+      {
+        "instruction": "View all network interfaces",
+        "command": "ip addr show | head -15",
+        "expectedOutput": "1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536\n    inet 127.0.0.1/8 scope host lo\n2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500\n    inet 192.168.1.100/24 brd 192.168.1.255 scope global eth0"
+      },
+      {
+        "instruction": "View routing table",
+        "command": "ip route show",
+        "expectedOutput": "default via 192.168.1.1 dev eth0 proto dhcp\n192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.100"
+      },
+      {
+        "instruction": "Check your default gateway",
+        "command": "ip route | grep default",
+        "expectedOutput": "default via 192.168.1.1 dev eth0 proto dhcp"
+      },
+      {
+        "instruction": "View interface statistics",
+        "command": "ip -s link show eth0 2>/dev/null | head -8 || ip -s link show | head -12",
+        "expectedOutput": "2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500\n    RX: bytes  packets  errors  dropped\n    1234567890 987654   0       0\n    TX: bytes  packets  errors  dropped\n    987654321  654321   0       0"
+      }
+    ]
+  },
+  {
+    "id": "lab-net-02",
+    "chapterId": "networking",
+    "title": "DNS Resolution",
+    "description": "Understand how DNS resolution works on Linux.",
+    "steps": [
+      {
+        "instruction": "Check DNS configuration",
+        "command": "cat /etc/resolv.conf",
+        "expectedOutput": "nameserver 8.8.8.8\nnameserver 8.8.4.4\nsearch example.com"
+      },
+      {
+        "instruction": "Resolve a domain name",
+        "command": "nslookup google.com 2>/dev/null || host google.com",
+        "expectedOutput": "Server:\t\t8.8.8.8\nAddress:\t8.8.8.8#53\n\nNon-authoritative answer:\nName:\tgoogle.com\nAddress: 142.250.80.46"
+      },
+      {
+        "instruction": "Use dig for detailed DNS info",
+        "command": "dig google.com +short 2>/dev/null || echo '142.250.80.46'",
+        "expectedOutput": "142.250.80.46"
+      },
+      {
+        "instruction": "Check /etc/hosts file",
+        "command": "cat /etc/hosts",
+        "expectedOutput": "127.0.0.1\tlocalhost\n127.0.1.1\thostname\n::1\t\tlocalhost ip6-localhost"
+      },
+      {
+        "instruction": "Check name resolution order",
+        "command": "grep hosts /etc/nsswitch.conf",
+        "expectedOutput": "hosts:          files mdns4_minimal [NOTFOUND=return] dns"
+      }
+    ]
+  },
+  {
+    "id": "lab-net-03",
+    "chapterId": "networking",
+    "title": "Testing Connectivity",
+    "description": "Use ping, traceroute, and curl to test network connectivity.",
+    "steps": [
+      {
+        "instruction": "Ping localhost",
+        "command": "ping -c 3 127.0.0.1",
+        "expectedOutput": "PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.\n64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.030 ms\n64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.025 ms\n64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.028 ms\n--- 127.0.0.1 ping statistics ---\n3 packets transmitted, 3 received, 0% packet loss"
+      },
+      {
+        "instruction": "Check if a remote port is open",
+        "command": "timeout 3 bash -c 'echo > /dev/tcp/google.com/80 && echo Port 80 is open' 2>/dev/null || echo 'Port check complete'",
+        "expectedOutput": "Port 80 is open"
+      },
+      {
+        "instruction": "View listening ports",
+        "command": "ss -tlnp | head -8",
+        "expectedOutput": "State  Recv-Q Send-Q Local Address:Port  Peer Address:Port Process\nLISTEN 0      128    0.0.0.0:22         0.0.0.0:*         users:((\"sshd\",pid=567,fd=3))\nLISTEN 0      511    0.0.0.0:80         0.0.0.0:*         users:((\"nginx\",pid=890,fd=6))"
+      },
+      {
+        "instruction": "Check active connections",
+        "command": "ss -tnp | head -5",
+        "expectedOutput": "State  Recv-Q Send-Q Local Address:Port  Peer Address:Port Process\nESTAB  0      0      192.168.1.100:22   192.168.1.50:54321 users:((\"sshd\",pid=1234,fd=4))"
+      }
+    ]
+  },
+  {
+    "id": "lab-net-04",
+    "chapterId": "networking",
+    "title": "TCP/IP and Ports",
+    "description": "Explore TCP connections and port usage.",
+    "steps": [
+      {
+        "instruction": "View all listening TCP ports",
+        "command": "ss -tlnp 2>/dev/null | head -8",
+        "expectedOutput": "State  Recv-Q Send-Q Local Address:Port  Peer Address:Port\nLISTEN 0      128    0.0.0.0:22         0.0.0.0:*\nLISTEN 0      511    0.0.0.0:80         0.0.0.0:*"
+      },
+      {
+        "instruction": "View all listening UDP ports",
+        "command": "ss -ulnp 2>/dev/null | head -5",
+        "expectedOutput": "State  Recv-Q Send-Q Local Address:Port  Peer Address:Port\nUNCONN 0      0      127.0.0.53%lo:53   0.0.0.0:*"
+      },
+      {
+        "instruction": "Check well-known ports",
+        "command": "grep -E '^(ssh|http|https|ftp|smtp|dns)' /etc/services | head -8",
+        "expectedOutput": "ftp\t\t21/tcp\nssh\t\t22/tcp\nsmtp\t\t25/tcp\ndomain\t\t53/tcp\t\t\t\t# DNS\nhttp\t\t80/tcp\t\t\t\t# WorldWideWeb HTTP\nhttps\t\t443/tcp"
+      },
+      {
+        "instruction": "Count established connections",
+        "command": "ss -tn state established | wc -l",
+        "expectedOutput": "5"
+      },
+      {
+        "instruction": "Review TCP states",
+        "command": "echo 'LISTEN=waiting, ESTABLISHED=connected, TIME_WAIT=closing, CLOSE_WAIT=remote closed'",
+        "expectedOutput": "LISTEN=waiting, ESTABLISHED=connected, TIME_WAIT=closing, CLOSE_WAIT=remote closed"
+      }
+    ]
+  },
+  {
+    "id": "lab-net-05",
+    "chapterId": "networking",
+    "title": "SSH Basics",
+    "description": "Explore SSH configuration and key management.",
+    "steps": [
+      {
+        "instruction": "Check SSH client config",
+        "command": "ls -la ~/.ssh/ 2>/dev/null || echo 'No .ssh directory yet'",
+        "expectedOutput": "total 12\ndrwx------ 2 user user 4096 Jan 15 12:00 .\n-rw------- 1 user user 2602 Jan 15 12:00 id_rsa\n-rw-r--r-- 1 user user  571 Jan 15 12:00 id_rsa.pub"
+      },
+      {
+        "instruction": "View SSH server config location",
+        "command": "ls -la /etc/ssh/sshd_config 2>/dev/null",
+        "expectedOutput": "-rw-r--r-- 1 root root 3287 Jan 15 2024 /etc/ssh/sshd_config"
+      },
+      {
+        "instruction": "Check SSH key permissions (must be strict)",
+        "command": "echo 'Required permissions:\n  ~/.ssh/         = 700 (drwx------)\n  id_rsa          = 600 (-rw-------)\n  id_rsa.pub      = 644 (-rw-r--r--)\n  authorized_keys = 600 (-rw-------)'",
+        "expectedOutput": "Required permissions:\n  ~/.ssh/         = 700 (drwx------)\n  id_rsa          = 600 (-rw-------)\n  id_rsa.pub      = 644 (-rw-r--r--)\n  authorized_keys = 600 (-rw-------)"
+      },
+      {
+        "instruction": "Check SSH service status",
+        "command": "systemctl is-active ssh 2>/dev/null || systemctl is-active sshd 2>/dev/null || echo 'SSH service status check'",
+        "expectedOutput": "active"
+      }
+    ]
+  },
+  {
+    "id": "lab-na-01",
+    "chapterId": "networking-advanced",
+    "title": "IP Subnetting and CIDR",
+    "description": "Practice CIDR notation and subnet calculations.",
+    "steps": [
+      {
+        "instruction": "View your IP and subnet mask",
+        "command": "ip addr show | grep 'inet ' | grep -v 127.0.0.1 | head -1",
+        "expectedOutput": "    inet 192.168.1.100/24 brd 192.168.1.255 scope global eth0"
+      },
+      {
+        "instruction": "Calculate network details with ipcalc",
+        "command": "ipcalc 192.168.1.100/24 2>/dev/null || echo 'Network: 192.168.1.0/24\nBroadcast: 192.168.1.255\nHosts: 254\nRange: 192.168.1.1 - 192.168.1.254'",
+        "expectedOutput": "Network: 192.168.1.0/24\nBroadcast: 192.168.1.255\nHosts: 254\nRange: 192.168.1.1 - 192.168.1.254"
+      },
+      {
+        "instruction": "Understand CIDR notation",
+        "command": "echo '/8  = 255.0.0.0     (16M hosts)\n/16 = 255.255.0.0   (65K hosts)\n/24 = 255.255.255.0 (254 hosts)\n/32 = 255.255.255.255 (1 host)'",
+        "expectedOutput": "/8  = 255.0.0.0     (16M hosts)\n/16 = 255.255.0.0   (65K hosts)\n/24 = 255.255.255.0 (254 hosts)\n/32 = 255.255.255.255 (1 host)"
+      },
+      {
+        "instruction": "Check private IP ranges",
+        "command": "echo 'Private ranges:\n  10.0.0.0/8     (Class A)\n  172.16.0.0/12  (Class B)\n  192.168.0.0/16 (Class C)'",
+        "expectedOutput": "Private ranges:\n  10.0.0.0/8     (Class A)\n  172.16.0.0/12  (Class B)\n  192.168.0.0/16 (Class C)"
+      }
+    ]
+  },
+  {
+    "id": "lab-na-02",
+    "chapterId": "networking-advanced",
+    "title": "Routing Tables",
+    "description": "Explore and understand Linux routing.",
+    "steps": [
+      {
+        "instruction": "View the routing table",
+        "command": "ip route show",
+        "expectedOutput": "default via 192.168.1.1 dev eth0 proto dhcp\n192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.100"
+      },
+      {
+        "instruction": "View routing table in traditional format",
+        "command": "route -n 2>/dev/null || netstat -rn 2>/dev/null",
+        "expectedOutput": "Kernel IP routing table\nDestination     Gateway         Genmask         Flags Metric Ref Use Iface\n0.0.0.0         192.168.1.1     0.0.0.0         UG    100    0   0   eth0\n192.168.1.0     0.0.0.0         255.255.255.0   U     100    0   0   eth0"
+      },
+      {
+        "instruction": "Trace the route to a destination",
+        "command": "ip route get 8.8.8.8",
+        "expectedOutput": "8.8.8.8 via 192.168.1.1 dev eth0 src 192.168.1.100 uid 1000"
+      },
+      {
+        "instruction": "Check ARP table",
+        "command": "ip neigh show | head -5",
+        "expectedOutput": "192.168.1.1 dev eth0 lladdr aa:bb:cc:dd:ee:ff REACHABLE\n192.168.1.50 dev eth0 lladdr 11:22:33:44:55:66 STALE"
+      },
+      {
+        "instruction": "View network namespaces",
+        "command": "ip netns list 2>/dev/null || echo 'No network namespaces (common on basic setups)'",
+        "expectedOutput": "No network namespaces (common on basic setups)"
+      }
+    ]
+  },
+  {
+    "id": "lab-na-03",
+    "chapterId": "networking-advanced",
+    "title": "Firewall Rules with iptables",
+    "description": "Explore firewall configuration on Linux.",
+    "steps": [
+      {
+        "instruction": "View current iptables rules",
+        "command": "sudo iptables -L -n --line-numbers 2>/dev/null || echo 'Chain INPUT (policy ACCEPT)\nChain FORWARD (policy ACCEPT)\nChain OUTPUT (policy ACCEPT)'",
+        "expectedOutput": "Chain INPUT (policy ACCEPT)\nChain FORWARD (policy ACCEPT)\nChain OUTPUT (policy ACCEPT)"
+      },
+      {
+        "instruction": "Check if ufw is available",
+        "command": "ufw status 2>/dev/null || echo 'Status: inactive (ufw not configured)'",
+        "expectedOutput": "Status: inactive (ufw not configured)"
+      },
+      {
+        "instruction": "View NAT table rules",
+        "command": "sudo iptables -t nat -L -n 2>/dev/null || echo 'Chain PREROUTING (policy ACCEPT)\nChain POSTROUTING (policy ACCEPT)\nChain OUTPUT (policy ACCEPT)'",
+        "expectedOutput": "Chain PREROUTING (policy ACCEPT)\nChain POSTROUTING (policy ACCEPT)\nChain OUTPUT (policy ACCEPT)"
+      },
+      {
+        "instruction": "Review iptables chains",
+        "command": "echo 'INPUT: incoming traffic\nOUTPUT: outgoing traffic\nFORWARD: routed traffic\nPolicies: ACCEPT, DROP, REJECT'",
+        "expectedOutput": "INPUT: incoming traffic\nOUTPUT: outgoing traffic\nFORWARD: routed traffic\nPolicies: ACCEPT, DROP, REJECT"
+      }
+    ]
+  },
+  {
+    "id": "lab-na-04",
+    "chapterId": "networking-advanced",
+    "title": "Network Troubleshooting Tools",
+    "description": "Use advanced tools to diagnose network issues.",
+    "steps": [
+      {
+        "instruction": "Check DNS resolution time",
+        "command": "time nslookup google.com 2>&1 | tail -5",
+        "expectedOutput": "Name:\tgoogle.com\nAddress: 142.250.80.46\n\nreal\t0m0.025s"
+      },
+      {
+        "instruction": "View socket statistics summary",
+        "command": "ss -s",
+        "expectedOutput": "Total: 168\nTCP:   12 (estab 3, closed 2, orphaned 0, timewait 2)\nTransport Total     IP        IPv6\nRAW\t  0         0         0\nUDP\t  4         3         1\nTCP\t  10        7         3"
+      },
+      {
+        "instruction": "Check for packet loss with ping",
+        "command": "ping -c 5 -q 127.0.0.1",
+        "expectedOutput": "PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.\n--- 127.0.0.1 ping statistics ---\n5 packets transmitted, 5 received, 0% packet loss, time 4005ms\nrtt min/avg/max/mdev = 0.025/0.028/0.035/0.003 ms"
+      },
+      {
+        "instruction": "View network interface errors",
+        "command": "ip -s link show | grep -A2 'errors' | head -6",
+        "expectedOutput": "    RX: bytes  packets  errors  dropped\n    1234567890 987654   0       0\n    TX: bytes  packets  errors  dropped\n    987654321  654321   0       0"
+      },
+      {
+        "instruction": "Check MTU settings",
+        "command": "ip link show | grep mtu | head -3",
+        "expectedOutput": "1: lo: <LOOPBACK,UP> mtu 65536\n2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500"
+      }
+    ]
+  },
+  {
+    "id": "lab-rs-01",
+    "chapterId": "raid-and-storage",
+    "title": "Explore Block Devices",
+    "description": "Investigate storage devices and partitions on your system.",
+    "steps": [
+      {
+        "instruction": "List all block devices",
+        "command": "lsblk",
+        "expectedOutput": "NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS\nsda      8:0    0    50G  0 disk\n+-sda1   8:1    0    49G  0 part /\n+-sda2   8:2    0     1G  0 part [SWAP]"
+      },
+      {
+        "instruction": "View detailed block device info",
+        "command": "lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT | head -8",
+        "expectedOutput": "NAME   SIZE TYPE FSTYPE MOUNTPOINT\nsda     50G disk\n+-sda1  49G part ext4   /\n+-sda2   1G part swap   [SWAP]"
+      },
+      {
+        "instruction": "Check disk partitions",
+        "command": "fdisk -l 2>/dev/null | head -10 || echo 'Disk /dev/sda: 50 GiB\nSector size: 512 bytes\nDevice     Start      End  Sectors Size Type\n/dev/sda1   2048 102760447 102758400  49G Linux filesystem\n/dev/sda2 102760448 104857599  2097152   1G Linux swap'",
+        "expectedOutput": "Disk /dev/sda: 50 GiB\nSector size: 512 bytes\nDevice     Start      End  Sectors Size Type\n/dev/sda1   2048 102760447 102758400  49G Linux filesystem\n/dev/sda2 102760448 104857599  2097152   1G Linux swap"
+      },
+      {
+        "instruction": "Check swap usage",
+        "command": "swapon --show",
+        "expectedOutput": "NAME      TYPE      SIZE USED PRIO\n/dev/sda2 partition   1G   0B   -2"
+      }
+    ]
+  },
+  {
+    "id": "lab-rs-02",
+    "chapterId": "raid-and-storage",
+    "title": "RAID Levels Comparison",
+    "description": "Understand RAID levels through investigation and comparison.",
+    "steps": [
+      {
+        "instruction": "Check if mdadm (RAID tool) is installed",
+        "command": "which mdadm 2>/dev/null || echo 'mdadm not installed (used for software RAID)'",
+        "expectedOutput": "mdadm not installed (used for software RAID)"
+      },
+      {
+        "instruction": "Check for existing RAID arrays",
+        "command": "cat /proc/mdstat 2>/dev/null || echo 'Personalities :\nunused devices: <none>'",
+        "expectedOutput": "Personalities :\nunused devices: <none>"
+      },
+      {
+        "instruction": "Review RAID levels",
+        "command": "echo 'RAID 0: Striping - 2+ disks, no redundancy, max speed\nRAID 1: Mirroring - 2 disks, full redundancy, 50% capacity\nRAID 5: Striping+Parity - 3+ disks, 1 disk fault tolerance\nRAID 6: Double Parity - 4+ disks, 2 disk fault tolerance\nRAID 10: Mirror+Stripe - 4+ disks, speed + redundancy'",
+        "expectedOutput": "RAID 0: Striping - 2+ disks, no redundancy, max speed\nRAID 1: Mirroring - 2 disks, full redundancy, 50% capacity\nRAID 5: Striping+Parity - 3+ disks, 1 disk fault tolerance\nRAID 6: Double Parity - 4+ disks, 2 disk fault tolerance\nRAID 10: Mirror+Stripe - 4+ disks, speed + redundancy"
+      },
+      {
+        "instruction": "Calculate usable space for each RAID level",
+        "command": "echo 'With 4x 1TB disks:\nRAID 0:  4TB usable (no redundancy)\nRAID 1:  1TB usable (3 copies wasted)\nRAID 5:  3TB usable (1 disk for parity)\nRAID 6:  2TB usable (2 disks for parity)\nRAID 10: 2TB usable (mirrored pairs)'",
+        "expectedOutput": "With 4x 1TB disks:\nRAID 0:  4TB usable (no redundancy)\nRAID 1:  1TB usable (3 copies wasted)\nRAID 5:  3TB usable (1 disk for parity)\nRAID 6:  2TB usable (2 disks for parity)\nRAID 10: 2TB usable (mirrored pairs)"
+      }
+    ]
+  },
+  {
+    "id": "lab-rs-03",
+    "chapterId": "raid-and-storage",
+    "title": "LVM Exploration",
+    "description": "Explore Logical Volume Management concepts.",
+    "steps": [
+      {
+        "instruction": "Check if LVM is available",
+        "command": "which lvs 2>/dev/null && echo 'LVM tools installed' || echo 'LVM tools not installed'",
+        "expectedOutput": "LVM tools installed"
+      },
+      {
+        "instruction": "List physical volumes",
+        "command": "sudo pvs 2>/dev/null || echo 'No physical volumes found (LVM not in use)'",
+        "expectedOutput": "No physical volumes found (LVM not in use)"
+      },
+      {
+        "instruction": "List volume groups",
+        "command": "sudo vgs 2>/dev/null || echo 'No volume groups found'",
+        "expectedOutput": "No volume groups found"
+      },
+      {
+        "instruction": "Review LVM concepts",
+        "command": "echo 'LVM Layers:\n  Physical Volume (PV) = actual disk/partition\n  Volume Group (VG) = pool of PVs\n  Logical Volume (LV) = virtual partition from VG\n\nBenefit: Resize volumes without downtime'",
+        "expectedOutput": "LVM Layers:\n  Physical Volume (PV) = actual disk/partition\n  Volume Group (VG) = pool of PVs\n  Logical Volume (LV) = virtual partition from VG\n\nBenefit: Resize volumes without downtime"
+      }
+    ]
+  },
+  {
+    "id": "lab-rs-04",
+    "chapterId": "raid-and-storage",
+    "title": "Disk I/O Monitoring",
+    "description": "Monitor disk performance and I/O statistics.",
+    "steps": [
+      {
+        "instruction": "Check disk I/O stats",
+        "command": "iostat 2>/dev/null | head -10 || echo 'iostat not installed (part of sysstat package)'",
+        "expectedOutput": "Linux 5.15.0-91-generic\n\navg-cpu:  %user   %nice %system %iowait  %steal   %idle\n           1.23    0.00    0.45    0.12    0.00   98.20\n\nDevice             tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn\nsda               5.67        45.23        12.34    1234567     345678"
+      },
+      {
+        "instruction": "Check for I/O wait",
+        "command": "vmstat 1 3 2>/dev/null | head -5",
+        "expectedOutput": "procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----\n r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st\n 1  0      0 2345678 234567 2345678  0    0    45    12  234  567  1  0 98  0  0"
+      },
+      {
+        "instruction": "View disk usage by filesystem",
+        "command": "df -h | grep -v tmpfs | head -5",
+        "expectedOutput": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        49G   15G   32G  32% /"
+      },
+      {
+        "instruction": "Check for processes doing heavy I/O",
+        "command": "iotop -b -n 1 2>/dev/null | head -5 || echo 'iotop not installed - use: sudo apt install iotop'",
+        "expectedOutput": "Total DISK READ: 0.00 B/s | Total DISK WRITE: 0.00 B/s\nCurrent DISK READ: 0.00 B/s | Current DISK WRITE: 0.00 B/s\n  PID  PRIO  USER     DISK READ  DISK WRITE  COMMAND"
+      }
+    ]
+  },
+  {
+    "id": "lab-virt-01",
+    "chapterId": "virtualisation",
+    "title": "Explore Virtualisation Support",
+    "description": "Check if your system supports virtualisation and explore container tools.",
+    "steps": [
+      {
+        "instruction": "Check CPU virtualisation support",
+        "command": "grep -Ec '(vmx|svm)' /proc/cpuinfo 2>/dev/null || echo '4'",
+        "expectedOutput": "4"
+      },
+      {
+        "instruction": "Check if KVM is available",
+        "command": "ls /dev/kvm 2>/dev/null && echo 'KVM available' || echo 'KVM not available (needs CPU virtualisation)'",
+        "expectedOutput": "KVM available"
+      },
+      {
+        "instruction": "Check for Docker",
+        "command": "docker --version 2>/dev/null || echo 'Docker not installed'",
+        "expectedOutput": "Docker version 24.0.7, build afdd53b"
+      },
+      {
+        "instruction": "Check for container runtime",
+        "command": "which containerd 2>/dev/null || which podman 2>/dev/null || echo 'No container runtime found'",
+        "expectedOutput": "/usr/bin/containerd"
+      },
+      {
+        "instruction": "Review VM vs Container differences",
+        "command": "echo 'VMs: Full OS, hardware-level isolation, GBs, minutes to start\nContainers: Shared kernel, process-level isolation, MBs, seconds to start'",
+        "expectedOutput": "VMs: Full OS, hardware-level isolation, GBs, minutes to start\nContainers: Shared kernel, process-level isolation, MBs, seconds to start"
+      }
+    ]
+  },
+  {
+    "id": "lab-virt-02",
+    "chapterId": "virtualisation",
+    "title": "Memory Management: Swappiness",
+    "description": "Explore Linux memory management and swap behavior.",
+    "steps": [
+      {
+        "instruction": "Check current swappiness value",
+        "command": "cat /proc/sys/vm/swappiness",
+        "expectedOutput": "60"
+      },
+      {
+        "instruction": "View memory usage",
+        "command": "free -h",
+        "expectedOutput": "              total   used   free  shared  buff/cache  available\nMem:          7.8Gi  2.1Gi  3.2Gi  256Mi   2.5Gi       5.2Gi\nSwap:         2.0Gi     0B  2.0Gi"
+      },
+      {
+        "instruction": "Check swap usage details",
+        "command": "swapon --show",
+        "expectedOutput": "NAME      TYPE      SIZE USED PRIO\n/dev/sda2 partition   1G   0B   -2"
+      },
+      {
+        "instruction": "View memory stats from /proc",
+        "command": "cat /proc/meminfo | grep -E '(MemTotal|MemFree|MemAvailable|SwapTotal|SwapFree|Cached)'",
+        "expectedOutput": "MemTotal:        8154368 kB\nMemFree:         3345678 kB\nMemAvailable:    5678901 kB\nCached:          2345678 kB\nSwapTotal:       2097148 kB\nSwapFree:        2097148 kB"
+      },
+      {
+        "instruction": "Understand swappiness values",
+        "command": "echo 'swappiness=0:  avoid swap unless absolutely necessary\nswappiness=10: minimal swapping (recommended for SSDs)\nswappiness=60: default balance\nswappiness=100: aggressively swap to disk'",
+        "expectedOutput": "swappiness=0:  avoid swap unless absolutely necessary\nswappiness=10: minimal swapping (recommended for SSDs)\nswappiness=60: default balance\nswappiness=100: aggressively swap to disk"
+      }
+    ]
+  },
+  {
+    "id": "lab-virt-03",
+    "chapterId": "virtualisation",
+    "title": "CPU Affinity and cgroups",
+    "description": "Explore CPU pinning and control groups.",
+    "steps": [
+      {
+        "instruction": "Check number of CPUs",
+        "command": "nproc",
+        "expectedOutput": "4"
+      },
+      {
+        "instruction": "View CPU topology",
+        "command": "lscpu | grep -E '(CPU\\(s\\)|Thread|Core|Socket|Model name)'",
+        "expectedOutput": "CPU(s):                          4\nThread(s) per core:              2\nCore(s) per socket:              2\nSocket(s):                       1\nModel name:                      Intel(R) Core(TM) i7-9750H"
+      },
+      {
+        "instruction": "Check CPU affinity of current shell",
+        "command": "taskset -p $$ 2>/dev/null || echo 'pid 12345 current affinity mask: f (all 4 CPUs)'",
+        "expectedOutput": "pid 12345's current affinity mask: f"
+      },
+      {
+        "instruction": "Explore cgroups",
+        "command": "ls /sys/fs/cgroup/ 2>/dev/null | head -8",
+        "expectedOutput": "cgroup.controllers\ncgroup.max.depth\ncgroup.procs\ncgroup.stat\ncpu.stat\nio.stat\nmemory.stat"
+      },
+      {
+        "instruction": "View cgroup memory limit",
+        "command": "cat /sys/fs/cgroup/memory.max 2>/dev/null || echo 'max (no limit set)'",
+        "expectedOutput": "max (no limit set)"
+      }
+    ]
+  },
+  {
+    "id": "lab-virt-04",
+    "chapterId": "virtualisation",
+    "title": "Process Resource Limits",
+    "description": "Explore ulimits and resource constraints.",
+    "steps": [
+      {
+        "instruction": "View all resource limits",
+        "command": "ulimit -a",
+        "expectedOutput": "core file size          (blocks, -c) 0\ndata seg size           (kbytes, -d) unlimited\nfile size               (blocks, -f) unlimited\nmax locked memory       (kbytes, -l) 65536\nmax memory size         (kbytes, -m) unlimited\nopen files                      (-n) 1024\npipe size            (512 bytes, -p) 8\nstack size              (kbytes, -s) 8192\nmax user processes              (-u) 63304"
+      },
+      {
+        "instruction": "Check open file limit",
+        "command": "ulimit -n",
+        "expectedOutput": "1024"
+      },
+      {
+        "instruction": "Check max user processes",
+        "command": "ulimit -u",
+        "expectedOutput": "63304"
+      },
+      {
+        "instruction": "View system-wide limits config",
+        "command": "cat /etc/security/limits.conf | grep -v '^#' | grep -v '^$' | head -5 || echo 'No custom limits configured'",
+        "expectedOutput": "No custom limits configured"
+      },
+      {
+        "instruction": "Check current open files for your shell",
+        "command": "ls /proc/$$/fd | wc -l",
+        "expectedOutput": "4"
+      }
+    ]
+  },
+  {
+    "id": "lab-virt-05",
+    "chapterId": "virtualisation",
+    "title": "OOM Killer Investigation",
+    "description": "Understand the Out-of-Memory killer.",
+    "steps": [
+      {
+        "instruction": "Check OOM score of your shell",
+        "command": "cat /proc/$$/oom_score",
+        "expectedOutput": "0"
+      },
+      {
+        "instruction": "Check OOM score adjustment",
+        "command": "cat /proc/$$/oom_score_adj",
+        "expectedOutput": "0"
+      },
+      {
+        "instruction": "View OOM scores for all processes",
+        "command": "for pid in $(ls /proc/ | grep -E '^[0-9]+$' | head -10); do name=$(cat /proc/$pid/comm 2>/dev/null); score=$(cat /proc/$pid/oom_score 2>/dev/null); [ -n \"$name\" ] && echo \"$score $name\"; done | sort -rn | head -5",
+        "expectedOutput": "800 firefox\n650 gnome-shell\n200 Xorg\n100 systemd-journal\n0 systemd"
+      },
+      {
+        "instruction": "Check for recent OOM kills in logs",
+        "command": "dmesg | grep -i 'oom\\|out of memory' | tail -3 || echo 'No OOM kills found (good!)'",
+        "expectedOutput": "No OOM kills found (good!)"
+      },
+      {
+        "instruction": "Understand OOM score",
+        "command": "echo 'OOM Score: 0-1000 (higher = more likely to be killed)\noom_score_adj: -1000 to 1000 (tune priority)\n-1000 = never kill (e.g., critical services)\n+1000 = always kill first'",
+        "expectedOutput": "OOM Score: 0-1000 (higher = more likely to be killed)\noom_score_adj: -1000 to 1000 (tune priority)\n-1000 = never kill (e.g., critical services)\n+1000 = always kill first"
+      }
+    ]
+  },
+  {
+    "id": "lab-ts-01",
+    "chapterId": "troubleshooting",
+    "title": "Diagnose a Slow Server",
+    "description": "Use Linux tools to diagnose performance issues.",
+    "steps": [
+      {
+        "instruction": "Check system load",
+        "command": "uptime",
+        "expectedOutput": " 14:32:07 up 3 days, 2:15, 1 user, load average: 0.08, 0.03, 0.01"
+      },
+      {
+        "instruction": "Check CPU usage",
+        "command": "mpstat 2>/dev/null || top -bn1 | head -5",
+        "expectedOutput": "top - 14:32:07 up 3 days,  2:15,  1 user,  load average: 0.08, 0.03, 0.01\nTasks: 142 total,   1 running, 141 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  1.2 us,  0.5 sy,  0.0 ni, 98.0 id,  0.2 wa,  0.0 hi,  0.1 si"
+      },
+      {
+        "instruction": "Check memory pressure",
+        "command": "free -h",
+        "expectedOutput": "              total   used   free  shared  buff/cache  available\nMem:          7.8Gi  2.1Gi  3.2Gi  256Mi   2.5Gi       5.2Gi\nSwap:         2.0Gi     0B  2.0Gi"
+      },
+      {
+        "instruction": "Check disk space",
+        "command": "df -h | grep -v tmpfs",
+        "expectedOutput": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        49G   15G   32G  32% /"
+      },
+      {
+        "instruction": "Check for high I/O wait",
+        "command": "vmstat 1 3 2>/dev/null | tail -3",
+        "expectedOutput": " 1  0  0 2345678 234567 2345678  0  0  45  12  234  567  1  0 98  0  0"
+      },
+      {
+        "instruction": "Summarize troubleshooting checklist",
+        "command": "echo '1. uptime - check load average\n2. free -h - check memory\n3. df -h - check disk space\n4. top/htop - find resource hogs\n5. dmesg - check kernel errors\n6. journalctl - check service logs'",
+        "expectedOutput": "1. uptime - check load average\n2. free -h - check memory\n3. df -h - check disk space\n4. top/htop - find resource hogs\n5. dmesg - check kernel errors\n6. journalctl - check service logs"
+      }
+    ]
+  },
+  {
+    "id": "lab-ts-02",
+    "chapterId": "troubleshooting",
+    "title": "Network Troubleshooting",
+    "description": "Diagnose network connectivity issues step by step.",
+    "steps": [
+      {
+        "instruction": "Step 1: Check if interface is up",
+        "command": "ip link show | grep 'state UP'",
+        "expectedOutput": "2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP"
+      },
+      {
+        "instruction": "Step 2: Check IP address",
+        "command": "ip addr show | grep 'inet ' | grep -v 127.0.0.1",
+        "expectedOutput": "    inet 192.168.1.100/24 brd 192.168.1.255 scope global eth0"
+      },
+      {
+        "instruction": "Step 3: Ping default gateway",
+        "command": "ping -c 2 $(ip route | grep default | awk '{print $3}') 2>/dev/null || ping -c 2 127.0.0.1",
+        "expectedOutput": "PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.\n64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=1.23 ms\n2 packets transmitted, 2 received, 0% packet loss"
+      },
+      {
+        "instruction": "Step 4: Test DNS resolution",
+        "command": "nslookup google.com 2>/dev/null | head -4 || echo 'DNS resolution test'",
+        "expectedOutput": "Server:\t\t8.8.8.8\nAddress:\t8.8.8.8#53\nNon-authoritative answer:\nName:\tgoogle.com"
+      },
+      {
+        "instruction": "Step 5: Test external connectivity",
+        "command": "ping -c 2 8.8.8.8 2>/dev/null || echo '2 packets transmitted, 2 received, 0% packet loss'",
+        "expectedOutput": "2 packets transmitted, 2 received, 0% packet loss"
+      },
+      {
+        "instruction": "Network troubleshooting order",
+        "command": "echo '1. Physical/Link layer (ip link)\n2. IP layer (ip addr)\n3. Gateway (ping gateway)\n4. DNS (nslookup)\n5. Remote host (ping/curl)'",
+        "expectedOutput": "1. Physical/Link layer (ip link)\n2. IP layer (ip addr)\n3. Gateway (ping gateway)\n4. DNS (nslookup)\n5. Remote host (ping/curl)"
+      }
+    ]
+  },
+  {
+    "id": "lab-ts-03",
+    "chapterId": "troubleshooting",
+    "title": "Log Analysis",
+    "description": "Find and analyze system logs for troubleshooting.",
+    "steps": [
+      {
+        "instruction": "View recent system logs",
+        "command": "journalctl --no-pager -n 5 -p warning",
+        "expectedOutput": "Jan 15 03:00:01 hostname snapd[456]: cannot refresh snap store\nJan 14 12:00:00 hostname kernel: [UFW BLOCK] IN=eth0"
+      },
+      {
+        "instruction": "Check authentication logs",
+        "command": "grep 'Failed password' /var/log/auth.log 2>/dev/null | tail -3 || echo 'No failed login attempts found'",
+        "expectedOutput": "No failed login attempts found"
+      },
+      {
+        "instruction": "View kernel ring buffer for hardware errors",
+        "command": "dmesg --level=err,warn | tail -5",
+        "expectedOutput": "[    2.345678] ACPI Warning: SystemIO range 0x00000000\n[   12.345678] platform regulatory.0: Direct firmware load failed"
+      },
+      {
+        "instruction": "Check for disk errors",
+        "command": "dmesg | grep -iE '(error|fail|warn)' | grep -i 'sd\\|disk\\|ata' | tail -3 || echo 'No disk errors found'",
+        "expectedOutput": "No disk errors found"
+      },
+      {
+        "instruction": "List log files",
+        "command": "ls -lh /var/log/*.log 2>/dev/null | head -8",
+        "expectedOutput": "-rw-r--r-- 1 root root  45K Jan 15 14:30 /var/log/alternatives.log\n-rw-r----- 1 root adm  234K Jan 15 14:30 /var/log/auth.log\n-rw-r--r-- 1 root root  12K Jan 15 14:30 /var/log/dpkg.log\n-rw-r----- 1 root adm  1.2M Jan 15 14:30 /var/log/syslog"
+      }
+    ]
+  },
+  {
+    "id": "lab-ts-04",
+    "chapterId": "troubleshooting",
+    "title": "Permission Troubleshooting",
+    "description": "Diagnose and fix common permission issues.",
+    "steps": [
+      {
+        "instruction": "Create a permission problem scenario",
+        "command": "mkdir -p /tmp/perm-fix && echo 'secret data' > /tmp/perm-fix/config.txt && chmod 000 /tmp/perm-fix/config.txt && echo 'Created locked file'",
+        "expectedOutput": "Created locked file"
+      },
+      {
+        "instruction": "Try to read the file (will fail)",
+        "command": "cat /tmp/perm-fix/config.txt 2>&1 || true",
+        "expectedOutput": "cat: /tmp/perm-fix/config.txt: Permission denied"
+      },
+      {
+        "instruction": "Diagnose: check the permissions",
+        "command": "ls -la /tmp/perm-fix/config.txt",
+        "expectedOutput": "---------- 1 user user 12 Jan 15 14:30 /tmp/perm-fix/config.txt"
+      },
+      {
+        "instruction": "Fix: restore proper permissions",
+        "command": "chmod 644 /tmp/perm-fix/config.txt && cat /tmp/perm-fix/config.txt",
+        "expectedOutput": "secret data"
+      },
+      {
+        "instruction": "Clean up",
+        "command": "rm -rf /tmp/perm-fix && echo 'Done'",
+        "expectedOutput": "Done"
+      }
+    ]
+  },
+  {
+    "id": "lab-ts-05",
+    "chapterId": "troubleshooting",
+    "title": "HTTP Status Codes Investigation",
+    "description": "Understand common HTTP status codes for web troubleshooting.",
+    "steps": [
+      {
+        "instruction": "Test a successful HTTP request",
+        "command": "curl -s -o /dev/null -w '%{http_code}' http://google.com 2>/dev/null || echo '200'",
+        "expectedOutput": "200"
+      },
+      {
+        "instruction": "Review common status codes",
+        "command": "echo '200 OK - Success\n301 Moved Permanently - Redirect\n403 Forbidden - No permission\n404 Not Found - Page missing\n500 Internal Server Error - Server bug\n502 Bad Gateway - Upstream failure\n503 Service Unavailable - Overloaded'",
+        "expectedOutput": "200 OK - Success\n301 Moved Permanently - Redirect\n403 Forbidden - No permission\n404 Not Found - Page missing\n500 Internal Server Error - Server bug\n502 Bad Gateway - Upstream failure\n503 Service Unavailable - Overloaded"
+      },
+      {
+        "instruction": "Check HTTP headers",
+        "command": "curl -sI http://google.com 2>/dev/null | head -5 || echo 'HTTP/1.1 301 Moved Permanently\nLocation: http://www.google.com/\nContent-Type: text/html'",
+        "expectedOutput": "HTTP/1.1 301 Moved Permanently\nLocation: http://www.google.com/\nContent-Type: text/html"
+      },
+      {
+        "instruction": "Categorize status codes",
+        "command": "echo '1xx: Informational\n2xx: Success\n3xx: Redirection\n4xx: Client Error\n5xx: Server Error'",
+        "expectedOutput": "1xx: Informational\n2xx: Success\n3xx: Redirection\n4xx: Client Error\n5xx: Server Error"
+      }
+    ]
+  },
+  {
+    "id": "lab-iqa-01",
+    "chapterId": "interview-qa",
+    "title": "System Information Commands",
+    "description": "Practice commands commonly asked about in interviews.",
+    "steps": [
+      {
+        "instruction": "How to check Linux version?",
+        "command": "cat /etc/os-release | head -3 && echo '---' && uname -r",
+        "expectedOutput": "NAME=\"Ubuntu\"\nVERSION=\"22.04.3 LTS (Jammy Jellyfish)\"\nID=ubuntu\n---\n5.15.0-91-generic"
+      },
+      {
+        "instruction": "How to check disk space?",
+        "command": "df -h / | tail -1",
+        "expectedOutput": "/dev/sda1        49G   15G   32G  32% /"
+      },
+      {
+        "instruction": "How to check memory usage?",
+        "command": "free -h | head -2",
+        "expectedOutput": "              total   used   free  shared  buff/cache  available\nMem:          7.8Gi  2.1Gi  3.2Gi  256Mi   2.5Gi       5.2Gi"
+      },
+      {
+        "instruction": "How to find a file?",
+        "command": "find /tmp -name '*.log' -type f 2>/dev/null | head -3 || echo 'find /path -name pattern -type f'",
+        "expectedOutput": "find /path -name pattern -type f"
+      },
+      {
+        "instruction": "How to check who is logged in?",
+        "command": "who",
+        "expectedOutput": "user     pts/0        2024-01-15 14:00 (192.168.1.50)"
+      }
+    ]
+  },
+  {
+    "id": "lab-iqa-02",
+    "chapterId": "interview-qa",
+    "title": "Process Management Interview Prep",
+    "description": "Practice process-related commands for interviews.",
+    "steps": [
+      {
+        "instruction": "How to find a process by name?",
+        "command": "ps aux | grep sshd | grep -v grep",
+        "expectedOutput": "root       567  0.0  0.1  12345  6789 ?  Ss  12:00  0:00 /usr/sbin/sshd -D"
+      },
+      {
+        "instruction": "How to kill a process gracefully?",
+        "command": "echo 'kill PID        (sends SIGTERM - graceful)\nkill -9 PID     (sends SIGKILL - force)\nkillall name    (kill by name)\npkill pattern   (kill by pattern)'",
+        "expectedOutput": "kill PID        (sends SIGTERM - graceful)\nkill -9 PID     (sends SIGKILL - force)\nkillall name    (kill by name)\npkill pattern   (kill by pattern)"
+      },
+      {
+        "instruction": "What is a zombie process?",
+        "command": "echo 'Zombie: child process finished but parent has not called wait()\nShows as Z state in ps. Cannot be killed with SIGKILL.\nFix: kill the parent process or fix the parent code.'",
+        "expectedOutput": "Zombie: child process finished but parent has not called wait()\nShows as Z state in ps. Cannot be killed with SIGKILL.\nFix: kill the parent process or fix the parent code."
+      },
+      {
+        "instruction": "How to run a process that survives logout?",
+        "command": "echo 'nohup command &          (ignore SIGHUP)\nscreen / tmux            (terminal multiplexer)\nsystemd service          (proper daemon)'",
+        "expectedOutput": "nohup command &          (ignore SIGHUP)\nscreen / tmux            (terminal multiplexer)\nsystemd service          (proper daemon)"
+      }
+    ]
+  },
+  {
+    "id": "lab-iqa-03",
+    "chapterId": "interview-qa",
+    "title": "Networking Interview Prep",
+    "description": "Practice networking commands for interviews.",
+    "steps": [
+      {
+        "instruction": "How to check open ports?",
+        "command": "ss -tlnp | head -5",
+        "expectedOutput": "State  Recv-Q Send-Q Local Address:Port  Peer Address:Port\nLISTEN 0      128    0.0.0.0:22         0.0.0.0:*\nLISTEN 0      511    0.0.0.0:80         0.0.0.0:*"
+      },
+      {
+        "instruction": "How to check DNS resolution?",
+        "command": "nslookup google.com 2>/dev/null | tail -3 || echo 'Name: google.com\nAddress: 142.250.80.46'",
+        "expectedOutput": "Name: google.com\nAddress: 142.250.80.46"
+      },
+      {
+        "instruction": "Explain the 3-way handshake",
+        "command": "echo 'TCP 3-Way Handshake:\n1. Client -> SYN -> Server\n2. Server -> SYN-ACK -> Client\n3. Client -> ACK -> Server\nConnection established!'",
+        "expectedOutput": "TCP 3-Way Handshake:\n1. Client -> SYN -> Server\n2. Server -> SYN-ACK -> Client\n3. Client -> ACK -> Server\nConnection established!"
+      },
+      {
+        "instruction": "How to check network interfaces?",
+        "command": "ip addr show | grep -E '(^[0-9]|inet )' | head -6",
+        "expectedOutput": "1: lo: <LOOPBACK,UP,LOWER_UP>\n    inet 127.0.0.1/8 scope host lo\n2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP>\n    inet 192.168.1.100/24 scope global eth0"
+      },
+      {
+        "instruction": "What is the difference between TCP and UDP?",
+        "command": "echo 'TCP: Connection-oriented, reliable, ordered, slower (HTTP, SSH, FTP)\nUDP: Connectionless, unreliable, unordered, faster (DNS, DHCP, streaming)'",
+        "expectedOutput": "TCP: Connection-oriented, reliable, ordered, slower (HTTP, SSH, FTP)\nUDP: Connectionless, unreliable, unordered, faster (DNS, DHCP, streaming)"
+      }
+    ]
+  },
+  {
+    "id": "lab-iqa-04",
+    "chapterId": "interview-qa",
+    "title": "File System Interview Prep",
+    "description": "Practice filesystem commands for interviews.",
+    "steps": [
+      {
+        "instruction": "What is an inode?",
+        "command": "echo 'Inode: data structure storing file metadata (permissions, owner, size,\ntimestamps, data block pointers). Does NOT store filename.\nFilename is stored in the directory entry that points to the inode.'",
+        "expectedOutput": "Inode: data structure storing file metadata (permissions, owner, size,\ntimestamps, data block pointers). Does NOT store filename.\nFilename is stored in the directory entry that points to the inode."
+      },
+      {
+        "instruction": "Hard link vs soft link?",
+        "command": "echo 'Hard link: same inode, survives original deletion, same filesystem only\nSoft link: different inode, breaks if original deleted, cross-filesystem OK'",
+        "expectedOutput": "Hard link: same inode, survives original deletion, same filesystem only\nSoft link: different inode, breaks if original deleted, cross-filesystem OK"
+      },
+      {
+        "instruction": "How to check inode usage?",
+        "command": "df -i / | head -2",
+        "expectedOutput": "Filesystem      Inodes  IUsed   IFree IUse% Mounted on\n/dev/sda1      3276800 234567 3042233    8% /"
+      },
+      {
+        "instruction": "What does chmod 755 mean?",
+        "command": "echo '7 = rwx (owner: read+write+execute)\n5 = r-x (group: read+execute)\n5 = r-x (others: read+execute)\nCommon for: directories, scripts, executables'",
+        "expectedOutput": "7 = rwx (owner: read+write+execute)\n5 = r-x (group: read+execute)\n5 = r-x (others: read+execute)\nCommon for: directories, scripts, executables"
+      },
+      {
+        "instruction": "How to find large files?",
+        "command": "find / -type f -size +100M 2>/dev/null | head -5 || echo 'find / -type f -size +100M'",
+        "expectedOutput": "find / -type f -size +100M"
+      }
+    ]
+  },
+  {
+    "id": "lab-iqa-05",
+    "chapterId": "interview-qa",
+    "title": "Boot Process and Services Interview Prep",
+    "description": "Practice boot and service questions for interviews.",
+    "steps": [
+      {
+        "instruction": "Describe the Linux boot process",
+        "command": "echo '1. BIOS/UEFI -> hardware init, find boot device\n2. GRUB -> load kernel + initramfs\n3. Kernel -> hardware detection, mount root\n4. systemd (PID 1) -> start services by target\n5. Login prompt / Display manager'",
+        "expectedOutput": "1. BIOS/UEFI -> hardware init, find boot device\n2. GRUB -> load kernel + initramfs\n3. Kernel -> hardware detection, mount root\n4. systemd (PID 1) -> start services by target\n5. Login prompt / Display manager"
+      },
+      {
+        "instruction": "How to manage services?",
+        "command": "echo 'systemctl start SERVICE    - start now\nsystemctl stop SERVICE     - stop now\nsystemctl restart SERVICE  - restart\nsystemctl enable SERVICE   - start at boot\nsystemctl status SERVICE   - check status'",
+        "expectedOutput": "systemctl start SERVICE    - start now\nsystemctl stop SERVICE     - stop now\nsystemctl restart SERVICE  - restart\nsystemctl enable SERVICE   - start at boot\nsystemctl status SERVICE   - check status"
+      },
+      {
+        "instruction": "What is the difference between SIGTERM and SIGKILL?",
+        "command": "echo 'SIGTERM (15): Polite request to terminate. Process can catch it,\n  clean up resources, and exit gracefully.\nSIGKILL (9): Immediate forced termination. Cannot be caught or ignored.\n  Use only as last resort - may cause data corruption.'",
+        "expectedOutput": "SIGTERM (15): Polite request to terminate. Process can catch it,\n  clean up resources, and exit gracefully.\nSIGKILL (9): Immediate forced termination. Cannot be caught or ignored.\n  Use only as last resort - may cause data corruption."
+      },
+      {
+        "instruction": "What are runlevels / targets?",
+        "command": "echo 'Old (SysVinit):          New (systemd):\nRunlevel 0 = halt        poweroff.target\nRunlevel 1 = single      rescue.target\nRunlevel 3 = multi-user  multi-user.target\nRunlevel 5 = graphical   graphical.target\nRunlevel 6 = reboot      reboot.target'",
+        "expectedOutput": "Old (SysVinit):          New (systemd):\nRunlevel 0 = halt        poweroff.target\nRunlevel 1 = single      rescue.target\nRunlevel 3 = multi-user  multi-user.target\nRunlevel 5 = graphical   graphical.target\nRunlevel 6 = reboot      reboot.target"
+      }
+    ]
+  }
 ]
