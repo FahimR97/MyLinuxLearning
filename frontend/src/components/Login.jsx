@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-
-const VALID_USER = 'fahim'
-const VALID_PASS = 'Shellychimp2026!'
+import { signIn } from '../api/auth'
 
 const COMMANDS = [
   {
@@ -115,20 +113,23 @@ export default function Login({ onLogin }) {
     return () => clearTimeout(t)
   }, [])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (loading) return
-    if (username === VALID_USER && password === VALID_PASS) {
-      setLoading(true)
-      setError('')
-      setTimeout(() => {
-        localStorage.setItem('fll-session', 'active')
-        onLogin()
-      }, 700)
-    } else {
-      setError(username !== VALID_USER ? 'Unknown username.' : 'Incorrect password.')
+    setLoading(true)
+    setError('')
+    try {
+      await signIn(username, password)
+      onLogin()
+    } catch (err) {
+      const msg = err.code === 'UserNotFoundException' ? 'Unknown username.'
+        : err.code === 'NotAuthorizedException' ? 'Incorrect password.'
+        : err.message || 'Sign in failed.'
+      setError(msg)
       setShake(true)
       setTimeout(() => setShake(false), 500)
+    } finally {
+      setLoading(false)
     }
   }
 

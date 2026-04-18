@@ -8,6 +8,7 @@ import ChapterDetail from './pages/ChapterDetail'
 import LabView from './pages/LabView'
 import QuizView from './pages/QuizView'
 import ProgressDashboard from './pages/ProgressDashboard'
+import { signOut } from './api/auth'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -18,7 +19,7 @@ export default function App() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('fll-session')
+    signOut()
     setAuthed(false)
   }
 
