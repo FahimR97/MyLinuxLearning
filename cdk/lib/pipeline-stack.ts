@@ -49,6 +49,11 @@ export class PipelineStack extends cdk.Stack {
     }));
 
     role.addToPolicy(new iam.PolicyStatement({
+      actions: ['cloudformation:DescribeStackResource', 'cloudformation:ListStackResources'],
+      resources: [`arn:aws:cloudformation:${this.region}:${this.account}:stack/BackendStack/*`],
+    }));
+
+    role.addToPolicy(new iam.PolicyStatement({
       actions: ['sts:AssumeRole'],
       resources: ['*'],
     }));
