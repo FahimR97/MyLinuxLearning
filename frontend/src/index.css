@@ -129,7 +129,7 @@ a:hover { color: var(--lavender); }
   justify-content: center;
   padding: 3rem;
   overflow: hidden;
-  background: linear-gradient(145deg, #0a1220 0%, #111827 60%, #0f1e35 100%);
+  background: linear-gradient(145deg, #0c1a2e 0%, #0f2040 55%, #0a1830 100%);
   border-right: 1px solid var(--border);
 }
 
@@ -149,21 +149,21 @@ a:hover { color: var(--lavender); }
   filter: blur(80px); pointer-events: none;
 }
 .ls-orb-1 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(45,212,191,0.55) 0%, transparent 70%);
-  top: -160px; left: -160px;
+  width: 550px; height: 550px;
+  background: radial-gradient(circle, rgba(45,212,191,0.7) 0%, transparent 65%);
+  top: -180px; left: -180px;
   animation: orbFloat1 11s ease-in-out infinite;
 }
 .ls-orb-2 {
-  width: 380px; height: 380px;
-  background: radial-gradient(circle, rgba(125,211,252,0.45) 0%, transparent 70%);
-  bottom: -120px; right: -80px;
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(96,165,250,0.55) 0%, transparent 65%);
+  bottom: -140px; right: -100px;
   animation: orbFloat2 13s ease-in-out infinite;
 }
 .ls-orb-3 {
-  width: 260px; height: 260px;
-  background: radial-gradient(circle, rgba(96,165,250,0.35) 0%, transparent 70%);
-  top: 55%; left: 60%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(125,211,252,0.4) 0%, transparent 65%);
+  top: 50%; left: 55%;
   animation: orbFloat1 9s ease-in-out infinite reverse;
 }
 
@@ -291,17 +291,23 @@ a:hover { color: var(--lavender); }
   width: 440px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   padding: 3rem 2.5rem;
-  background: var(--bg-card);
+  background: #0d1525;
+  border-left: 1px solid rgba(45,212,191,0.1);
 }
 
 .ls-form-card {
   width: 100%; max-width: 360px;
-  opacity: 0;
+  background: rgba(21,29,46,0.8);
+  border: 1px solid rgba(45,212,191,0.12);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  animation: lsFadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.1s both;
 }
 .ls-form-card-in {
-  animation: lsFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.15s both;
-  opacity: 1;
+  /* class kept for JS compat — animation always runs */
 }
+.ls-shake { animation: lsShake 0.45s ease both !important; }
 .ls-shake { animation: lsShake 0.45s ease !important; }
 
 .ls-form-header { margin-bottom: 2rem; }
