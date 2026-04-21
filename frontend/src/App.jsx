@@ -35,6 +35,13 @@ export default function App() {
         onToggleCollapse={() => setSidebarCollapsed(c => !c)}
       />
       <div className="main-content">
+        {sidebarCollapsed && (
+          <button
+            className="sidebar-expand-float"
+            onClick={() => setSidebarCollapsed(false)}
+            title="Expand sidebar"
+          >»</button>
+        )}
         <button
           className="mobile-menu-btn"
           onClick={() => setSidebarOpen(true)}

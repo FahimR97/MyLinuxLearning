@@ -1417,24 +1417,11 @@ a:hover { color: var(--lavender); }
 }
 
 /* Collapsed sidebar */
-.sidebar { transition: width 0.25s ease; }
-.sidebar.collapsed { width: 56px; }
-.sidebar.collapsed .sidebar-header .logo-text-wrap,
-.sidebar.collapsed .sidebar-progress,
-.sidebar.collapsed .nav-section-label,
-.sidebar.collapsed .nav-sub,
-.sidebar.collapsed .expand-arrow,
-.sidebar.collapsed .nav-expand-btn,
-.sidebar.collapsed .sidebar-version,
-.sidebar.collapsed .sidebar-logout { display: none; }
-.sidebar.collapsed .nav-link { justify-content: center; padding: 0.7rem 0; gap: 0; }
-.sidebar.collapsed .nav-link span:not(.nav-icon) { display: none; }
-.sidebar.collapsed .nav-icon { margin: 0; font-size: 1.1rem; }
-.sidebar.collapsed .sidebar-header { padding: 0.8rem 0; }
-.sidebar.collapsed .sidebar-logo { justify-content: center; }
-.sidebar.collapsed .logo-icon { margin: 0; }
-.sidebar.collapsed .sidebar-footer { justify-content: center; padding: 0.75rem 0; }
-.sidebar-collapsed .main-content { margin-left: 56px; }
+.sidebar { transition: width 0.25s ease; overflow: hidden; }
+.sidebar.collapsed { width: 0; min-width: 0; border-right: none; }
+.sidebar.collapsed * { visibility: hidden; }
+.sidebar.collapsed .sidebar-collapse-btn { visibility: visible; }
+.sidebar-collapsed .main-content { margin-left: 0; }
 .sidebar-collapse-btn {
   background: none; border: 1px solid var(--border); color: var(--text-dim);
   cursor: pointer; font-size: 0.85rem; width: 30px; height: 30px;
@@ -1442,3 +1429,11 @@ a:hover { color: var(--lavender); }
   border-radius: 6px; transition: all 0.2s; font-family: var(--font-mono);
 }
 .sidebar-collapse-btn:hover { background: var(--bg-hover); color: var(--text); border-color: var(--lavender); }
+.sidebar-expand-float {
+  position: fixed; top: 12px; left: 12px; z-index: 201;
+  background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim);
+  cursor: pointer; font-size: 0.85rem; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; font-family: var(--font-mono); transition: all 0.2s;
+}
+.sidebar-expand-float:hover { background: var(--bg-hover); color: var(--text); border-color: var(--lavender); }
