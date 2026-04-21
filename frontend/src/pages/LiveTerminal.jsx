@@ -1,5 +1,5 @@
 export default function LiveTerminal() {
-  const ttydUrl = import.meta.env.VITE_TTYD_URL || 'http://54.245.54.69:7681'
+  const ttydUrl = import.meta.env.VITE_TTYD_URL || 'https://54.245.54.69:7681'
 
   return (
     <div className="page" style={{ padding: 0, maxWidth: '100%', height: 'calc(100vh - 0px)' }}>
