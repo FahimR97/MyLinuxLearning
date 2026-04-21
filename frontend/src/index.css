@@ -1389,11 +1389,16 @@ a:hover { color: var(--lavender); }
 /* Chapter split-view terminal */
 .chapter-split { display: flex; height: 100%; }
 .chapter-split-content { flex: 1; overflow-y: auto; min-width: 0; }
-.chapter-split.term-open .chapter-split-content { max-width: 55%; }
+.chapter-split.term-open .chapter-split-content { flex: 1; }
 .chapter-split-terminal {
-  width: 45%; border-left: 1px solid var(--border); display: flex;
-  flex-direction: column; position: sticky; top: 0; height: 100vh;
+  border-left: 1px solid var(--border); display: flex;
+  flex-direction: column; position: sticky; top: 0; height: 100vh; flex-shrink: 0;
 }
+.split-drag-handle {
+  width: 6px; cursor: col-resize; background: transparent; position: sticky;
+  top: 0; height: 100vh; z-index: 10; flex-shrink: 0; transition: background 0.2s;
+}
+.split-drag-handle:hover, .split-drag-handle:active { background: var(--lavender); }
 .split-term-header {
   display: flex; justify-content: space-between; align-items: center;
   padding: 0.5rem 1rem; background: var(--bg-card); border-bottom: 1px solid var(--border);
@@ -1407,5 +1412,6 @@ a:hover { color: var(--lavender); }
 @media (max-width: 900px) {
   .chapter-split.term-open { flex-direction: column; }
   .chapter-split.term-open .chapter-split-content { max-width: 100%; height: 50vh; }
-  .chapter-split-terminal { width: 100%; height: 50vh; }
+  .chapter-split-terminal { width: 100% !important; height: 50vh; }
+  .split-drag-handle { display: none; }
 }

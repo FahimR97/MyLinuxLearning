@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { getChapter, getChapters, getProgress, saveProgress } from '../api/client'
 import CodeBlock from '../components/CodeBlock'
 
@@ -201,7 +201,30 @@ export default function ChapterDetail() {
   const [chapters, setChapters] = useState([])
   const [progress, setProgress] = useState({})
   const [termOpen, setTermOpen] = useState(false)
+  const [termWidth, setTermWidth] = useState(45)
+  const dragging = useRef(false)
   const ttydUrl = import.meta.env.VITE_TTYD_URL || 'https://54.245.54.69:7681'
+
+  const onMouseDown = useCallback((e) => {
+    e.preventDefault()
+    dragging.current = true
+    const onMouseMove = (e) => {
+      if (!dragging.current) return
+      const pct = 100 - (e.clientX / window.innerWidth) * 100
+      setTermWidth(Math.min(75, Math.max(25, pct)))
+    }
+    const onMouseUp = () => {
+      dragging.current = false
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }, [])
 
   useEffect(() => {
     getChapter(id).then(setChapter)
@@ -298,8 +321,9 @@ export default function ChapterDetail() {
       </div>
     </div>
       </div>
-      {termOpen && (
-        <div className="chapter-split-terminal">
+      {termOpen && <>
+        <div className="split-drag-handle" onMouseDown={onMouseDown} />
+        <div className="chapter-split-terminal" style={{ width: `${termWidth}%` }}>
           <div className="split-term-header">
             <span>🖥️ Live Terminal</span>
             <button onClick={() => setTermOpen(false)} className="split-term-close">✕</button>
@@ -307,11 +331,11 @@ export default function ChapterDetail() {
           <iframe
             src={ttydUrl}
             title="Live Terminal"
-            style={{ width: '100%', height: 'calc(100% - 36px)', border: 'none', background: '#0a0e14' }}
+            style={{ width: '100%', height: 'calc(100% - 36px)', border: 'none', background: '#192030', pointerEvents: dragging.current ? 'none' : 'auto' }}
             allow="clipboard-read; clipboard-write"
           />
         </div>
-      )}
+      </>}
     </div>
   )
 }
