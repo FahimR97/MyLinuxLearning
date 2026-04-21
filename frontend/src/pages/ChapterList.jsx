@@ -5,6 +5,7 @@ import { getChapters, getProgress } from '../api/client'
 export default function ChapterList() {
   const [chapters, setChapters] = useState([])
   const [progress, setProgress] = useState({})
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     getChapters().then(setChapters)
@@ -14,14 +15,37 @@ export default function ChapterList() {
   const readCount = Object.keys(progress).filter(k => progress[k]?.read).length
   const quizCount = Object.keys(progress).filter(k => progress[k]?.quizScore != null).length
 
+  const filtered = search.trim()
+    ? chapters.filter(c =>
+        c.title.toLowerCase().includes(search.toLowerCase()) ||
+        c.description?.toLowerCase().includes(search.toLowerCase())
+      )
+    : chapters
+
   return (
     <div className="page">
       <h1 className="page-title">Chapters</h1>
       <p className="page-subtitle">
         {chapters.length} chapters · {readCount} read · {quizCount} quizzed
       </p>
+
+      <div className="chapter-search-wrap">
+        <input
+          className="chapter-search"
+          type="search"
+          placeholder="Search chapters..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        {search && (
+          <span className="chapter-search-count">
+            {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
       <div className="chapter-grid">
-        {chapters.map(c => {
+        {filtered.map(c => {
           const p = progress[c.id] || {}
           const isRead = p.read
           const hasQuiz = p.quizScore != null
@@ -65,6 +89,11 @@ export default function ChapterList() {
             </Link>
           )
         })}
+        {filtered.length === 0 && search && (
+          <p style={{ color: 'var(--text-muted)', gridColumn: '1/-1' }}>
+            No chapters match "{search}"
+          </p>
+        )}
       </div>
     </div>
   )

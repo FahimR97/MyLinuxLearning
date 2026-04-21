@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getChapters, getProgress, resetProgress } from '../api/client'
+import { getScenarioProgress } from './ScenarioMode'
+import scenarios from '../content/scenarios.json'
 
 export default function ProgressDashboard() {
   const [chapters, setChapters] = useState([])
   const [progress, setProgress] = useState({})
+  const [scProgress, setScProgress] = useState({})
 
   useEffect(() => {
     getChapters().then(setChapters)
     getProgress().then(setProgress)
+    setScProgress(getScenarioProgress())
   }, [])
 
   const handleReset = async () => {
@@ -26,7 +30,9 @@ export default function ProgressDashboard() {
   }).length
   const overallPct = Math.round((readCount / total) * 100)
 
-  // SVG ring: r=52, circumference = 2π×52 ≈ 326.7
+  const scCompleted = Object.values(scProgress).filter(s => s.completed).length
+  const scTotal = scenarios.length
+
   const CIRC = 326.7
   const dash = (overallPct / 100) * CIRC
 
@@ -87,12 +93,13 @@ export default function ProgressDashboard() {
             <span className="pstat-label">Quizzes Passed</span>
           </div>
           <div className="pstat">
-            <span className="pstat-val" style={{ color: 'var(--text-muted)' }}>{total}</span>
-            <span className="pstat-label">Total Chapters</span>
+            <span className="pstat-val" style={{ color: 'var(--sky)' }}>{scCompleted}/{scTotal}</span>
+            <span className="pstat-label">Scenarios Done</span>
           </div>
         </div>
       </div>
 
+      {/* Chapter table */}
       <div className="progress-table" style={{ marginTop: '2rem' }}>
         <div className="ptable-header">
           <span>Chapter</span>
@@ -134,6 +141,45 @@ export default function ProgressDashboard() {
           )
         })}
       </div>
+
+      {/* Scenarios table */}
+      {scTotal > 0 && (
+        <div className="progress-table" style={{ marginTop: '2rem' }}>
+          <div className="ptable-header">
+            <span>Scenario</span>
+            <span style={{ textAlign: 'center' }}>Status</span>
+            <span style={{ textAlign: 'center' }}>Commands</span>
+            <span>Difficulty</span>
+          </div>
+          {scenarios.map(s => {
+            const sp = scProgress[s.id]
+            return (
+              <div key={s.id} className="ptable-row">
+                <Link to={`/scenarios/${s.id}`} className="ptable-col-ch">
+                  {s.title}
+                </Link>
+                <span className="ptable-col">
+                  {sp?.completed
+                    ? <span className="check green">✓</span>
+                    : <span className="check dim">—</span>
+                  }
+                </span>
+                <span className="ptable-col">
+                  {sp?.commandsUsed
+                    ? <span style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>{sp.commandsUsed}</span>
+                    : <span className="check dim">—</span>
+                  }
+                </span>
+                <span className="ptable-col">
+                  <span className={`sc-diff sc-diff-${s.difficulty}`} style={{ fontSize: '0.75rem' }}>
+                    {s.difficulty}
+                  </span>
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

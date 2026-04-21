@@ -2,6 +2,19 @@ import { useParams, Link } from 'react-router-dom'
 import { useEffect, useState, useCallback } from 'react'
 import { getQuiz, submitQuiz, getProgress, saveProgress } from '../api/client'
 
+const REVIEW_KEY = 'fll-review-flags'
+
+function getFlags() {
+  try { return JSON.parse(localStorage.getItem(REVIEW_KEY) || '{}') } catch { return {} }
+}
+function toggleFlag(question) {
+  const flags = getFlags()
+  if (flags[question]) delete flags[question]
+  else flags[question] = true
+  localStorage.setItem(REVIEW_KEY, JSON.stringify(flags))
+  return { ...flags }
+}
+
 export default function QuizView() {
   const { chapterId } = useParams()
   const [questions, setQuestions] = useState([])
@@ -9,6 +22,7 @@ export default function QuizView() {
   const [answers, setAnswers] = useState({})
   const [results, setResults] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [flags, setFlags] = useState(getFlags)
 
   useEffect(() => {
     getQuiz(chapterId).then(data => {
@@ -31,7 +45,6 @@ export default function QuizView() {
     if (current > 0) setCurrent(c => c - 1)
   }, [current])
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKey = (e) => {
       if (results) return
@@ -78,6 +91,8 @@ export default function QuizView() {
   if (results) {
     const pct = Math.round((results.score / results.total) * 100)
     const passed = pct >= 70
+    const flagCount = Object.keys(flags).length
+
     return (
       <div className="page quiz-page">
         <Link to={`/chapters/${chapterId}`} className="back-link">← Back to Chapter</Link>
@@ -93,20 +108,47 @@ export default function QuizView() {
                 ? pct === 100 ? '🏆 Perfect score!' : '✓ Passed — solid performance'
                 : '✗ Below 70% — review the chapter and retry'}
             </p>
+            {flagCount > 0 && (
+              <p className="review-flag-note">⚑ {flagCount} question{flagCount !== 1 ? 's' : ''} flagged for review</p>
+            )}
           </div>
 
           <div className="results-list">
-            {results.results.map((r, i) => (
-              <div key={i} className={`result-item ${r.correct ? 'correct' : 'incorrect'}`}>
-                <div className="result-header">
-                  <span className="result-icon">{r.correct ? '✓' : '✗'}</span>
-                  <span className="result-q">{r.question}</span>
+            {results.results.map((r, i) => {
+              const q = questions[i]
+              const yourText = q?.options?.[r.yourAnswer] ?? 'Not answered'
+              const correctText = q?.options?.[r.correctAnswer]
+              const isFlagged = !!flags[r.question]
+
+              return (
+                <div key={i} className={`result-item ${r.correct ? 'correct' : 'incorrect'}`}>
+                  <div className="result-header">
+                    <span className="result-icon">{r.correct ? '✓' : '✗'}</span>
+                    <span className="result-q">{r.question}</span>
+                    <button
+                      className={`review-flag-btn ${isFlagged ? 'flagged' : ''}`}
+                      onClick={() => setFlags(toggleFlag(r.question))}
+                      title={isFlagged ? 'Remove review flag' : 'Flag for review'}
+                    >⚑</button>
+                  </div>
+                  {!r.correct && (
+                    <div className="result-answer-detail">
+                      <div className="result-your-answer">
+                        <span className="result-answer-label">Your answer:</span>
+                        <span className="result-answer-wrong">{yourText}</span>
+                      </div>
+                      <div className="result-correct-answer">
+                        <span className="result-answer-label">Correct:</span>
+                        <span className="result-answer-right">{correctText}</span>
+                      </div>
+                    </div>
+                  )}
+                  {r.explanation && (
+                    <p className="result-explanation">{r.explanation}</p>
+                  )}
                 </div>
-                {!r.correct && r.explanation && (
-                  <p className="result-explanation">{r.explanation}</p>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           <div className="results-actions">
@@ -122,6 +164,7 @@ export default function QuizView() {
   const answeredCount = Object.keys(answers).length
   const allAnswered = answeredCount === questions.length
   const isLast = current === questions.length - 1
+  const isFlagged = !!flags[q?.question]
 
   return (
     <div className="page quiz-page">
@@ -152,7 +195,14 @@ export default function QuizView() {
         </div>
 
         <div className="quiz-question">
-          <h2>{q.question}</h2>
+          <div className="quiz-question-header">
+            <h2>{q.question}</h2>
+            <button
+              className={`review-flag-btn ${isFlagged ? 'flagged' : ''}`}
+              onClick={() => setFlags(toggleFlag(q.question))}
+              title={isFlagged ? 'Remove review flag' : 'Flag for review'}
+            >⚑</button>
+          </div>
           <p className="quiz-kbd-hint">
             Press <span className="kbd">1</span>–<span className="kbd">4</span> to select
             · <span className="kbd">→</span> next · <span className="kbd">←</span> previous

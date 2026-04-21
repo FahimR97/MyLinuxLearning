@@ -1510,4 +1510,83 @@ a:hover { color: var(--lavender); }
 .sc-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
 .sc-section h3 { font-size: 0.9rem; color: var(--lavender); margin: 0 0 0.5rem; }
 .sc-section p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.7; margin: 0; white-space: pre-line; }
+
+/* Scenario result: ideal sequence */
+.sc-result-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+.sc-ideal-steps { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; }
+.sc-ideal-step { display: flex; gap: 0.85rem; align-items: flex-start; }
+.sc-step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--lavender); color: #0a1a2e;
+  font-size: 0.72rem; font-weight: 800; font-family: var(--font-mono);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  margin-top: 2px;
+}
+.sc-step-body { flex: 1; }
+.sc-step-cmds { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.3rem; }
+.sc-step-cmd {
+  font-family: var(--font-mono); font-size: 0.8rem;
+  background: rgba(45,212,191,0.1); color: var(--lavender);
+  padding: 0.15rem 0.5rem; border-radius: 4px;
+  border: 1px solid rgba(45,212,191,0.2);
+}
+.sc-step-why { font-size: 0.83rem; color: var(--text-dim); margin: 0; line-height: 1.5; }
+.sc-interview-tip { font-style: italic; color: var(--sky) !important; }
+
+/* Scenario list: done badge */
+.sc-card-done { border-color: rgba(110,231,183,0.3) !important; }
+.sc-done-badge {
+  font-size: 0.7rem; font-weight: 700; color: var(--mint);
+  background: rgba(110,231,183,0.12); border: 1px solid rgba(110,231,183,0.25);
+  padding: 0.1rem 0.45rem; border-radius: 20px; margin-left: auto;
+}
+
+/* AI feedback: collapsible */
+.sc-ai-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  background: none; border: none; cursor: pointer; padding: 0;
+  text-align: left; gap: 0.5rem; color: inherit;
+}
+.sc-ai-chevron { font-size: 0.7rem; color: var(--text-muted); flex-shrink: 0; }
+.sc-loading-dots { color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.2em; }
+
+/* Chapter search */
+.chapter-search-wrap {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.chapter-search {
+  flex: 1; max-width: 380px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.55rem 1rem;
+  color: var(--text); font-family: var(--font-sans); font-size: 0.92rem;
+  transition: border-color 0.18s;
+}
+.chapter-search:focus { outline: none; border-color: var(--lavender); }
+.chapter-search::placeholder { color: var(--text-muted); }
+.chapter-search-count { font-size: 0.8rem; color: var(--text-muted); }
+
+/* Quiz: flag for review */
+.review-flag-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 0.95rem;
+  padding: 0.2rem 0.35rem; border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.review-flag-btn:hover { color: var(--amber); background: rgba(252,211,77,0.1); }
+.review-flag-btn.flagged { color: var(--amber); }
+.review-flag-note { font-size: 0.82rem; color: var(--amber); margin-top: 0.5rem; }
+
+/* Quiz: enhanced result items */
+.quiz-question-header { display: flex; align-items: flex-start; gap: 0.75rem; }
+.quiz-question-header h2 { flex: 1; }
+.result-answer-detail {
+  margin: 0.5rem 0 0.4rem; padding: 0.6rem 0.85rem;
+  background: var(--bg); border-radius: var(--radius-sm);
+  display: flex; flex-direction: column; gap: 0.3rem;
+}
+.result-answer-label { font-size: 0.75rem; color: var(--text-muted); margin-right: 0.4rem; }
+.result-answer-wrong { font-size: 0.875rem; color: var(--coral); }
+.result-answer-right { font-size: 0.875rem; color: var(--mint); font-weight: 600; }
 .sc-result-actions { text-align: center; margin-top: 1.5rem; }
