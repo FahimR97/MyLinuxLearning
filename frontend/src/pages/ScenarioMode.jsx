@@ -1,269 +1,239 @@
-import { useState, useRef, useEffect } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import scenarios from '../content/scenarios.json'
 
-const categories = [...new Set(scenarios.map(s => s.category))]
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
-function normalize(cmd) {
-  return cmd.trim().replace(/\s+/g, ' ').toLowerCase()
+export default function ScenarioMode() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+
+  if (!id) return <ScenarioList onSelect={id => navigate(`/scenarios/${id}`)} />
+  const scenario = scenarios.find(s => s.id === id)
+  if (!scenario) return <div className="page">Scenario not found</div>
+  return <ActiveScenario scenario={scenario} onBack={() => navigate('/scenarios')} />
 }
 
-function commandMatches(input, candidates) {
-  const n = normalize(input)
-  for (const c of candidates) {
-    const nc = normalize(c)
-    if (n === nc) return true
-    // allow extra flags: if user typed base command + extra stuff
-    const baseParts = nc.split(/\s*\|\s*/)[0].split(' ')
-    const inputParts = n.split(' ')
-    if (baseParts[0] === inputParts[0] && baseParts.length <= inputParts.length) {
-      const allBasePresent = baseParts.every(p => inputParts.includes(p))
-      if (allBasePresent) return true
-    }
-  }
-  return false
-}
-
-function ScenarioList() {
+function ScenarioList({ onSelect }) {
   const [filter, setFilter] = useState('all')
+  const categories = ['all', ...new Set(scenarios.map(s => s.category))]
   const filtered = filter === 'all' ? scenarios : scenarios.filter(s => s.category === filter)
 
   return (
     <div className="page">
-      <h1 className="page-title">⚡ Troubleshooting Scenarios</h1>
-      <p className="page-subtitle">Type real commands to diagnose Linux incidents. Think like a senior engineer.</p>
+      <h1 className="page-title">Troubleshooting Scenarios</h1>
+      <p className="page-subtitle">Practice real diagnostic workflows. Type commands and reasoning — get AI feedback.</p>
       <div className="sc-filters">
-        <button className={`sc-filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All</button>
         {categories.map(c => (
-          <button key={c} className={`sc-filter-btn ${filter === c ? 'active' : ''}`} onClick={() => setFilter(c)}>{c}</button>
+          <button key={c} className={`sc-filter ${filter === c ? 'active' : ''}`} onClick={() => setFilter(c)}>
+            {c === 'all' ? 'All' : c.charAt(0).toUpperCase() + c.slice(1)}
+          </button>
         ))}
       </div>
-      <div className="chapter-grid">
+      <div className="sc-grid">
         {filtered.map(s => (
-          <Link key={s.id} to={`/scenarios/${s.id}`} className="scenario-card">
-            <div className="chapter-card-header">
-              <span className={`difficulty-badge ${s.difficulty}`}>{s.difficulty}</span>
-              <span className="sc-category-tag">{s.category}</span>
+          <button key={s.id} className="sc-card" onClick={() => onSelect(s.id)}>
+            <div className="sc-card-top">
+              <span className={`sc-diff sc-diff-${s.difficulty}`}>{s.difficulty}</span>
+              <span className="sc-cat">{s.category}</span>
             </div>
-            <h3 className="chapter-card-title">{s.title}</h3>
-            <p className="chapter-card-desc">{s.description.slice(0, 120)}…</p>
-            <div className="sc-card-footer">
-              <span className="sc-step-count">{s.steps.length} steps</span>
-            </div>
-          </Link>
+            <h3>{s.title}</h3>
+            <p>{s.description}</p>
+            <span className="sc-steps">{s.steps.length} steps</span>
+          </button>
         ))}
       </div>
     </div>
   )
 }
 
-function ActiveScenario({ scenario }) {
-  const navigate = useNavigate()
-  const [currentStep, setCurrentStep] = useState(0)
+function ActiveScenario({ scenario, onBack }) {
   const [history, setHistory] = useState([])
   const [input, setInput] = useState('')
-  const [feedback, setFeedback] = useState(null)
-  const [completedSteps, setCompletedSteps] = useState(new Set())
-  const [wrongCount, setWrongCount] = useState(0)
-  const [hintsUsed, setHintsUsed] = useState(new Set())
-  const [skipped, setSkipped] = useState(new Set())
-  const termRef = useRef(null)
+  const [mode, setMode] = useState('command') // 'command' | 'thinking'
+  const [loading, setLoading] = useState(false)
+  const [completed, setCompleted] = useState(false)
+  const [viewIdx, setViewIdx] = useState(null) // null = latest, number = viewing old step
+  const historyEndRef = useRef(null)
   const inputRef = useRef(null)
 
-  const allDone = currentStep >= scenario.steps.length
+  const stepsCompleted = history.filter(h => h.matched).length
 
   useEffect(() => {
-    if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight
-  }, [history])
+    if (viewIdx === null) historyEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [history, viewIdx])
 
-  useEffect(() => {
-    if (inputRef.current && !allDone) inputRef.current.focus()
-  }, [currentStep, allDone])
+  useEffect(() => { inputRef.current?.focus() }, [mode, loading])
 
-  const score = scenario.steps.length - hintsUsed.size - skipped.size
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const cmd = input.trim()
-    if (!cmd) return
-    setInput('')
+    if (!input.trim() || loading) return
+    setLoading(true)
+    setViewIdx(null)
 
-    // Special commands
-    if (normalize(cmd) === 'hint') {
-      const step = scenario.steps[currentStep]
-      setHintsUsed(prev => new Set(prev).add(currentStep))
-      setHistory(h => [...h, { type: 'cmd', text: cmd }, { type: 'hint', text: `💡 Hint: ${step.hint}` }])
-      setFeedback({ type: 'hint', icon: '💡', message: step.hint })
-      return
-    }
+    const userInput = { type: mode, text: input.trim() }
+    const entry = { ...userInput, feedback: '', output: null, matched: false, timestamp: Date.now() }
 
-    if (normalize(cmd) === 'give up' || normalize(cmd) === 'skip') {
-      const step = scenario.steps[currentStep]
-      setSkipped(prev => new Set(prev).add(currentStep))
-      setHistory(h => [
-        ...h,
-        { type: 'cmd', text: cmd },
-        { type: 'system', text: `Answer: ${step.commands[0]}` },
-        { type: 'output', text: step.output }
-      ])
-      setFeedback({ type: 'skip', icon: '⏭️', message: `The command was: ${step.commands[0]}\n\n${step.feedback}` })
-      setCompletedSteps(prev => new Set(prev).add(currentStep))
-      setCurrentStep(s => s + 1)
-      setWrongCount(0)
-      return
-    }
+    // Local command matching first
+    const currentStepIdx = stepsCompleted
+    let localMatched = false
+    let localOutput = null
 
-    // Check current step
-    if (currentStep < scenario.steps.length && commandMatches(cmd, scenario.steps[currentStep].commands)) {
-      const step = scenario.steps[currentStep]
-      setHistory(h => [...h, { type: 'cmd', text: cmd }, { type: 'output', text: step.output }])
-      setFeedback({ type: 'correct', icon: '✓', message: step.feedback })
-      setCompletedSteps(prev => new Set(prev).add(currentStep))
-      setCurrentStep(s => s + 1)
-      setWrongCount(0)
-      return
-    }
-
-    // Check previous steps (already done)
-    for (let i = 0; i < currentStep; i++) {
-      if (commandMatches(cmd, scenario.steps[i].commands)) {
+    if (mode === 'command') {
+      const norm = input.trim().toLowerCase().replace(/\s+/g, ' ')
+      for (let i = 0; i < scenario.steps.length; i++) {
         const step = scenario.steps[i]
-        const summary = step.output.split('\n').slice(0, 2).join('\n')
-        setHistory(h => [...h, { type: 'cmd', text: cmd }])
-        setFeedback({ type: 'repeat', icon: '↩', message: `You've already checked that. Here's what you found:\n${summary}` })
-        return
+        const matches = step.commands.some(cmd => {
+          const c = cmd.toLowerCase()
+          return norm.includes(c) || c.includes(norm) || norm.split('|').some(p => c.includes(p.trim())) || c.split('|').some(p => norm.includes(p.trim()))
+        })
+        if (matches && i === currentStepIdx) {
+          localMatched = true
+          localOutput = step.output
+          break
+        }
       }
     }
 
-    // Check future steps (jumping ahead)
-    for (let i = currentStep + 1; i < scenario.steps.length; i++) {
-      if (commandMatches(cmd, scenario.steps[i].commands)) {
-        setHistory(h => [...h, { type: 'cmd', text: cmd }])
-        setFeedback({ type: 'early', icon: '⚠', message: `Good thinking, but you're jumping ahead. ${scenario.steps[currentStep].hint}` })
-        return
+    // Call Bedrock for AI feedback
+    try {
+      const res = await fetch(`${API_BASE}/ai-feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario, history, userInput }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        entry.feedback = data.feedback
+        if (data.matched) localMatched = true
+        if (data.output) localOutput = data.output
+      }
+    } catch {
+      // Fallback to local feedback if API fails
+      if (localMatched) {
+        entry.feedback = scenario.steps[currentStepIdx].feedback
+      } else if (mode === 'thinking') {
+        entry.feedback = "Good thinking. Try translating that into a specific command you'd run."
+      } else {
+        entry.feedback = scenario.steps[currentStepIdx]?.hint || "Think about what information you need next."
       }
     }
 
-    // No match
-    const wc = wrongCount + 1
-    setWrongCount(wc)
-    setHistory(h => [...h, { type: 'cmd', text: cmd }, { type: 'error', text: 'Command not relevant to this scenario.' }])
-    const step = scenario.steps[currentStep]
-    if (wc >= 3) {
-      setFeedback({ type: 'wrong', icon: '✗', message: `That's not the most useful command right now. Strong hint: try one of these approaches — ${step.commands[0].split(' ')[0]}. ${step.hint}` })
-    } else {
-      setFeedback({ type: 'wrong', icon: '✗', message: `That's not the most useful command right now. ${step.hint}` })
+    entry.matched = localMatched
+    entry.output = localOutput
+
+    const newHistory = [...history, entry]
+    setHistory(newHistory)
+    setInput('')
+    setLoading(false)
+
+    if (localMatched && stepsCompleted + 1 >= scenario.steps.length) {
+      setCompleted(true)
     }
   }
 
-  const pct = Math.round((Math.min(currentStep, scenario.steps.length) / scenario.steps.length) * 100)
+  const visibleHistory = viewIdx !== null ? history.slice(0, viewIdx + 1) : history
 
-  if (allDone) {
+  if (completed) {
+    const correctPicks = history.filter(h => h.matched).length
+    const totalPicks = history.length
     return (
-      <div className="page">
-        <div className="scenario-result">
-          <h2>🎉 Scenario Complete!</h2>
-          <div className="sc-score-display">
-            <span className="sc-score-num">{score}/{scenario.steps.length}</span>
-            <span className="sc-score-label">steps found without hints</span>
-          </div>
-          <div className="scenario-result-section">
-            <h3>Methodology</h3>
-            <ol className="sc-methodology-list">
-              {scenario.methodology.split('\n').filter(l => l.trim()).map((line, i) => (
-                <li key={i}>{line.replace(/^\d+\.\s*/, '')}</li>
-              ))}
-            </ol>
-          </div>
-          <div className="scenario-result-section">
-            <h3>Resolution</h3>
-            <p>{scenario.resolution}</p>
-          </div>
-          <div className="scenario-result-section">
-            <h3>💡 Interview Tip</h3>
-            <p>{scenario.interviewTip}</p>
-          </div>
-          <button className="btn btn-primary" onClick={() => navigate('/scenarios')} style={{ marginTop: '1.5rem' }}>
-            Try Another
-          </button>
+      <div className="page sc-result">
+        <h2>Scenario Complete</h2>
+        <div className="sc-score">
+          <span className="sc-score-num">{correctPicks}</span>
+          <span className="sc-score-label">correct steps in {totalPicks} attempts</span>
+        </div>
+        <div className="sc-section">
+          <h3>Resolution</h3>
+          <p>{scenario.resolution}</p>
+        </div>
+        <div className="sc-section">
+          <h3>Ideal Methodology</h3>
+          <p style={{ whiteSpace: 'pre-line' }}>{scenario.methodology}</p>
+        </div>
+        <div className="sc-section">
+          <h3>Interview Tip</h3>
+          <p>{scenario.interviewTip}</p>
+        </div>
+        <div className="sc-result-actions">
+          <button className="btn btn-primary" onClick={onBack}>Try Another</button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="page sc-active-page">
-      <button className="btn btn-ghost" onClick={() => navigate('/scenarios')} style={{ marginBottom: '0.75rem' }}>← Back to scenarios</button>
-
-      <div className="sc-progress-bar">
-        <div className="sc-progress-fill" style={{ width: `${pct}%` }} />
-      </div>
-      <div className="sc-progress-label">Step {currentStep + 1} of {scenario.steps.length}</div>
-
-      <div className="sc-prompt-box">
-        <h1 className="sc-title">{scenario.title}</h1>
-        <p className="sc-description">{scenario.description}</p>
-      </div>
-
-      <div className="sc-layout">
-        <div className="sc-terminal-col">
-          <div className="sc-terminal" ref={termRef}>
-            {history.length === 0 && (
-              <div className="sc-terminal-welcome">Type a command to begin diagnosing. Type <span className="sc-kw">hint</span> for help or <span className="sc-kw">skip</span> to see the answer.</div>
-            )}
-            {history.map((entry, i) => (
-              <div key={i} className={`sc-term-entry sc-term-${entry.type}`}>
-                {entry.type === 'cmd' && <><span className="sc-prompt">$</span> <span className="sc-cmd-text">{entry.text}</span></>}
-                {entry.type === 'output' && <pre className="sc-output-text">{entry.text}</pre>}
-                {entry.type === 'error' && <span className="sc-error-text">{entry.text}</span>}
-                {entry.type === 'hint' && <span className="sc-hint-text">{entry.text}</span>}
-                {entry.type === 'system' && <span className="sc-system-text">{entry.text}</span>}
-              </div>
-            ))}
-          </div>
-          <form className="sc-input-row" onSubmit={handleSubmit}>
-            <span className="sc-input-prompt">$</span>
-            <input
-              ref={inputRef}
-              className="sc-input"
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              placeholder="Type a command..."
-              autoFocus
-              spellCheck={false}
-              autoComplete="off"
-            />
-          </form>
+    <div className="page sc-active">
+      <div className="sc-header">
+        <button className="back-link" onClick={onBack}>← Scenarios</button>
+        <div className="sc-progress-bar">
+          <div className="sc-progress-fill" style={{ width: `${(stepsCompleted / scenario.steps.length) * 100}%` }} />
         </div>
+        <span className="sc-progress-text">{stepsCompleted}/{scenario.steps.length}</span>
+      </div>
 
-        <div className="sc-feedback-panel">
-          <div className="sc-feedback-header">AI Feedback</div>
-          {feedback ? (
-            <div className={`sc-feedback-card sc-fb-${feedback.type}`}>
-              <span className="sc-fb-icon">{feedback.icon}</span>
-              <div className="sc-fb-message">{feedback.message}</div>
+      <div className="sc-prompt">
+        <h2>{scenario.title}</h2>
+        <p>{scenario.description}</p>
+      </div>
+
+      <div className="sc-terminal-area">
+        {visibleHistory.map((h, i) => (
+          <div key={i} className={`sc-entry ${h.matched ? 'sc-correct' : ''}`}>
+            <div className="sc-entry-input">
+              <span className="sc-entry-tag">{h.type === 'command' ? '$' : '💭'}</span>
+              <span className={h.type === 'command' ? 'sc-cmd-text' : 'sc-think-text'}>{h.text}</span>
             </div>
-          ) : (
-            <div className="sc-feedback-empty">Run a command to get feedback</div>
-          )}
-        </div>
+            {h.output && <pre className="sc-output">{h.output}</pre>}
+            {h.feedback && <div className={`sc-feedback ${h.matched ? 'sc-fb-good' : 'sc-fb-guide'}`}>{h.feedback}</div>}
+          </div>
+        ))}
+        <div ref={historyEndRef} />
       </div>
+
+      <div className="sc-nav-row">
+        {history.length > 0 && viewIdx !== 0 && (
+          <button className="btn btn-secondary sc-nav-btn" onClick={() => setViewIdx(viewIdx !== null ? Math.max(0, viewIdx - 1) : history.length - 2)}>
+            ← Previous
+          </button>
+        )}
+        {viewIdx !== null && (
+          <button className="btn btn-secondary sc-nav-btn" onClick={() => setViewIdx(viewIdx < history.length - 1 ? viewIdx + 1 : null)}>
+            Next →
+          </button>
+        )}
+        {viewIdx !== null && (
+          <button className="btn btn-secondary sc-nav-btn" onClick={() => setViewIdx(null)}>Latest</button>
+        )}
+      </div>
+
+      <form className="sc-input-area" onSubmit={handleSubmit}>
+        <div className="sc-mode-toggle">
+          <button type="button" className={`sc-mode-btn ${mode === 'command' ? 'active' : ''}`} onClick={() => setMode('command')}>
+            $ Command
+          </button>
+          <button type="button" className={`sc-mode-btn ${mode === 'thinking' ? 'active' : ''}`} onClick={() => setMode('thinking')}>
+            💭 Thinking
+          </button>
+        </div>
+        <div className="sc-input-row">
+          <span className="sc-input-prompt">{mode === 'command' ? '$' : '💭'}</span>
+          <input
+            ref={inputRef}
+            className="sc-input"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder={mode === 'command' ? 'Type a command...' : 'Share your thinking...'}
+            disabled={loading}
+            autoComplete="off"
+            spellCheck={mode === 'thinking'}
+          />
+          <button type="submit" className="sc-send" disabled={loading || !input.trim()}>
+            {loading ? '...' : '→'}
+          </button>
+        </div>
+      </form>
     </div>
   )
-}
-
-export default function ScenarioMode() {
-  const { id } = useParams()
-  const scenario = id ? scenarios.find(s => s.id === id) : null
-
-  if (id && !scenario) {
-    return (
-      <div className="page">
-        <p>Scenario not found.</p>
-        <Link to="/scenarios" className="btn btn-secondary">← Back</Link>
-      </div>
-    )
-  }
-
-  return scenario ? <ActiveScenario key={id} scenario={scenario} /> : <ScenarioList />
 }

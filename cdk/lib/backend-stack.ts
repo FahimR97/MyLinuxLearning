@@ -38,6 +38,22 @@ export class BackendStack extends cdk.Stack {
     const quizzesFn = makeFn('QuizzesFn', 'quizzes');
     const progressFn = makeFn('ProgressFn', 'progress');
 
+    // AI feedback Lambda with Bedrock access
+    const aiFeedbackFn = new lambda.Function(this, 'AIFeedbackFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'lambdas/ai-feedback/index.handler',
+      code: lambda.Code.fromAsset(backendRoot, {
+        exclude: ['node_modules/.cache', '*.md'],
+      }),
+      environment: { TABLE_NAME: table.tableName },
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 256,
+    });
+    aiFeedbackFn.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['bedrock:InvokeModel'],
+      resources: ['arn:aws:bedrock:eu-west-2::foundation-model/anthropic.claude-3-haiku-20240307-v1:0'],
+    }));
+
     const api = new apigateway.RestApi(this, 'Api', {
       restApiName: 'MyLinuxLearning-API',
       defaultCorsPreflightOptions: {
@@ -63,6 +79,9 @@ export class BackendStack extends cdk.Stack {
     progress.addMethod('GET', new apigateway.LambdaIntegration(progressFn));
     progress.addMethod('POST', new apigateway.LambdaIntegration(progressFn));
     progress.addMethod('DELETE', new apigateway.LambdaIntegration(progressFn));
+
+    const aiFeedback = api.root.addResource('ai-feedback');
+    aiFeedback.addMethod('POST', new apigateway.LambdaIntegration(aiFeedbackFn));
 
     new cdk.CfnOutput(this, 'ApiUrl', { value: api.url });
   }
