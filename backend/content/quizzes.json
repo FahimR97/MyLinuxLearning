@@ -1571,5 +1571,161 @@
     ],
     "correctAnswer": 1,
     "explanation": "'truncate -s 0 file' or '> file' empties the file in place, preserving the inode and file descriptor. The writing process continues logging to the same file without interruption. 'rm' followed by 'touch' creates a new inode — the old process still writes to the deleted file (wasting space). 'mv' has the same problem. 'echo \"\"' writes a newline rather than truly emptying the file."
+  },
+  {
+    "id": "iqa-new-q1",
+    "chapterId": "interview-qa",
+    "question": "What is the difference between /etc/passwd and /etc/shadow?",
+    "options": [
+      "They contain the same information in different formats",
+      "/etc/passwd stores user account properties (world-readable); /etc/shadow stores password hashes (root-only readable)",
+      "/etc/shadow is a backup of /etc/passwd",
+      "/etc/passwd is for local users; /etc/shadow is for LDAP users"
+    ],
+    "correctAnswer": 1,
+    "explanation": "/etc/passwd stores user account info (username, UID, GID, home, shell) and is world-readable. /etc/shadow stores password hashes with restricted permissions (root-only). The separation prevents non-root users from accessing password hashes for offline cracking."
+  },
+  {
+    "id": "iqa-new-q2",
+    "chapterId": "interview-qa",
+    "question": "What is a umask and what does a umask of 022 produce?",
+    "options": [
+      "umask adds permissions; 022 gives files 022 permissions",
+      "umask subtracts from defaults; 022 gives new files 644 and new directories 755",
+      "umask sets the maximum permissions; 022 means only owner can write",
+      "umask only affects directories, not files"
+    ],
+    "correctAnswer": 1,
+    "explanation": "umask subtracts from default permissions (666 for files, 777 for directories). With umask 022: files get 666-022=644 (rw-r--r--), directories get 777-022=755 (rwxr-xr-x). This ensures new files aren't world-writable by default."
+  },
+  {
+    "id": "iqa-new-q3",
+    "chapterId": "interview-qa",
+    "question": "What is the difference between a process and a thread?",
+    "options": [
+      "They are the same thing",
+      "A process has its own memory space; a thread shares memory within a process and is lighter weight",
+      "Threads are slower than processes",
+      "Processes can only run one at a time; threads run in parallel"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A process has its own separate memory space, file descriptors, and PID. A thread shares memory within a process, making inter-thread communication faster but requiring synchronisation (mutexes) to avoid race conditions. Threads are lighter to create and context-switch."
+  },
+  {
+    "id": "iqa-new-q4",
+    "chapterId": "interview-qa",
+    "question": "How do you make a file immutable in Linux so even root cannot modify it?",
+    "options": [
+      "chmod 000 file",
+      "chattr +i file",
+      "chown nobody file",
+      "mv file /readonly/"
+    ],
+    "correctAnswer": 1,
+    "explanation": "chattr +i sets the immutable attribute, preventing the file from being modified, deleted, renamed, or linked to — even by root. Remove with chattr -i. Check with lsattr. chmod 000 still allows root to modify the file."
+  },
+  {
+    "id": "iqa-new-q5",
+    "chapterId": "interview-qa",
+    "question": "What is the difference between iterative and recursive DNS queries?",
+    "options": [
+      "They are the same thing with different names",
+      "Recursive: resolver does all the work and returns the final answer. Iterative: each server returns a referral to the next server",
+      "Iterative is faster because it uses UDP",
+      "Recursive only works for local domains"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In a recursive query, the resolver does all the work (queries root, TLD, authoritative) and returns the final answer. In iterative queries, each server returns a referral to the next. Your client makes a recursive query to your ISP's resolver, which then makes iterative queries on your behalf."
+  },
+  {
+    "id": "iqa-new-q6",
+    "chapterId": "interview-qa",
+    "question": "You need to design a URL shortener. What is the key architectural consideration for handling 95% read traffic?",
+    "options": [
+      "Use a write-optimised database",
+      "Cache popular URLs aggressively (Redis/CDN) since reads dominate, and use consistent hashing for DB sharding",
+      "Use synchronous writes to ensure consistency",
+      "Store all URLs in a single database table"
+    ],
+    "correctAnswer": 1,
+    "explanation": "With 95% reads, caching is critical. Popular short URLs should be cached in Redis and served via CDN to absorb read spikes. The database handles writes and cache misses. Consistent hashing distributes data across shards for horizontal scaling."
+  },
+  {
+    "id": "iqa-new-q7",
+    "chapterId": "interview-qa",
+    "question": "What command would you use to transfer a directory between two servers efficiently over SSH?",
+    "options": [
+      "scp -r /path user@host:/dest",
+      "tar zcvf - /path | ssh user@host 'tar -C /dest -zxvf -'",
+      "rsync /path user@host:/dest",
+      "All of the above work, but tar over SSH is fastest for many small files"
+    ],
+    "correctAnswer": 3,
+    "explanation": "All three work. scp -r copies recursively but has per-file overhead. rsync is efficient for incremental transfers. tar over SSH is fastest for many small files because it streams a single archive rather than negotiating each file individually. Choose based on the scenario."
+  },
+  {
+    "id": "iqa-new-q8",
+    "chapterId": "interview-qa",
+    "question": "What is the difference between a forward proxy and a reverse proxy?",
+    "options": [
+      "They are the same thing",
+      "Forward proxy: client → proxy → internet (hides client). Reverse proxy: internet → proxy → backend (hides servers)",
+      "Forward proxies are faster",
+      "Reverse proxies only work with HTTPS"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A forward proxy sits in front of clients, hiding their identity from the internet (used for filtering, caching, anonymity). A reverse proxy sits in front of servers, hiding them from clients (used for load balancing, SSL termination, caching). Nginx and HAProxy are common reverse proxies."
+  },
+  {
+    "id": "iqa-new-q9",
+    "chapterId": "interview-qa",
+    "question": "A database server is being decommissioned and needs to move to RDS. What is the FIRST thing to consider?",
+    "options": [
+      "Start the migration immediately to meet the deadline",
+      "Identify stakeholders, assess DB engine compatibility, measure DB size, and determine acceptable downtime window",
+      "Create the RDS instance with default settings",
+      "Delete the old database"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Before any migration: identify stakeholders and communicate plans, verify DB engine/version compatibility with RDS, measure DB size for capacity planning, assess downtime tolerance, plan rollback strategy, and test with a replica first. Rushing leads to data loss or extended outages."
+  },
+  {
+    "id": "iqa-new-q10",
+    "chapterId": "interview-qa",
+    "question": "What security mechanisms can you use to secure a Linux system?",
+    "options": [
+      "Only use strong passwords",
+      "PAM for authentication, SELinux/AppArmor for MAC, iptables for firewalling, SSH keys, fail2ban, and regular patching",
+      "Install antivirus software",
+      "Disable all network interfaces"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Defense in depth: PAM for flexible authentication, SELinux/AppArmor for mandatory access control beyond standard permissions, iptables/nftables for network firewalling, SSH key-based auth (disable passwords), fail2ban for brute-force protection, cgroups/namespaces for isolation, and regular security patching."
+  },
+  {
+    "id": "iqa-new-q11",
+    "chapterId": "interview-qa",
+    "question": "What does 'set -euo pipefail' do in a bash script?",
+    "options": [
+      "Enables verbose output",
+      "-e exits on error, -u treats unset variables as errors, pipefail makes pipelines fail if any command fails",
+      "Sets environment variables",
+      "Enables POSIX compatibility mode"
+    ],
+    "correctAnswer": 1,
+    "explanation": "This is 'strict mode' for bash. -e stops on any command failure. -u catches typos in variable names (unset = error). -o pipefail ensures a pipeline fails if ANY command fails, not just the last. Without these, scripts silently continue past errors, potentially causing cascading damage."
+  },
+  {
+    "id": "iqa-new-q12",
+    "chapterId": "interview-qa",
+    "question": "How would you find the top 10 IP addresses in a web server access log?",
+    "options": [
+      "cat access.log | head -10",
+      "awk '{print $1}' access.log | sort | uniq -c | sort -rn | head -10",
+      "grep -c IP access.log",
+      "wc -l access.log"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The classic counting pipeline: awk extracts the IP (field 1), sort groups duplicates together (required for uniq), uniq -c counts them, sort -rn sorts by count descending, head -10 takes the top 10. This pattern is fundamental to log analysis on Linux."
   }
 ]
