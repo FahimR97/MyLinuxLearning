@@ -1385,3 +1385,27 @@ a:hover { color: var(--lavender); }
   .score-circle { width: 120px; height: 120px; }
   .score-pct { font-size: 2rem; }
 }
+
+/* Chapter split-view terminal */
+.chapter-split { display: flex; height: 100%; }
+.chapter-split-content { flex: 1; overflow-y: auto; min-width: 0; }
+.chapter-split.term-open .chapter-split-content { max-width: 55%; }
+.chapter-split-terminal {
+  width: 45%; border-left: 1px solid var(--border); display: flex;
+  flex-direction: column; position: sticky; top: 0; height: 100vh;
+}
+.split-term-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 1rem; background: var(--bg-card); border-bottom: 1px solid var(--border);
+  font-size: 0.85rem; font-weight: 600; color: var(--text-dim);
+}
+.split-term-close {
+  background: none; border: none; color: var(--text-dim); cursor: pointer;
+  font-size: 1rem; padding: 0.2rem 0.4rem; border-radius: 4px;
+}
+.split-term-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+@media (max-width: 900px) {
+  .chapter-split.term-open { flex-direction: column; }
+  .chapter-split.term-open .chapter-split-content { max-width: 100%; height: 50vh; }
+  .chapter-split-terminal { width: 100%; height: 50vh; }
+}

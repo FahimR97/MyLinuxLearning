@@ -200,6 +200,8 @@ export default function ChapterDetail() {
   const [chapter, setChapter] = useState(null)
   const [chapters, setChapters] = useState([])
   const [progress, setProgress] = useState({})
+  const [termOpen, setTermOpen] = useState(false)
+  const ttydUrl = import.meta.env.VITE_TTYD_URL || 'https://54.245.54.69:7681'
 
   useEffect(() => {
     getChapter(id).then(setChapter)
@@ -232,13 +234,24 @@ export default function ChapterDetail() {
   }
 
   return (
-    <div className="page chapter-detail">
-      <div className="chapter-nav-top">
-        <Link to="/chapters" className="back-link">← All Chapters</Link>
-        <span className="chapter-badge">
-          Ch {chapter.order}/{chapters.length} · ~{readTime} min read
-        </span>
-      </div>
+    <div className={`chapter-split ${termOpen ? 'term-open' : ''}`}>
+      <div className="chapter-split-content">
+        <div className="page chapter-detail">
+          <div className="chapter-nav-top">
+            <Link to="/chapters" className="back-link">← All Chapters</Link>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <button
+                className={`btn ${termOpen ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setTermOpen(t => !t)}
+                style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
+              >
+                {termOpen ? '✕ Close Terminal' : '⌨ Open Terminal'}
+              </button>
+              <span className="chapter-badge">
+                Ch {chapter.order}/{chapters.length} · ~{readTime} min read
+              </span>
+            </div>
+          </div>
 
       {toc.length > 1 && (
         <div className="chapter-toc">
@@ -283,6 +296,22 @@ export default function ChapterDetail() {
           </Link>
         ) : <span />}
       </div>
+    </div>
+      </div>
+      {termOpen && (
+        <div className="chapter-split-terminal">
+          <div className="split-term-header">
+            <span>🖥️ Live Terminal</span>
+            <button onClick={() => setTermOpen(false)} className="split-term-close">✕</button>
+          </div>
+          <iframe
+            src={ttydUrl}
+            title="Live Terminal"
+            style={{ width: '100%', height: 'calc(100% - 36px)', border: 'none', background: '#0a0e14' }}
+            allow="clipboard-read; clipboard-write"
+          />
+        </div>
+      )}
     </div>
   )
 }
