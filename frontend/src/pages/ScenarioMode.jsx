@@ -316,8 +316,8 @@ function ActiveScenario({ scenario, onBack }) {
             className="sc-think-input"
             value={thinkInput}
             onChange={e => setThinkInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) handleThinking(e) }}
-            placeholder="I think the issue might be... (Ctrl+Enter to send)"
+            onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleThinking(e) }}
+            placeholder="I think the issue might be... (⌘+Enter to send)"
             disabled={loading}
             autoComplete="off"
           />
