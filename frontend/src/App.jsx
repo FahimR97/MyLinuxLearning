@@ -13,6 +13,7 @@ import { signOut } from './api/auth'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [authed, setAuthed] = useState(() => !!localStorage.getItem('fll-session'))
 
   if (!authed) {
@@ -25,11 +26,13 @@ export default function App() {
   }
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <Sidebar
         open={sidebarOpen}
+        collapsed={sidebarCollapsed}
         onClose={() => setSidebarOpen(false)}
         onLogout={handleLogout}
+        onToggleCollapse={() => setSidebarCollapsed(c => !c)}
       />
       <div className="main-content">
         <button

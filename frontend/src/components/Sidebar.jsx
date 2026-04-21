@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getChapters, getProgress } from '../api/client'
 
-export default function Sidebar({ open, onClose, onLogout }) {
+export default function Sidebar({ open, collapsed, onClose, onLogout, onToggleCollapse }) {
   const [chapters, setChapters] = useState([])
   const [progress, setProgress] = useState({})
   const [chaptersExpanded, setChaptersExpanded] = useState(true)
@@ -29,7 +29,7 @@ export default function Sidebar({ open, onClose, onLogout }) {
   return (
     <>
       {open && <div className="sidebar-overlay" onClick={onClose} />}
-      <aside className={`sidebar ${open ? 'open' : ''}`}>
+      <aside className={`sidebar ${open ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <NavLink to="/" className="sidebar-logo">
             <span className="logo-icon">⌬</span>
@@ -98,8 +98,13 @@ export default function Sidebar({ open, onClose, onLogout }) {
         </nav>
 
         <div className="sidebar-footer">
-          <span className="sidebar-version">v2.0</span>
-          <button className="sidebar-logout" onClick={onLogout}>logout</button>
+          <button className="sidebar-collapse-btn" onClick={onToggleCollapse} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+            {collapsed ? '📖' : '📕'}
+          </button>
+          {!collapsed && <>
+            <span className="sidebar-version">v2.0</span>
+            <button className="sidebar-logout" onClick={onLogout}>logout</button>
+          </>}
         </div>
       </aside>
     </>
