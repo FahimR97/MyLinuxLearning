@@ -1437,3 +1437,99 @@ a:hover { color: var(--lavender); }
   border-radius: 6px; font-family: var(--font-mono); transition: all 0.2s;
 }
 .sidebar-expand-float:hover { background: var(--bg-hover); color: var(--text); border-color: var(--lavender); }
+
+/* ===================================
+   SCENARIO MODE
+   =================================== */
+.scenario-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.3rem;
+  transition: all 0.25s; display: flex; flex-direction: column;
+  position: relative; overflow: hidden; color: var(--text);
+}
+.scenario-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+  background: linear-gradient(180deg, var(--lavender), var(--rose));
+  opacity: 0; transition: opacity 0.25s;
+}
+.scenario-card:hover {
+  border-color: var(--border-soft); transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35); color: var(--text);
+}
+.scenario-card:hover::before { opacity: 1; }
+
+.difficulty-badge {
+  font-size: 0.67rem; padding: 0.18rem 0.55rem; border-radius: 20px;
+  font-weight: 700; text-transform: capitalize;
+}
+.difficulty-badge.beginner { background: rgba(110,231,183,0.15); color: var(--mint); }
+.difficulty-badge.intermediate { background: rgba(252,211,77,0.13); color: var(--amber); }
+.difficulty-badge.advanced { background: rgba(252,165,165,0.13); color: var(--coral); }
+
+.scenario-pool {
+  display: flex; flex-wrap: wrap; gap: 0.6rem;
+}
+.scenario-action {
+  padding: 0.6rem 1.1rem;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text);
+  font-size: 0.85rem; cursor: pointer;
+  transition: all 0.18s; font-family: inherit;
+}
+.scenario-action:hover {
+  border-color: var(--lavender); background: rgba(45,212,191,0.07); color: var(--lavender);
+}
+
+.scenario-feedback {
+  border-radius: var(--radius); padding: 1.25rem;
+  margin-bottom: 1.5rem; border: 1px solid;
+}
+.scenario-feedback.correct {
+  border-color: rgba(110,231,183,0.4); background: rgba(110,231,183,0.06);
+}
+.scenario-feedback.wrong {
+  border-color: rgba(252,165,165,0.4); background: rgba(252,165,165,0.06);
+}
+.scenario-feedback.early {
+  border-color: rgba(252,211,77,0.4); background: rgba(252,211,77,0.06);
+}
+.scenario-feedback-header {
+  font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem;
+}
+.scenario-feedback.correct .scenario-feedback-header { color: var(--mint); }
+.scenario-feedback.wrong .scenario-feedback-header { color: var(--coral); }
+.scenario-feedback.early .scenario-feedback-header { color: var(--amber); }
+
+.scenario-feedback .scenario-terminal {
+  margin-bottom: 0.75rem;
+}
+.scenario-terminal {
+  background: #080f1a; border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+
+.scenario-insight {
+  font-size: 0.88rem; color: var(--text-dim); line-height: 1.7;
+}
+
+.scenario-result {
+  background: linear-gradient(135deg, rgba(45,212,191,0.08), rgba(125,211,252,0.05));
+  border: 1px solid rgba(45,212,191,0.25);
+  border-radius: var(--radius-lg); padding: 2rem;
+  text-align: center;
+}
+.scenario-result h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.scenario-result-section {
+  text-align: left; margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.scenario-result-section h3 {
+  font-size: 0.9rem; font-weight: 700; color: var(--lavender);
+  margin-bottom: 0.5rem;
+}
+.scenario-result-section p {
+  font-size: 0.88rem; color: var(--text-dim); line-height: 1.75;
+}

@@ -1,0 +1,816 @@
+[
+  {
+    "id": "slow-server",
+    "title": "The server is running slow",
+    "description": "Users are reporting that the application is extremely sluggish. Page load times have gone from under 1 second to over 30 seconds. The server is a 2-core VM running a Java application behind Nginx. No recent deployments were made.",
+    "difficulty": "beginner",
+    "steps": [
+      {
+        "id": "slow-1",
+        "action": "Check system load average",
+        "command": "uptime",
+        "output": " 14:23:15 up 45 days,  3:12,  2 users,  load average: 12.53, 11.87, 9.42",
+        "insight": "Load average of 12.5 on a 2-core machine means the system is severely overloaded — roughly 6x the number of CPUs. The rising trend (9.42 -> 11.87 -> 12.53) shows the problem is getting worse.",
+        "isKey": true
+      },
+      {
+        "id": "slow-2",
+        "action": "Identify which processes are consuming CPU",
+        "command": "top -bn1 | head -20",
+        "output": "top - 14:23:45 up 45 days,  3:12,  2 users,  load average: 12.53, 11.87, 9.42\nTasks: 112 total,   2 running, 110 sleeping,   0 stopped,   0 zombie\n%Cpu(s): 97.3 us,  1.2 sy,  0.0 ni,  0.8 id,  0.0 wa,  0.0 hi,  0.7 si,  0.0 st\nMiB Mem :   3932.4 total,    234.1 free,   3412.8 used,    285.5 buff/cache\nMiB Swap:   2048.0 total,   1820.3 free,    227.7 used.    312.2 avail Mem\n\n    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n  14229 appuser   20   0 2845672 1.245g  12340 R  95.2  32.4  1243:07 java\n    892 root      20   0  312456  45672  12340 S   1.3   1.1     12:34 nginx\n      1 root      20   0  169348  13280   8424 S   0.0   0.3      2:15 systemd",
+        "insight": "PID 14229 is a Java process consuming 95.2% CPU. This single process is the bottleneck. The high user-space CPU (97.3% us) confirms it's application code, not kernel or I/O.",
+        "isKey": true
+      },
+      {
+        "id": "slow-3",
+        "action": "Get details about the runaway process",
+        "command": "ps aux | grep 14229",
+        "output": "appuser  14229  95.2 32.4 2845672 1283456 ?    Rl   Mar15 1243:07 /usr/bin/java -Xmx1g -jar /opt/myapp/application.jar --server.port=8080",
+        "insight": "This is the main application process. It has accumulated over 1243 minutes of CPU time. The process is likely stuck in an infinite loop or experiencing a thread deadlock.",
+        "isKey": true
+      },
+      {
+        "id": "slow-4",
+        "action": "Check the application logs for errors",
+        "command": "tail -50 /opt/myapp/logs/application.log",
+        "output": "2026-04-21 14:20:12 ERROR [pool-3-thread-1] c.m.service.DataProcessor - Failed to process batch: Connection to database timed out\n2026-04-21 14:20:12 WARN  [pool-3-thread-1] c.m.service.DataProcessor - Retrying batch processing (attempt 4892 of unlimited)\n2026-04-21 14:20:13 ERROR [pool-3-thread-1] c.m.service.DataProcessor - Failed to process batch: Connection to database timed out\n2026-04-21 14:20:13 WARN  [pool-3-thread-1] c.m.service.DataProcessor - Retrying batch processing (attempt 4893 of unlimited)",
+        "insight": "The application is stuck in an infinite retry loop trying to connect to a database that's unreachable. Each retry consumes CPU without any backoff delay. This is the root cause of the high CPU usage.",
+        "isKey": true
+      },
+      {
+        "id": "slow-5",
+        "action": "Check if the database is reachable",
+        "command": "nc -zv db-server 5432",
+        "output": "Ncat: Version 7.93 ( https://nmap.org/ncat )\nNcat: Connection timed out.",
+        "insight": "The database server is unreachable on port 5432. This confirms the application logs — the retry storm is caused by a downstream dependency failure.",
+        "isKey": false
+      },
+      {
+        "id": "slow-6",
+        "action": "Restart the application gracefully",
+        "command": "sudo systemctl restart myapp",
+        "output": "",
+        "insight": "The application has restarted cleanly. However, the root cause (database connectivity) still needs to be addressed, or the retry storm will resume.",
+        "isKey": true
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "slow-rh1",
+        "action": "Restart the entire server",
+        "command": "sudo reboot",
+        "why": "Rebooting is a sledgehammer approach that causes downtime and destroys diagnostic evidence. Always diagnose first — the problem will likely return if the root cause isn't addressed."
+      },
+      {
+        "id": "slow-rh2",
+        "action": "Add more RAM to the server",
+        "command": "# Resize instance / add memory",
+        "why": "The problem is CPU-bound, not memory-bound. Adding RAM won't help a process stuck in an infinite CPU loop. Always identify the bottleneck resource before scaling."
+      },
+      {
+        "id": "slow-rh3",
+        "action": "Check disk space first",
+        "command": "df -h",
+        "why": "While disk space is worth checking eventually, the symptoms point to CPU saturation. The load average and top output should guide your investigation. Follow the evidence, don't check things randomly."
+      }
+    ],
+    "resolution": "Restart the application to stop the infinite retry loop, then fix the database connectivity issue. Add exponential backoff and a maximum retry limit to the application's retry logic to prevent this from happening again.",
+    "methodology": "Start with uptime to gauge overall system health, use top to identify the resource bottleneck and offending process, examine the process details and application logs to understand why it's misbehaving, then address both the symptom (restart) and root cause (database + retry logic).",
+    "interviewTip": "The interviewer wants to see a systematic top-down approach: system overview → identify bottleneck → drill into the specific process → check logs → fix. They're looking for candidates who diagnose before acting and who distinguish between the symptom (high CPU) and root cause (infinite retry loop due to database failure)."
+  },
+  {
+    "id": "disk-full",
+    "title": "Can't write files - disk full",
+    "description": "The application team reports they can't deploy new code. The deployment script fails with 'No space left on device'. The server is a standard Linux VM with a single 50GB root partition.",
+    "difficulty": "beginner",
+    "steps": [
+      {
+        "id": "disk-1",
+        "action": "Check disk usage across all filesystems",
+        "command": "df -h",
+        "output": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/xvda1       50G   50G     0 100% /\ndevtmpfs        1.9G     0  1.9G   0% /dev\ntmpfs           1.9G     0  1.9G   0% /dev/shm\ntmpfs           1.9G  8.5M  1.9G   1% /run",
+        "insight": "The root filesystem is 100% full with zero bytes available. This confirms the reported issue. We need to find what's consuming the 50GB.",
+        "isKey": true
+      },
+      {
+        "id": "disk-2",
+        "action": "Find which top-level directory is consuming the most space",
+        "command": "sudo du -sh /* 2>/dev/null | sort -rh | head -10",
+        "output": "46G\t/var\n1.8G\t/usr\n1.1G\t/opt\n523M\t/home\n245M\t/boot\n89M\t/etc\n12M\t/tmp\n4.0K\t/srv",
+        "insight": "/var is consuming 46GB out of 50GB — that's 92% of the entire disk. This is the directory to investigate further.",
+        "isKey": true
+      },
+      {
+        "id": "disk-3",
+        "action": "Drill into /var to find the culprit",
+        "command": "sudo du -sh /var/* 2>/dev/null | sort -rh | head -10",
+        "output": "45G\t/var/log\n812M\t/var/lib\n156M\t/var/cache\n12M\t/var/tmp\n4.0K\t/var/run",
+        "insight": "/var/log is 45GB — log files have grown out of control. This is a very common issue on servers without proper log rotation configured.",
+        "isKey": true
+      },
+      {
+        "id": "disk-4",
+        "action": "Find the specific large log files",
+        "command": "sudo find /var/log -type f -size +1G -exec ls -lh {} \\;",
+        "output": "-rw-r--r-- 1 root root 28G Apr 21 14:30 /var/log/myapp/application.log\n-rw-r--r-- 1 root root 12G Apr 21 14:30 /var/log/myapp/debug.log\n-rw-r----- 1 syslog adm 4.2G Apr 21 14:30 /var/log/syslog",
+        "insight": "The application is writing massive log files — 28GB for the main log and 12GB for debug. Debug logging should never be enabled in production.",
+        "isKey": true
+      },
+      {
+        "id": "disk-5",
+        "action": "Truncate the large log files to free space immediately",
+        "command": "sudo truncate -s 0 /var/log/myapp/application.log /var/log/myapp/debug.log",
+        "output": "",
+        "insight": "Using truncate instead of rm preserves the file handle so the application doesn't need to be restarted. If you rm a file that a process has open, the space won't be freed until the process releases the file descriptor.",
+        "isKey": true
+      },
+      {
+        "id": "disk-6",
+        "action": "Verify space was reclaimed",
+        "command": "df -h /",
+        "output": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/xvda1       50G  5.8G   42G  13% /",
+        "insight": "Disk usage dropped from 100% to 13%. The immediate crisis is resolved.",
+        "isKey": false
+      },
+      {
+        "id": "disk-7",
+        "action": "Set up log rotation to prevent recurrence",
+        "command": "sudo tee /etc/logrotate.d/myapp << 'EOF'\n/var/log/myapp/*.log {\n    daily\n    rotate 7\n    compress\n    delaycompress\n    missingok\n    notifempty\n    maxsize 500M\n    copytruncate\n}\nEOF",
+        "output": "",
+        "insight": "Logrotate will now rotate the application logs daily, keep 7 days of history, compress old logs, and rotate any log exceeding 500MB.",
+        "isKey": true
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "disk-rh1",
+        "action": "Delete random files to free space",
+        "command": "sudo rm -rf /tmp/* /var/cache/*",
+        "why": "Blindly deleting files is dangerous and unlikely to free significant space. Identify what's consuming the disk before removing anything."
+      },
+      {
+        "id": "disk-rh2",
+        "action": "Add more disk space immediately",
+        "command": "# Expand EBS volume",
+        "why": "Adding more disk treats the symptom, not the cause. If logs are growing unbounded, a bigger disk will just take longer to fill up. Fix the root cause first."
+      },
+      {
+        "id": "disk-rh3",
+        "action": "Reboot the server",
+        "command": "sudo reboot",
+        "why": "Rebooting won't free disk space — the files will still be there after reboot. It only causes unnecessary downtime."
+      }
+    ],
+    "resolution": "Truncate the oversized log files to reclaim space immediately, disable debug logging in production, and configure logrotate to manage log file sizes going forward.",
+    "methodology": "Use df -h to confirm the disk is full, then use du to progressively narrow down which directory tree is consuming space (/ → /var → /var/log → specific files). Truncate rather than delete to avoid file descriptor issues, then implement log rotation.",
+    "interviewTip": "Interviewers love the du drill-down technique — it shows methodical problem-solving. Mentioning truncate vs rm (and why) demonstrates deep Linux knowledge. Always mention the preventive measure (logrotate)."
+  },
+  {
+    "id": "cant-ssh",
+    "title": "Can't SSH into the server",
+    "description": "A developer reports they can't SSH into a newly launched EC2 instance. They've confirmed they have the correct key pair and the instance shows as 'running' in the AWS console. The instance is in a public subnet with a public IP.",
+    "difficulty": "beginner",
+    "steps": [
+      {
+        "id": "ssh-1",
+        "action": "Verify basic network connectivity with ping",
+        "command": "ping -c 4 10.0.1.52",
+        "output": "PING 10.0.1.52 (10.0.1.52) 56(84) bytes of data.\n64 bytes from 10.0.1.52: icmp_seq=1 ttl=64 time=0.842 ms\n64 bytes from 10.0.1.52: icmp_seq=2 ttl=64 time=0.756 ms\n64 bytes from 10.0.1.52: icmp_seq=3 ttl=64 time=0.813 ms\n64 bytes from 10.0.1.52: icmp_seq=4 ttl=64 time=0.791 ms\n\n--- 10.0.1.52 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 3004ms",
+        "insight": "The server is reachable at the network level — ICMP packets are getting through. This rules out the instance being down or a complete network partition.",
+        "isKey": true
+      },
+      {
+        "id": "ssh-2",
+        "action": "Test if SSH port 22 is reachable",
+        "command": "nc -zv 10.0.1.52 22 -w 5",
+        "output": "Ncat: Version 7.93 ( https://nmap.org/ncat )\nNcat: Connection timed out.",
+        "insight": "Port 22 is not reachable even though the host responds to ping. This strongly suggests a firewall or security group is blocking TCP port 22 while allowing ICMP.",
+        "isKey": true
+      },
+      {
+        "id": "ssh-3",
+        "action": "Check the security group rules for the instance",
+        "command": "aws ec2 describe-security-groups --group-ids sg-0a1b2c3d4e5f --query 'SecurityGroups[0].IpPermissions' --output table",
+        "output": "-----------------------------------------------------------\n|                     IpPermissions                       |\n+----------+----------+----------+-----------------------+\n| FromPort | IpProtocol| ToPort  |       IpRanges        |\n+----------+----------+----------+-----------------------+\n|  80      |  tcp     |  80     |  0.0.0.0/0            |\n|  443     |  tcp     |  443    |  0.0.0.0/0            |\n+----------+----------+----------+-----------------------+",
+        "insight": "The security group only allows ports 80 and 443. There is no rule for port 22 (SSH). This is the root cause — SSH traffic is being blocked by the security group.",
+        "isKey": true
+      },
+      {
+        "id": "ssh-4",
+        "action": "Add an SSH rule to the security group",
+        "command": "aws ec2 authorize-security-group-ingress --group-id sg-0a1b2c3d4e5f --protocol tcp --port 22 --cidr 203.0.113.0/24",
+        "output": "{\n    \"Return\": true,\n    \"SecurityGroupRules\": [\n        {\n            \"SecurityGroupRuleId\": \"sgr-0123456789abcdef0\",\n            \"GroupId\": \"sg-0a1b2c3d4e5f\",\n            \"IpProtocol\": \"tcp\",\n            \"FromPort\": 22,\n            \"ToPort\": 22,\n            \"CidrIpv4\": \"203.0.113.0/24\"\n        }\n    ]\n}",
+        "insight": "The SSH rule has been added, restricted to the office CIDR range (203.0.113.0/24) rather than 0.0.0.0/0 for security. Security group changes take effect immediately.",
+        "isKey": true
+      },
+      {
+        "id": "ssh-5",
+        "action": "Verify SSH now works",
+        "command": "ssh -i ~/.ssh/mykey.pem ec2-user@10.0.1.52",
+        "output": "The authenticity of host '10.0.1.52 (10.0.1.52)' can't be established.\nED25519 key fingerprint is SHA256:abc123def456...\nAre you sure you want to continue connecting (yes/no)? yes\nWarning: Permanently added '10.0.1.52' (ED25519) to the list of known hosts.\n\n       __|  __|_  )\n       _|  (     /   Amazon Linux 2\n      ___|\\___|\n\n[ec2-user@ip-10-0-1-52 ~]$",
+        "insight": "SSH is now working. The first-time host key prompt confirms this is a new connection. The issue was purely a security group misconfiguration.",
+        "isKey": true
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "ssh-rh1",
+        "action": "Regenerate the SSH key pair",
+        "command": "ssh-keygen -t rsa -b 4096",
+        "why": "The key pair isn't the issue — we haven't even established a TCP connection to port 22 yet. Key authentication problems would show 'Permission denied', not a connection timeout."
+      },
+      {
+        "id": "ssh-rh2",
+        "action": "Restart the EC2 instance",
+        "command": "aws ec2 reboot-instances --instance-ids i-0123456789abcdef0",
+        "why": "The instance is running and responding to ping. Restarting it won't change the security group rules. This wastes time and causes unnecessary downtime."
+      },
+      {
+        "id": "ssh-rh3",
+        "action": "Check /etc/ssh/sshd_config on the server",
+        "command": "cat /etc/ssh/sshd_config",
+        "why": "You can't check sshd_config because you can't SSH in — that's the whole problem. Even if you could, the connection timeout (not refused) points to a network-level block, not an SSH daemon issue."
+      }
+    ],
+    "resolution": "Add an inbound rule to the security group allowing TCP port 22 from the appropriate source CIDR. Restrict it to your office IP range rather than opening to 0.0.0.0/0.",
+    "methodology": "Start by verifying basic connectivity (ping), then test the specific port (nc/telnet). The difference between 'host reachable but port blocked' vs 'host unreachable' narrows the problem to a firewall. Check security groups (AWS) or iptables (on-host) depending on the environment.",
+    "interviewTip": "The interviewer is testing whether you can distinguish between network-level issues and application-level issues. The key insight is: ping works but port 22 doesn't = firewall. Also, restricting SSH to a specific CIDR instead of 0.0.0.0/0 shows security awareness."
+  },
+  {
+    "id": "website-502",
+    "title": "Website returning 502 Bad Gateway",
+    "description": "The monitoring system triggered an alert: the company website is returning HTTP 502 errors. The architecture is Nginx as a reverse proxy in front of a Node.js backend application. The site was working fine an hour ago.",
+    "difficulty": "intermediate",
+    "steps": [
+      {
+        "id": "502-1",
+        "action": "Confirm the 502 error",
+        "command": "curl -I https://www.example.com",
+        "output": "HTTP/1.1 502 Bad Gateway\nServer: nginx/1.24.0\nDate: Tue, 21 Apr 2026 14:30:00 GMT\nContent-Type: text/html\nContent-Length: 166\nConnection: keep-alive",
+        "insight": "Confirmed 502 Bad Gateway from Nginx. A 502 means Nginx received an invalid response from the upstream server (the backend). Nginx itself is running — the problem is behind it.",
+        "isKey": true
+      },
+      {
+        "id": "502-2",
+        "action": "Check if Nginx is running properly",
+        "command": "systemctl status nginx",
+        "output": "● nginx.service - A high performance web server and a reverse proxy server\n     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)\n     Active: active (running) since Mon 2026-04-20 08:00:00 UTC; 1 day 6h ago\n    Process: 1234 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)\n   Main PID: 1235 (nginx)\n      Tasks: 3 (limit: 4915)\n     Memory: 12.4M\n        CPU: 45.123s\n   CGroup: /system.slice/nginx.service\n           ├─1235 \"nginx: master process /usr/sbin/nginx\"\n           ├─1236 \"nginx: worker process\"\n           └─1237 \"nginx: worker process\"",
+        "insight": "Nginx is running fine — active for over a day with healthy worker processes. The problem is not with Nginx itself but with the upstream backend it's proxying to.",
+        "isKey": false
+      },
+      {
+        "id": "502-3",
+        "action": "Check Nginx error logs for upstream details",
+        "command": "sudo tail -20 /var/log/nginx/error.log",
+        "output": "2026/04/21 14:29:55 [error] 1236#1236: *45123 connect() failed (111: Connection refused) while connecting to upstream, client: 203.0.113.50, server: www.example.com, request: \"GET / HTTP/1.1\", upstream: \"http://127.0.0.1:3000/\", host: \"www.example.com\"\n2026/04/21 14:29:56 [error] 1236#1236: *45124 connect() failed (111: Connection refused) while connecting to upstream, client: 203.0.113.51, server: www.example.com, request: \"GET / HTTP/1.1\", upstream: \"http://127.0.0.1:3000/\", host: \"www.example.com\"",
+        "insight": "Nginx is getting 'Connection refused' when trying to connect to the backend at 127.0.0.1:3000. This means the backend process is not listening on port 3000 — it's either crashed or stopped.",
+        "isKey": true
+      },
+      {
+        "id": "502-4",
+        "action": "Check the backend application status",
+        "command": "systemctl status app-backend",
+        "output": "● app-backend.service - Node.js Backend Application\n     Loaded: loaded (/etc/systemd/system/app-backend.service; enabled; vendor preset: enabled)\n     Active: failed (Result: oom-kill) since Tue 2026-04-21 13:45:22 UTC; 45min ago\n    Process: 8901 ExecStart=/usr/bin/node /opt/app/server.js (code=killed, signal=KILL)\n   Main PID: 8901 (code=killed, signal=KILL)\n        CPU: 2h 34min 12.456s\n\nApr 21 13:45:22 web-server systemd[1]: app-backend.service: Main process exited, code=killed, signal=KILL\nApr 21 13:45:22 web-server systemd[1]: app-backend.service: Failed with result 'oom-kill'.",
+        "insight": "The backend was killed by the OOM (Out of Memory) killer 45 minutes ago. The process consumed too much memory and the kernel terminated it to protect the system. This is the root cause of the 502.",
+        "isKey": true
+      },
+      {
+        "id": "502-5",
+        "action": "Check the journal for OOM details",
+        "command": "sudo journalctl -u app-backend --since '1 hour ago' | grep -i 'oom\\|memory\\|killed'",
+        "output": "Apr 21 13:45:21 web-server kernel: node invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0\nApr 21 13:45:22 web-server kernel: Out of memory: Killed process 8901 (node) total-vm:2345678kB, anon-rss:1876543kB, file-rss:12345kB, shmem-rss:0kB, UID:1001 pgtables:4567kB score:890\nApr 21 13:45:22 web-server systemd[1]: app-backend.service: Main process exited, code=killed, signal=KILL",
+        "insight": "The Node.js process was using ~1.8GB of RSS memory when it was killed. The OOM score of 890 (out of 1000) means it was the biggest memory consumer. This suggests a memory leak in the application.",
+        "isKey": true
+      },
+      {
+        "id": "502-6",
+        "action": "Restart the backend with a memory limit",
+        "command": "sudo systemctl edit app-backend --force",
+        "output": "# Added to override:\n# [Service]\n# MemoryMax=1G\n# MemoryHigh=800M\n# Restart=on-failure\n# RestartSec=5",
+        "insight": "Adding systemd memory limits prevents the process from consuming all system memory. MemoryHigh triggers throttling at 800M, MemoryMax hard-kills at 1G. Restart=on-failure ensures automatic recovery.",
+        "isKey": false
+      },
+      {
+        "id": "502-7",
+        "action": "Start the backend and verify the site works",
+        "command": "sudo systemctl restart app-backend && sleep 3 && curl -I https://www.example.com",
+        "output": "HTTP/1.1 200 OK\nServer: nginx/1.24.0\nDate: Tue, 21 Apr 2026 14:35:00 GMT\nContent-Type: text/html; charset=utf-8\nX-Powered-By: Express\nConnection: keep-alive",
+        "insight": "The site is back up and returning 200 OK. The immediate issue is resolved, but the memory leak in the application needs to be investigated and fixed.",
+        "isKey": true
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "502-rh1",
+        "action": "Restart Nginx",
+        "command": "sudo systemctl restart nginx",
+        "why": "Nginx is working correctly — it's faithfully reporting that the upstream is down. Restarting Nginx won't fix a dead backend. The 502 error tells you the problem is upstream."
+      },
+      {
+        "id": "502-rh2",
+        "action": "Check DNS resolution",
+        "command": "dig www.example.com",
+        "why": "DNS is not the issue — the request is reaching Nginx (which returns the 502). If DNS were broken, you'd get a connection error, not an HTTP response."
+      },
+      {
+        "id": "502-rh3",
+        "action": "Clear browser cache",
+        "command": "# Clear cache in browser settings",
+        "why": "A 502 is a server-side error, not a caching issue. You've already confirmed it with curl, which doesn't use browser cache. This is a common non-technical suggestion that wastes time."
+      }
+    ],
+    "resolution": "Restart the backend application with systemd memory limits (MemoryMax, MemoryHigh) and auto-restart (Restart=on-failure). Investigate the Node.js memory leak using heap snapshots and profiling tools.",
+    "methodology": "Confirm the error, then trace the request path: client → Nginx → backend. Check Nginx logs to understand why it's returning 502 (upstream connection refused). Check the backend service status to find it was OOM-killed. Restart with safeguards.",
+    "interviewTip": "The interviewer wants to see you trace the request path through the architecture. Understanding that 502 means 'upstream problem, not proxy problem' is crucial. Mentioning OOM killer, systemd memory limits, and the need to investigate the memory leak shows production experience."
+  },
+  {
+    "id": "high-memory",
+    "title": "System running out of memory",
+    "description": "Monitoring alerts show the server's available memory has been steadily declining over the past 24 hours. The server runs a Python web application and a Redis cache. Users are starting to experience slow responses.",
+    "difficulty": "intermediate",
+    "steps": [
+      {
+        "id": "mem-1",
+        "action": "Check current memory usage",
+        "command": "free -h",
+        "output": "               total        used        free      shared  buff/cache   available\nMem:           7.8Gi       7.1Gi       123Mi       234Mi       612Mi       198Mi\nSwap:          2.0Gi       1.8Gi       200Mi",
+        "insight": "Only 198MB available out of 7.8GB, and swap is 90% used (1.8GB of 2GB). The system is under severe memory pressure. The high swap usage means the system is actively swapping, which explains the slow responses.",
+        "isKey": true
+      },
+      {
+        "id": "mem-2",
+        "action": "Check if the system is actively swapping",
+        "command": "vmstat 1 5",
+        "output": "procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----\n r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st\n 3  2 1843200 126012  45678 581234  892  456  1234   567  2345 4567 45 12  8 35  0\n 2  3 1845678 118234  45234 578901 1023  567  1456   678  2456 4678 42 14  6 38  0\n 4  2 1848901 112456  44890 576543 1156  678  1678   789  2567 4789 48 11  5 36  0\n 3  3 1851234 108678  44567 574321  987  789  1890   890  2678 4890 44 13  7 36  0\n 2  2 1853456 104890  44234 572109 1234  890  2012   901  2789 4901 46 12  6 36  0",
+        "insight": "Heavy swap activity: si (swap in) averaging ~1000 pages/sec and so (swap out) averaging ~600 pages/sec. The wa (I/O wait) at 35% confirms the system is spending a third of its time waiting on disk due to swapping. This is called 'thrashing'.",
+        "isKey": true
+      },
+      {
+        "id": "mem-3",
+        "action": "Identify the top memory-consuming processes",
+        "command": "ps aux --sort=-%mem | head -10",
+        "output": "USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nappuser  12345  45.2 68.3 6234567 5456789 ?   Sl   Apr20  312:45 python3 /opt/webapp/app.py\nredis    23456   2.1  8.4  712345 678901 ?    Ssl  Apr15   45:23 /usr/bin/redis-server 127.0.0.1:6379\nroot       567   0.3  1.2  234567 98765 ?     Ss   Apr01   12:34 /usr/sbin/rsyslogd\nnginx      890   0.1  0.4  123456 34567 ?     S    Apr01    5:67 nginx: worker process",
+        "insight": "The Python web application (PID 12345) is consuming 68.3% of memory — over 5.2GB RSS. This is abnormally high for a web application and strongly suggests a memory leak. Redis at 8.4% is normal.",
+        "isKey": true
+      },
+      {
+        "id": "mem-4",
+        "action": "Check if memory usage has been growing over time",
+        "command": "pidstat -r -p 12345 5 3",
+        "output": "Linux 5.15.0 (web-server) \t04/21/2026 \t_x86_64_\n\n02:35:00 PM   UID       PID  minflt/s  majflt/s     VSZ     RSS   %MEM  Command\n02:35:05 PM  1001     12345    456.20     23.40  6234567 5456789  68.30  python3\n02:35:10 PM  1001     12345    478.60     25.80  6238901 5461234  68.36  python3\n02:35:15 PM  1001     12345    501.40     28.20  6243210 5465678  68.41  python3",
+        "insight": "RSS is growing by ~4-5MB every 5 seconds. The increasing major page faults (majflt) confirm the system is pulling pages from swap. This is a confirmed memory leak — the process is continuously allocating memory without releasing it.",
+        "isKey": true
+      },
+      {
+        "id": "mem-5",
+        "action": "Restart the leaking process to restore service",
+        "command": "sudo systemctl restart webapp",
+        "output": "",
+        "insight": "Restarting the process frees the leaked memory immediately. This is a temporary fix — the leak will resume. But it restores service while the root cause is investigated.",
+        "isKey": true
+      },
+      {
+        "id": "mem-6",
+        "action": "Verify memory was reclaimed",
+        "command": "free -h",
+        "output": "               total        used        free      shared  buff/cache   available\nMem:           7.8Gi       1.2Gi       5.4Gi        34Mi       1.2Gi       6.3Gi\nSwap:          2.0Gi       234Mi       1.8Gi",
+        "insight": "Memory usage dropped from 7.1GB to 1.2GB and available jumped to 6.3GB. Swap usage is draining back. The system is healthy again, but the memory leak needs to be found and fixed in the application code.",
+        "isKey": true
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "mem-rh1",
+        "action": "Add more swap space",
+        "command": "sudo fallocate -l 4G /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile",
+        "why": "Adding swap is a band-aid that makes the problem worse — more swap means more thrashing and slower performance. The real fix is to stop the memory leak, not give it more room to grow."
+      },
+      {
+        "id": "mem-rh2",
+        "action": "Kill random processes to free memory",
+        "command": "kill -9 $(pgrep -f some_process)",
+        "why": "Killing processes without identifying the memory hog is reckless. You might kill a critical service while the actual offender continues leaking. Always identify the top consumer first with ps or top."
+      },
+      {
+        "id": "mem-rh3",
+        "action": "Reboot the server",
+        "command": "sudo reboot",
+        "why": "Rebooting causes full downtime for all services. A targeted restart of just the leaking process is faster, less disruptive, and equally effective. Save reboots for kernel updates."
+      }
+    ],
+    "resolution": "Restart the leaking Python process to reclaim memory immediately. Then profile the application using tools like tracemalloc or memory_profiler to identify and fix the memory leak in the code. Set up systemd MemoryMax limits as a safety net.",
+    "methodology": "Use free -h to assess overall memory state, vmstat to confirm active swapping, ps to identify the memory hog, pidstat to confirm the leak is ongoing, then restart the offending process. Follow up with application-level profiling.",
+    "interviewTip": "The interviewer wants to see you understand the difference between 'used' and 'available' memory in Linux (buff/cache is reclaimable). Mentioning swap thrashing and its performance impact shows systems knowledge. Distinguishing between a memory leak and legitimate high usage is key."
+  },
+  {
+    "id": "dns-not-resolving",
+    "title": "Users can't access the website by name",
+    "description": "Users report they can't reach https://app.company.com but the website is actually running. Some users can access it, others can't. The server is up and the application is healthy when accessed by IP address directly.",
+    "difficulty": "intermediate",
+    "steps": [
+      {
+        "id": "dns-1",
+        "action": "Try resolving the domain using the system's default DNS",
+        "command": "dig app.company.com",
+        "output": ";; ->>HEADER<<- opcode: QUERY, status: SERVFAIL, id: 34567\n;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 0, ADDITIONAL: 1\n\n;; QUESTION SECTION:\n;app.company.com.\t\tIN\tA\n\n;; Query time: 2034 msec\n;; SERVER: 10.0.0.2#53(10.0.0.2)\n;; WHEN: Tue Apr 21 14:40:00 UTC 2026\n;; MSG SIZE  rcvd: 44",
+        "insight": "The query returned SERVFAIL with no answer. The DNS server at 10.0.0.2 (the system default) cannot resolve this domain. The long query time (2034ms) suggests the DNS server is struggling or unreachable.",
+        "isKey": true
+      },
+      {
+        "id": "dns-2",
+        "action": "Try resolving with a known-good public DNS server",
+        "command": "dig @8.8.8.8 app.company.com",
+        "output": ";; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 45678\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; ANSWER SECTION:\napp.company.com.\t300\tIN\tA\t203.0.113.50\n\n;; Query time: 23 msec\n;; SERVER: 8.8.8.8#53(8.8.8.8)\n;; WHEN: Tue Apr 21 14:40:15 UTC 2026\n;; MSG SIZE  rcvd: 62",
+        "insight": "Google's DNS (8.8.8.8) resolves the domain correctly to 203.0.113.50. This proves the DNS records are correct — the problem is with the local DNS resolver configured on this server, not with the domain's DNS records.",
+        "isKey": true
+      },
+      {
+        "id": "dns-3",
+        "action": "Check the system's DNS resolver configuration",
+        "command": "cat /etc/resolv.conf",
+        "output": "# Generated by NetworkManager\nnameserver 10.0.0.2\nnameserver 10.0.0.3",
+        "insight": "The system is configured to use internal DNS servers 10.0.0.2 and 10.0.0.3. These are likely corporate DNS servers that are misconfigured, down, or can't reach the authoritative DNS for this domain.",
+        "isKey": true
+      },
+      {
+        "id": "dns-4",
+        "action": "Test if the configured nameservers are responding at all",
+        "command": "dig @10.0.0.2 google.com +short",
+        "output": ";; connection timed out; no servers could be reached",
+        "insight": "The primary nameserver 10.0.0.2 is completely unresponsive — it's not even answering queries for well-known domains. This DNS server is down or unreachable.",
+        "isKey": true
+      },
+      {
+        "id": "dns-5",
+        "action": "Fix the resolver configuration",
+        "command": "sudo tee /etc/resolv.conf << 'EOF'\nnameserver 8.8.8.8\nnameserver 8.8.4.4\nnameserver 10.0.0.3\nEOF",
+        "output": "nameserver 8.8.8.8\nnameserver 8.8.4.4\nnameserver 10.0.0.3",
+        "insight": "Added Google's public DNS servers as primary and secondary, keeping the internal server as a fallback. This provides immediate resolution while the internal DNS issue is investigated.",
+        "isKey": true
+      },
+      {
+        "id": "dns-6",
+        "action": "Verify DNS resolution now works",
+        "command": "dig app.company.com +short",
+        "output": "203.0.113.50",
+        "insight": "DNS resolution is working correctly now. The domain resolves to the expected IP address using the new nameserver configuration.",
+        "isKey": false
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "dns-rh1",
+        "action": "Restart the web server",
+        "command": "sudo systemctl restart nginx",
+        "why": "The web server is running fine — the problem is that clients can't resolve the domain name to reach it. Restarting Nginx won't fix DNS resolution issues."
+      },
+      {
+        "id": "dns-rh2",
+        "action": "Check the firewall rules",
+        "command": "sudo iptables -L -n",
+        "why": "The server is accessible by IP address, so the firewall isn't blocking traffic. The issue is name resolution on the client/server side, not network connectivity."
+      },
+      {
+        "id": "dns-rh3",
+        "action": "Flush iptables rules",
+        "command": "sudo iptables -F",
+        "why": "Flushing firewall rules is dangerous and irrelevant. The problem is DNS, not firewall. Flushing iptables could expose the server to security risks and won't fix name resolution."
+      }
+    ],
+    "resolution": "Update /etc/resolv.conf to use working DNS servers. Investigate why the internal DNS servers (10.0.0.2) are down. For a permanent fix, configure DNS through NetworkManager or systemd-resolved rather than editing resolv.conf directly.",
+    "methodology": "Compare DNS resolution using the system's default resolver vs a known-good public resolver (8.8.8.8). If the public resolver works but the system resolver doesn't, the problem is in /etc/resolv.conf or the configured nameservers. Test the nameservers directly to confirm.",
+    "interviewTip": "The interviewer is testing your DNS troubleshooting methodology. The key technique is comparing dig with default resolver vs dig @8.8.8.8 — this immediately isolates whether the problem is with DNS records or the local resolver. Mentioning /etc/resolv.conf and understanding the resolver chain shows Linux networking knowledge."
+  },
+  {
+    "id": "service-wont-start",
+    "title": "Service won't start after deployment",
+    "description": "The deployment pipeline shows green, but the application health check is failing. The team deployed a new version of the Java microservice 10 minutes ago. The previous version was running fine. The service is managed by systemd.",
+    "difficulty": "intermediate",
+    "steps": [
+      {
+        "id": "svc-1",
+        "action": "Check the service status",
+        "command": "systemctl status myapp",
+        "output": "● myapp.service - My Application Service\n     Loaded: loaded (/etc/systemd/system/myapp.service; enabled; vendor preset: enabled)\n     Active: failed (Result: exit-code) since Tue 2026-04-21 14:50:00 UTC; 10min ago\n    Process: 23456 ExecStart=/usr/bin/java -jar /opt/myapp/app.jar (code=exited, status=1/FAILURE)\n   Main PID: 23456 (code=exited, status=1/FAILURE)\n\nApr 21 14:50:00 app-server systemd[1]: myapp.service: Main process exited, code=exited, status=1/FAILURE\nApr 21 14:50:00 app-server systemd[1]: myapp.service: Failed with result 'exit-code'.\nApr 21 14:50:00 app-server systemd[1]: Failed to start My Application Service.",
+        "insight": "The service failed to start with exit code 1. This is a generic error — we need to check the journal for the actual error message from the application.",
+        "isKey": true
+      },
+      {
+        "id": "svc-2",
+        "action": "Check the service journal for detailed error messages",
+        "command": "journalctl -u myapp --since '15 min ago' --no-pager",
+        "output": "Apr 21 14:50:00 app-server java[23456]: 2026-04-21 14:50:00.123 ERROR --- [main] o.s.b.web.embedded.tomcat.TomcatStarter : Error starting Tomcat context\nApr 21 14:50:00 app-server java[23456]: 2026-04-21 14:50:00.234 ERROR --- [main] o.s.boot.SpringApplication : Application run failed\nApr 21 14:50:00 app-server java[23456]: org.springframework.boot.web.server.PortInUseException: Port 8080 is already in use\nApr 21 14:50:00 app-server java[23456]:     at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:142)\nApr 21 14:50:00 app-server java[23456]:     at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.<init>(TomcatWebServer.java:104)",
+        "insight": "The application can't start because port 8080 is already in use. The old version of the application is still running and holding the port. The deployment didn't stop the old process before starting the new one.",
+        "isKey": true
+      },
+      {
+        "id": "svc-3",
+        "action": "Find what process is using port 8080",
+        "command": "sudo ss -tulnp | grep :8080",
+        "output": "tcp   LISTEN  0       128          *:8080            *:*    users:((\"java\",pid=19876,fd=45))",
+        "insight": "PID 19876 is a Java process still listening on port 8080. This is the old version of the application that wasn't properly stopped during deployment.",
+        "isKey": true
+      },
+      {
+        "id": "svc-4",
+        "action": "Verify this is the old application process",
+        "command": "ps aux | grep 19876",
+        "output": "appuser  19876  0.5 12.3 3456789 987654 ?    Sl   Apr20  45:23 /usr/bin/java -jar /opt/myapp/app.jar.bak",
+        "insight": "Confirmed — PID 19876 is running the old version (app.jar.bak). It's been running since April 20. The deployment renamed the old jar but didn't kill the process.",
+        "isKey": true
+      },
+      {
+        "id": "svc-5",
+        "action": "Stop the old process and start the new service",
+        "command": "sudo kill 19876 && sleep 2 && sudo systemctl start myapp",
+        "output": "",
+        "insight": "Killed the old process gracefully (SIGTERM) and started the new service. Using kill without -9 gives the process a chance to shut down cleanly.",
+        "isKey": true
+      },
+      {
+        "id": "svc-6",
+        "action": "Verify the new service is running",
+        "command": "systemctl status myapp",
+        "output": "● myapp.service - My Application Service\n     Loaded: loaded (/etc/systemd/system/myapp.service; enabled; vendor preset: enabled)\n     Active: active (running) since Tue 2026-04-21 15:01:00 UTC; 5s ago\n   Main PID: 24567 (java)\n     Memory: 256.0M\n        CPU: 3.456s\n   CGroup: /system.slice/myapp.service\n           └─24567 /usr/bin/java -jar /opt/myapp/app.jar",
+        "insight": "The new version is running successfully. The deployment script should be fixed to properly stop the old process before starting the new one (systemctl restart instead of just start).",
+        "isKey": false
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "svc-rh1",
+        "action": "Reinstall the application package",
+        "command": "sudo apt reinstall myapp",
+        "why": "The package installed correctly — the deployment pipeline was green. The issue is a runtime port conflict, not a packaging problem. Reinstalling won't free the port."
+      },
+      {
+        "id": "svc-rh2",
+        "action": "Reboot the server",
+        "command": "sudo reboot",
+        "why": "Rebooting would work but is extreme overkill. It causes full downtime for all services. Simply killing the old process and starting the new one takes seconds with zero collateral impact."
+      },
+      {
+        "id": "svc-rh3",
+        "action": "Check disk space",
+        "command": "df -h",
+        "why": "The error message clearly says 'Port 8080 is already in use'. Disk space is irrelevant. Always read the error message carefully before investigating tangential things."
+      }
+    ],
+    "resolution": "Kill the old process that's holding port 8080, then start the new service. Fix the deployment script to use 'systemctl restart' instead of 'systemctl start' to ensure the old process is stopped first.",
+    "methodology": "Check systemctl status for the failure, read journalctl for the actual error message, use ss to find what's holding the port, verify it's the old process, kill it, and start the new service. Fix the deployment pipeline to prevent recurrence.",
+    "interviewTip": "The interviewer is testing whether you read error messages carefully. 'Port already in use' is a clear message that points directly to the solution. Using ss -tulnp to find the process on a port is a must-know command. Mentioning the deployment fix shows you think about prevention."
+  },
+  {
+    "id": "permission-denied",
+    "title": "Application can't read config file",
+    "description": "After a security hardening exercise, the application started failing on startup with 'Permission denied' when trying to read its configuration file. The application runs as a non-root user 'appuser' via systemd.",
+    "difficulty": "beginner",
+    "steps": [
+      {
+        "id": "perm-1",
+        "action": "Check the file permissions and ownership",
+        "command": "ls -la /etc/myapp/config.yml",
+        "output": "-rw------- 1 root root 2456 Apr 21 10:00 /etc/myapp/config.yml",
+        "insight": "The file is owned by root:root with permissions 600 (rw-------). This means only root can read or write it. The application running as 'appuser' has zero access to this file.",
+        "isKey": true
+      },
+      {
+        "id": "perm-2",
+        "action": "Confirm which user the application runs as",
+        "command": "grep -i 'user' /etc/systemd/system/myapp.service",
+        "output": "User=appuser\nGroup=appgroup",
+        "insight": "The service runs as appuser:appgroup. This user has no read access to the config file owned by root with 600 permissions. The security hardening likely changed the file permissions from a more permissive setting.",
+        "isKey": true
+      },
+      {
+        "id": "perm-3",
+        "action": "Check what the directory permissions look like",
+        "command": "ls -la /etc/myapp/",
+        "output": "total 12\ndrwx------ 2 root root 4096 Apr 21 10:00 .\ndrwxr-xr-x 76 root root 4096 Apr 21 10:00 ..\n-rw------- 1 root root 2456 Apr 21 10:00 config.yml",
+        "insight": "Both the directory (700) and the file (600) are locked down to root only. Even if we fix the file permissions, the directory permissions would still block access. Both need to be addressed.",
+        "isKey": true
+      },
+      {
+        "id": "perm-4",
+        "action": "Check if there's a dedicated group for the app",
+        "command": "id appuser",
+        "output": "uid=1001(appuser) gid=1001(appgroup) groups=1001(appgroup)",
+        "insight": "appuser belongs to appgroup. The best approach is to set group ownership to appgroup and use group permissions — this follows the principle of least privilege.",
+        "isKey": true
+      },
+      {
+        "id": "perm-5",
+        "action": "Fix ownership and permissions properly",
+        "command": "sudo chown root:appgroup /etc/myapp /etc/myapp/config.yml && sudo chmod 750 /etc/myapp && sudo chmod 640 /etc/myapp/config.yml",
+        "output": "",
+        "insight": "Set group ownership to appgroup, directory to 750 (rwxr-x---), and file to 640 (rw-r-----). Root retains full access, appgroup can read, and others have no access. This is the secure, correct approach.",
+        "isKey": true
+      },
+      {
+        "id": "perm-6",
+        "action": "Verify the permissions are correct",
+        "command": "ls -la /etc/myapp/",
+        "output": "total 12\ndrwxr-x--- 2 root appgroup 4096 Apr 21 10:00 .\ndrwxr-xr-x 76 root root     4096 Apr 21 10:00 ..\n-rw-r----- 1 root appgroup 2456 Apr 21 10:00 config.yml",
+        "insight": "Permissions are now correctly set. The directory is 750 and the file is 640, both with appgroup as the group owner. appuser (member of appgroup) can now read the config.",
+        "isKey": false
+      },
+      {
+        "id": "perm-7",
+        "action": "Restart the application and verify it starts",
+        "command": "sudo systemctl restart myapp && systemctl status myapp",
+        "output": "● myapp.service - My Application Service\n     Loaded: loaded (/etc/systemd/system/myapp.service; enabled)\n     Active: active (running) since Tue 2026-04-21 15:10:00 UTC; 2s ago\n   Main PID: 25678 (myapp)\n     Memory: 128.0M\n        CPU: 1.234s",
+        "insight": "The application started successfully. The permission denied error is resolved with proper group-based access control.",
+        "isKey": true
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "perm-rh1",
+        "action": "Set permissions to 777",
+        "command": "sudo chmod 777 /etc/myapp/config.yml",
+        "why": "chmod 777 makes the file readable, writable, and executable by everyone on the system. This is a massive security risk, especially for config files that may contain database passwords or API keys. It undoes the security hardening that was just applied."
+      },
+      {
+        "id": "perm-rh2",
+        "action": "Run the application as root",
+        "command": "# Change User=root in systemd unit",
+        "why": "Running applications as root violates the principle of least privilege and is a serious security risk. If the application is compromised, the attacker gets root access. The correct fix is to grant the minimum necessary permissions."
+      },
+      {
+        "id": "perm-rh3",
+        "action": "Disable SELinux",
+        "command": "sudo setenforce 0",
+        "why": "Disabling SELinux is a common but dangerous knee-jerk reaction. First, check if SELinux is even the issue (it's not here — standard Unix permissions are the problem). Disabling security frameworks should never be the first response."
+      }
+    ],
+    "resolution": "Change the group ownership of the config directory and file to appgroup, set directory permissions to 750 and file permissions to 640. This gives the application read access through group permissions while maintaining security.",
+    "methodology": "Check file permissions with ls -la, identify the running user with the systemd unit file, understand the permission mismatch, then fix using the principle of least privilege (group ownership + minimal permissions rather than world-readable or running as root).",
+    "interviewTip": "The interviewer is testing your understanding of Linux permissions and security principles. Using chmod 777 or running as root are instant red flags. The ideal answer uses group-based permissions (chown + chmod 640/750). Mentioning the principle of least privilege and checking directory permissions (not just the file) shows depth."
+  },
+  {
+    "id": "inode-exhaustion",
+    "title": "Can't create files but disk has space",
+    "description": "The application is throwing 'No space left on device' errors when trying to create temporary files. However, the operations team checked and says there's plenty of disk space available. The server processes millions of small session files daily.",
+    "difficulty": "advanced",
+    "steps": [
+      {
+        "id": "inode-1",
+        "action": "Verify disk space is actually available",
+        "command": "df -h",
+        "output": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/xvda1       50G   23G   25G  48% /\ndevtmpfs        1.9G     0  1.9G   0% /dev\ntmpfs           1.9G     0  1.9G   0% /dev/shm",
+        "insight": "Confirmed — only 48% disk space used with 25GB free. The 'No space left on device' error with available disk space is a classic sign of inode exhaustion.",
+        "isKey": true
+      },
+      {
+        "id": "inode-2",
+        "action": "Check inode usage",
+        "command": "df -i",
+        "output": "Filesystem      Inodes   IUsed   IFree IUse% Mounted on\n/dev/xvda1     3276800 3276800       0  100% /\ndevtmpfs        487424       385  487039    1% /dev\ntmpfs           497152       1  497151    1% /dev/shm",
+        "insight": "Inodes are 100% exhausted — all 3,276,800 inodes are used with zero free. Every file and directory consumes one inode. The filesystem literally cannot create any new files even though there's plenty of disk space.",
+        "isKey": true
+      },
+      {
+        "id": "inode-3",
+        "action": "Find which directories contain the most files",
+        "command": "sudo find / -xdev -type d -exec sh -c 'echo \"$(find \"$1\" -maxdepth 1 | wc -l) $1\"' _ {} \\; 2>/dev/null | sort -rn | head -10",
+        "output": "2456789 /var/lib/myapp/sessions\n12456 /var/log\n3456 /usr/share/doc\n2345 /etc\n1234 /usr/lib\n987 /var/cache/apt\n654 /usr/share/man/man1\n432 /usr/bin\n321 /usr/share/locale\n234 /home/appuser",
+        "insight": "The /var/lib/myapp/sessions directory contains over 2.4 million files! This is the culprit. The application is creating session files but never cleaning them up.",
+        "isKey": true
+      },
+      {
+        "id": "inode-4",
+        "action": "Examine the session files",
+        "command": "ls -la /var/lib/myapp/sessions/ | head -10",
+        "output": "total 9827456\ndrwxr-xr-x 2 appuser appgroup 67108864 Apr 21 15:00 .\ndrwxr-xr-x 5 appuser appgroup     4096 Apr 01 08:00 ..\n-rw-r--r-- 1 appuser appgroup      128 Jan 15 03:22 sess_0000a1b2c3d4e5f6\n-rw-r--r-- 1 appuser appgroup      128 Jan 15 03:22 sess_0000a2b3c4d5e6f7\n-rw-r--r-- 1 appuser appgroup      128 Jan 15 03:23 sess_0000a3b4c5d6e7f8\n-rw-r--r-- 1 appuser appgroup      128 Jan 15 03:23 sess_0000a4b5c6d7e8f9\n-rw-r--r-- 1 appuser appgroup      128 Jan 15 03:24 sess_0000a5b6c7d8e9fa\n-rw-r--r-- 1 appuser appgroup      128 Jan 15 03:24 sess_0000a6b7c8d9eafb\n-rw-r--r-- 1 appuser appgroup      128 Jan 15 03:25 sess_0000a7b8c9daebfc",
+        "insight": "Each session file is only 128 bytes but there are millions of them. The oldest files are from January — sessions are never being purged. The directory itself is 64MB just for the directory entries.",
+        "isKey": true
+      },
+      {
+        "id": "inode-5",
+        "action": "Delete old session files to free inodes",
+        "command": "sudo find /var/lib/myapp/sessions -type f -mtime +7 -delete",
+        "output": "",
+        "insight": "Deleting session files older than 7 days. Using find with -delete is much faster than rm for millions of files because it avoids spawning a new process for each file. This may take several minutes.",
+        "isKey": true
+      },
+      {
+        "id": "inode-6",
+        "action": "Verify inodes were freed",
+        "command": "df -i /",
+        "output": "Filesystem      Inodes   IUsed   IFree IUse% Mounted on\n/dev/xvda1     3276800  234567 3042233    8% /",
+        "insight": "Inode usage dropped from 100% to 8%. Over 3 million inodes were freed. The system can create files again.",
+        "isKey": true
+      },
+      {
+        "id": "inode-7",
+        "action": "Set up a cron job to prevent recurrence",
+        "command": "echo '0 2 * * * find /var/lib/myapp/sessions -type f -mtime +7 -delete' | sudo crontab -u appuser -",
+        "output": "",
+        "insight": "A daily cron job at 2 AM will clean up session files older than 7 days. The application should also be configured to use a session store (like Redis) instead of filesystem sessions for better scalability.",
+        "isKey": false
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "inode-rh1",
+        "action": "Add more disk space",
+        "command": "# Expand EBS volume",
+        "why": "Adding disk space won't help — the problem is inodes, not bytes. The number of inodes is fixed when the filesystem is created (based on the mkfs settings). You'd need to recreate the filesystem to get more inodes."
+      },
+      {
+        "id": "inode-rh2",
+        "action": "Check file permissions",
+        "command": "ls -la /tmp",
+        "why": "The error is 'No space left on device', not 'Permission denied'. Permissions are not the issue. The error message is misleading because it's the same error for both disk space and inode exhaustion."
+      },
+      {
+        "id": "inode-rh3",
+        "action": "Run filesystem check",
+        "command": "sudo fsck /dev/xvda1",
+        "why": "fsck checks filesystem integrity, not space or inode issues. Running fsck on a mounted filesystem is dangerous and could cause data corruption. It's also completely unrelated to the problem."
+      }
+    ],
+    "resolution": "Delete old session files to free inodes, set up automated cleanup via cron, and consider migrating session storage from filesystem to Redis or a database for better scalability.",
+    "methodology": "When 'No space left on device' occurs but df -h shows free space, immediately check df -i for inode exhaustion. Find the directory with millions of files using find, clean up old files, and implement automated cleanup to prevent recurrence.",
+    "interviewTip": "This is an advanced question that separates experienced admins from beginners. Most candidates jump to df -h and get confused when space is available. Knowing about inodes and df -i is the key differentiator. Mentioning that inode count is fixed at filesystem creation and that find -delete is faster than xargs rm for millions of files shows deep expertise."
+  },
+  {
+    "id": "unexpected-reboot",
+    "title": "Server rebooted unexpectedly overnight",
+    "description": "The team arrives in the morning to find the production server rebooted at 3:47 AM. No maintenance was scheduled. The application is running now but there was approximately 8 minutes of downtime. Management wants to know what happened and how to prevent it.",
+    "difficulty": "advanced",
+    "steps": [
+      {
+        "id": "reboot-1",
+        "action": "Confirm the reboot time",
+        "command": "last reboot | head -5",
+        "output": "reboot   system boot  5.15.0-91-generic Tue Apr 21 03:47   still running\nreboot   system boot  5.15.0-91-generic Mon Mar 15 08:00 - 03:47 (37+19:47)\nreboot   system boot  5.15.0-91-generic Fri Feb 12 10:30 - 08:00 (30+21:30)",
+        "insight": "Confirmed: the system rebooted at 03:47 today. The previous boot was 37 days ago (a planned maintenance). The kernel version is the same, so this wasn't a kernel update reboot.",
+        "isKey": true
+      },
+      {
+        "id": "reboot-2",
+        "action": "Check the previous boot's logs for clues",
+        "command": "journalctl -b -1 --since '03:40' --until '03:48' --no-pager",
+        "output": "Apr 21 03:42:15 prod-server kernel: node invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0\nApr 21 03:42:15 prod-server kernel: [ pid ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name\nApr 21 03:42:15 prod-server kernel: [ 8901]  1001  8901  2345678  1876543    4567890   123456             0 node\nApr 21 03:42:15 prod-server kernel: [ 9012]     0  9012   123456    45678     234567        0          -900 sshd\nApr 21 03:42:15 prod-server kernel: Out of memory: Killed process 8901 (node) total-vm:9382712kB, anon-rss:7506172kB\nApr 21 03:42:16 prod-server systemd[1]: app-backend.service: Main process exited, code=killed, signal=KILL\nApr 21 03:45:22 prod-server kernel: node invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0\nApr 21 03:45:22 prod-server kernel: Out of memory: Killed process 9234 (node) total-vm:8234567kB, anon-rss:7123456kB\nApr 21 03:46:55 prod-server kernel: Kernel panic - not syncing: Out of memory and no killable processes\nApr 21 03:46:55 prod-server kernel: Rebooting in 10 seconds..",
+        "insight": "The OOM killer fired multiple times. First it killed the Node.js backend (PID 8901) using 7.1GB RSS. The process restarted (systemd auto-restart) and immediately consumed memory again. After the second OOM kill, the kernel panicked because there were no more killable processes and rebooted.",
+        "isKey": true
+      },
+      {
+        "id": "reboot-3",
+        "action": "Check dmesg for OOM killer details from current boot",
+        "command": "dmesg | grep -i 'oom\\|out of memory\\|killed process'",
+        "output": "[    0.000000] Command line: BOOT_IMAGE=/vmlinuz-5.15.0-91-generic root=/dev/xvda1 ro panic=10\n[    2.345678] Memory: 8028456K/8388608K available (14336K kernel code, 2345K rwdata, 4567K rodata)",
+        "insight": "The current boot's dmesg shows panic=10 in the kernel command line, which means the system is configured to automatically reboot 10 seconds after a kernel panic. This explains the automatic reboot after the OOM-induced kernel panic.",
+        "isKey": true
+      },
+      {
+        "id": "reboot-4",
+        "action": "Check which process was the memory hog",
+        "command": "journalctl -b -1 | grep -A5 'oom-killer' | head -20",
+        "output": "Apr 21 03:42:15 prod-server kernel: node invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0\nApr 21 03:42:15 prod-server kernel: Mem-Info:\nApr 21 03:42:15 prod-server kernel: active_anon:1923456 inactive_anon:34567 isolated_anon:0\nApr 21 03:42:15 prod-server kernel:  active_file:1234 inactive_file:567 isolated_file:0\nApr 21 03:42:15 prod-server kernel:  unevictable:0 dirty:23 writeback:0 unstable:0\nApr 21 03:42:15 prod-server kernel: Node 0 Normal free:1234kB min:45678kB low:57098kB high:68518kB",
+        "insight": "The system had almost zero free memory and minimal file cache. The Node.js process (7.1GB RSS on an 8GB server) was consuming nearly all available memory. Active anonymous pages (application memory) dominated, leaving almost nothing for the kernel.",
+        "isKey": true
+      },
+      {
+        "id": "reboot-5",
+        "action": "Check current memory usage of the application",
+        "command": "ps aux --sort=-%mem | head -5",
+        "output": "USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nappuser  12345   8.2 34.5 4567890 2876543 ?    Sl   03:47  28:45 /usr/bin/node /opt/app/server.js\nredis    23456   1.2  3.4  234567 283456 ?     Ssl  03:47   5:23 /usr/bin/redis-server\nroot       567   0.1  0.5  123456  42345 ?     Ss   03:47   1:12 /usr/sbin/rsyslogd",
+        "insight": "The Node.js process is already at 34.5% memory (2.7GB) after only ~11 hours of uptime. At this rate, it will hit the 8GB limit again overnight. This confirms a memory leak that needs to be fixed.",
+        "isKey": true
+      },
+      {
+        "id": "reboot-6",
+        "action": "Set up memory limits and monitoring",
+        "command": "sudo systemctl edit app-backend",
+        "output": "# Added:\n# [Service]\n# MemoryMax=6G\n# MemoryHigh=5G\n# Restart=on-failure\n# RestartSec=10\n# StartLimitBurst=3\n# StartLimitIntervalSec=300",
+        "insight": "Setting MemoryMax=6G prevents the process from consuming all system memory and triggering a kernel panic. MemoryHigh=5G applies throttling before the hard limit. StartLimitBurst prevents infinite restart loops that contributed to the kernel panic.",
+        "isKey": true
+      }
+    ],
+    "redHerrings": [
+      {
+        "id": "reboot-rh1",
+        "action": "Check crontab for a scheduled reboot",
+        "command": "sudo crontab -l",
+        "why": "While checking cron is reasonable, the reboot happened at 3:47 AM — an odd time for a scheduled task. The journal logs clearly show an OOM-induced kernel panic, not a clean reboot. Always check logs before assuming human action."
+      },
+      {
+        "id": "reboot-rh2",
+        "action": "Blame hardware failure",
+        "command": "# Check with cloud provider",
+        "why": "Hardware failure is possible but should not be assumed without evidence. The kernel logs clearly show an OOM → kernel panic → reboot sequence. Always check the logs before escalating to hardware — most unexpected reboots have software causes."
+      },
+      {
+        "id": "reboot-rh3",
+        "action": "Ignore it since the server is running now",
+        "command": "# Do nothing",
+        "why": "Ignoring an unexpected reboot is negligent. The same conditions that caused the OOM will recur (the memory leak is still present). Without investigation and remediation, this will happen again — possibly during peak hours."
+      }
+    ],
+    "resolution": "The server rebooted due to an OOM-induced kernel panic caused by a Node.js memory leak. Set systemd memory limits to prevent the process from consuming all system memory, configure restart limits to prevent OOM-restart loops, and investigate the memory leak in the application code. Set up memory monitoring alerts.",
+    "methodology": "Use 'last reboot' to confirm the time, journalctl -b -1 to read the previous boot's logs, identify the OOM killer activity and kernel panic. Trace the chain: memory leak → OOM killer → process restart → second OOM → kernel panic → automatic reboot. Address each link in the chain.",
+    "interviewTip": "This is a forensic investigation question. The interviewer wants to see you reconstruct the timeline from logs. Key concepts: OOM killer, kernel panic, panic=10 boot parameter, journalctl -b -1 for previous boot logs. The best candidates explain the full chain of events and address prevention at multiple levels (memory limits, restart limits, monitoring, and fixing the leak)."
+  }
+]

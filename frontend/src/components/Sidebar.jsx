@@ -60,6 +60,9 @@ export default function Sidebar({ open, collapsed, onClose, onLogout, onToggleCo
           <NavLink to="/terminal" className="nav-link">
             <span className="nav-icon">⌨</span> Terminal
           </NavLink>
+          <NavLink to="/scenarios" className="nav-link">
+            <span className="nav-icon">⚡</span> Scenarios
+          </NavLink>
 
           <div className="nav-section-label">Content</div>
 

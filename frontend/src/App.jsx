@@ -9,6 +9,7 @@ import LabView from './pages/LabView'
 import QuizView from './pages/QuizView'
 import ProgressDashboard from './pages/ProgressDashboard'
 import LiveTerminal from './pages/LiveTerminal'
+import ScenarioMode from './pages/ScenarioMode'
 import { signOut } from './api/auth'
 
 export default function App() {
@@ -57,6 +58,8 @@ export default function App() {
           <Route path="/quizzes/:chapterId" element={<QuizView />} />
           <Route path="/progress" element={<ProgressDashboard />} />
           <Route path="/terminal" element={<LiveTerminal />} />
+          <Route path="/scenarios" element={<ScenarioMode />} />
+          <Route path="/scenarios/:id" element={<ScenarioMode />} />
         </Routes>
       </div>
     </div>
