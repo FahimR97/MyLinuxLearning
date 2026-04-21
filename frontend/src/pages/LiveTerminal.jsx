@@ -1,6 +1,4 @@
 export default function LiveTerminal() {
-  const ttydUrl = import.meta.env.VITE_TTYD_URL || 'https://d1q8mkplxwokvn.cloudfront.net'
-
   return (
     <div className="page" style={{ padding: 0, maxWidth: '100%', height: 'calc(100vh - 0px)' }}>
       <div style={{ padding: '1rem 2rem 0.5rem', borderBottom: '1px solid var(--border)' }}>
@@ -10,7 +8,7 @@ export default function LiveTerminal() {
         </p>
       </div>
       <iframe
-        src={ttydUrl}
+        src="/term/"
         title="Live Terminal"
         style={{
           width: '100%',

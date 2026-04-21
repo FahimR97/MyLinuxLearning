@@ -203,7 +203,7 @@ export default function ChapterDetail() {
   const [termOpen, setTermOpen] = useState(false)
   const [termWidth, setTermWidth] = useState(45)
   const dragging = useRef(false)
-  const ttydUrl = import.meta.env.VITE_TTYD_URL || 'https://d1q8mkplxwokvn.cloudfront.net'
+  const ttydUrl = '/term/'
 
   const onMouseDown = useCallback((e) => {
     e.preventDefault()
