@@ -16,7 +16,7 @@ export default function LiveTerminal() {
           width: '100%',
           height: 'calc(100% - 70px)',
           border: 'none',
-          background: '#0a0e14',
+          background: '#192030',
         }}
         allow="clipboard-read; clipboard-write"
       />

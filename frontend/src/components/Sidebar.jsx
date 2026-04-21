@@ -99,7 +99,7 @@ export default function Sidebar({ open, collapsed, onClose, onLogout, onToggleCo
 
         <div className="sidebar-footer">
           <button className="sidebar-collapse-btn" onClick={onToggleCollapse} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-            {collapsed ? '📖' : '📕'}
+            {collapsed ? '»' : '«'}
           </button>
           {!collapsed && <>
             <span className="sidebar-version">v2.0</span>
