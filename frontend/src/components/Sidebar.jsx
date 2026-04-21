@@ -57,6 +57,9 @@ export default function Sidebar({ open, onClose, onLogout }) {
           <NavLink to="/progress" className="nav-link">
             <span className="nav-icon">◎</span> Progress
           </NavLink>
+          <NavLink to="/terminal" className="nav-link">
+            <span className="nav-icon">⌨</span> Terminal
+          </NavLink>
 
           <div className="nav-section-label">Content</div>
 

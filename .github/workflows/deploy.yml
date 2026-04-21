@@ -34,7 +34,7 @@ jobs:
         run: |
           cd frontend
           npm ci
-          VITE_API_URL=${{ secrets.API_URL }} VITE_COGNITO_POOL_ID=${{ secrets.COGNITO_POOL_ID }} VITE_COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }} npm run build
+          VITE_API_URL=${{ secrets.API_URL }} VITE_COGNITO_POOL_ID=${{ secrets.COGNITO_POOL_ID }} VITE_COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }} VITE_TTYD_URL=${{ secrets.TTYD_URL }} npm run build
           aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }}/ --delete
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} --paths '/*'
 

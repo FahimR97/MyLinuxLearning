@@ -8,6 +8,7 @@ import ChapterDetail from './pages/ChapterDetail'
 import LabView from './pages/LabView'
 import QuizView from './pages/QuizView'
 import ProgressDashboard from './pages/ProgressDashboard'
+import LiveTerminal from './pages/LiveTerminal'
 import { signOut } from './api/auth'
 
 export default function App() {
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/labs/:chapterId" element={<LabView />} />
           <Route path="/quizzes/:chapterId" element={<QuizView />} />
           <Route path="/progress" element={<ProgressDashboard />} />
+          <Route path="/terminal" element={<LiveTerminal />} />
         </Routes>
       </div>
     </div>
