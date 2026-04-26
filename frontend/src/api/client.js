@@ -1,22 +1,21 @@
 import chaptersData from '../content/chapters.json';
 import labsData from '../content/labs.json';
 import quizzesData from '../content/quizzes.json';
-
 import { getToken } from './auth';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 async function request(path, options = {}) {
   if (!API_BASE) return null;
-  const token = await getToken() || localStorage.getItem('fll-session');
-  if (!token) { console.warn('[API] No token available'); return null; }
+  const token = await getToken();
+  if (!token) { console.warn('[API] No token'); return null; }
   const headers = { ...options.headers };
   headers['Authorization'] = token;
   try {
     const res = await fetch(API_BASE + path, { ...options, headers });
     if (!res.ok) { console.warn('[API]', path, res.status); return null; }
     return res.json();
-  } catch (e) { console.warn('[API] fetch error', path, e.message); return null; }
+  } catch (e) { console.warn('[API]', path, e.message); return null; }
 }
 
 export async function getChapters() {
@@ -44,14 +43,13 @@ export async function getQuiz(chapterId) {
 }
 
 export async function submitQuiz(chapterId, answers) {
-  if (API_BASE) {
-    const data = await request(`/quizzes/${encodeURIComponent(chapterId)}/submit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answers }),
-    });
-    if (data) return data;
-  }
+  const data = await request(`/quizzes/${encodeURIComponent(chapterId)}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answers }),
+  });
+  if (data) return data;
+  // Offline fallback
   const questions = quizzesData.filter(q => q.chapterId === chapterId);
   let correct = 0;
   const results = questions.map((q, i) => {
@@ -62,36 +60,20 @@ export async function submitQuiz(chapterId, answers) {
   return { score: correct, total: questions.length, results };
 }
 
-const PROGRESS_KEY = 'linux-learning-progress';
-
 export async function getProgress() {
-  if (API_BASE) {
-    const data = await request('/progress');
-    if (data && typeof data === 'object') return data;
-  }
-  return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+  const data = await request('/progress');
+  if (data && typeof data === 'object') return data;
+  return {};
 }
 
 export async function saveProgress(data) {
-  // Always save to localStorage as fallback
-  const existing = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
-  for (const [k, v] of Object.entries(data)) {
-    existing[k] = { ...(existing[k] || {}), ...v };
-  }
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(existing));
-  // Also save to API if available
-  if (API_BASE) {
-    await request('/progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-  }
+  await request('/progress', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 }
 
 export async function resetProgress() {
-  if (API_BASE) {
-    await request('/progress', { method: 'DELETE' });
-  }
-  localStorage.removeItem(PROGRESS_KEY);
+  await request('/progress', { method: 'DELETE' });
 }

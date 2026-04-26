@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import Login from './components/Login'
 import Home from './pages/Home'
@@ -10,12 +10,23 @@ import QuizView from './pages/QuizView'
 import ProgressDashboard from './pages/ProgressDashboard'
 import LiveTerminal from './pages/LiveTerminal'
 import ScenarioMode from './pages/ScenarioMode'
-import { signOut } from './api/auth'
+import { signOut, isAuthenticated } from './api/auth'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [authed, setAuthed] = useState(() => !!localStorage.getItem('fll-session'))
+  const [authed, setAuthed] = useState(false)
+  const [checking, setChecking] = useState(true)
+
+  useEffect(() => {
+    Promise.resolve(isAuthenticated()).then(valid => {
+      if (!valid) localStorage.removeItem('fll-session')
+      setAuthed(valid)
+      setChecking(false)
+    })
+  }, [])
+
+  if (checking) return null
 
   if (!authed) {
     return <Login onLogin={() => setAuthed(true)} />
