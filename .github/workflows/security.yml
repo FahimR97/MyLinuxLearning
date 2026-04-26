@@ -1,0 +1,60 @@
+name: Security Scan
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # -- Dependency vulnerability audit --
+      - name: Audit frontend dependencies
+        run: cd frontend && npm ci && npm audit --audit-level=high || true
+
+      - name: Audit backend dependencies
+        run: cd backend && npm ci && npm audit --audit-level=high || true
+
+      # -- Secret scanning --
+      - name: Scan for secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # -- Static analysis for security (semgrep) --
+      - name: Semgrep SAST scan
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/javascript
+            p/nodejs
+            p/owasp-top-ten
+            p/command-injection
+            p/xss
+            p/secrets
+
+      # -- CDK / CloudFormation security (checkov) --
+      - name: Synth CDK templates
+        run: |
+          cd cdk
+          npm ci
+          npx cdk synth --quiet 2>/dev/null || true
+
+      - name: Checkov IaC scan
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: cdk/cdk.out
+          framework: cloudformation
+          soft_fail: true
+          quiet: true
