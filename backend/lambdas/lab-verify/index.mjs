@@ -37,7 +37,7 @@ export const handler = async (event) => {
 
   // Only check history — never execute the command
   const safeCmd = command.replace(/'/g, "'\\''");
-  const checkScript = `grep -F '${safeCmd}' ~/.bash_history 2>/dev/null | tail -1`;
+  const checkScript = `grep -F '${safeCmd}' /home/ubuntu/.bash_history 2>/dev/null | tail -1`;
 
   try {
     const send = await ssm.send(new SendCommandCommand({

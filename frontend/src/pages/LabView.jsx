@@ -128,8 +128,9 @@ export default function LabView() {
                     <span className="step-instruction">{step.instruction}</span>
                   </div>
                   {(isCurrent || isCompleted) && (
-                    <div className="step-command-hint">
+                    <div className="step-command-hint" onClick={() => {navigator.clipboard.writeText(step.command)}} title="Click to copy">
                       <code>$ {step.command}</code>
+                      <span className="copy-icon">📋</span>
                     </div>
                   )}
                   {isCurrent && !isCompleted && (
