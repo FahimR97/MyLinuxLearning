@@ -28,7 +28,7 @@ jobs:
         run: |
           cd cdk
           npm ci
-          npx cdk deploy --all --require-approval broadening
+          npx cdk deploy --all --require-approval never
 
       - name: Build and Deploy Frontend
         run: |
