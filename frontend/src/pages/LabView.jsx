@@ -22,7 +22,7 @@ export default function LabView() {
       setActiveStep(0)
       setCompletedSteps(new Set())
       setVerifyResult({})
-      // Clear terminal history for a fresh start
+      savedLab.current = false
       getToken().then(token => {
         if (API_BASE && token) fetch(`${API_BASE}/labs/verify`, {
           method: 'POST',
@@ -33,18 +33,10 @@ export default function LabView() {
     })
   }, [chapterId])
 
-  if (!labs.length) {
-    return (
-      <div className="page">
-        <div className="loading"><div className="loading-spinner" />Loading labs...</div>
-      </div>
-    )
-  }
-
   const lab = labs[activeLab]
   const steps = lab?.steps || []
   const completedInLab = [...completedSteps].filter(k => k.startsWith(`${activeLab}-`)).length
-  const allDone = completedInLab === steps.length && steps.length > 0
+  const allDone = labs.length > 0 && completedInLab === steps.length && steps.length > 0
 
   useEffect(() => {
     if (allDone && !savedLab.current) {
@@ -56,12 +48,18 @@ export default function LabView() {
     if (!allDone) savedLab.current = false
   }, [allDone, chapterId])
 
+  if (!labs.length) {
+    return (
+      <div className="page">
+        <div className="loading"><div className="loading-spinner" />Loading labs...</div>
+      </div>
+    )
+  }
+
   const handleVerify = async (stepIdx) => {
     const key = `${activeLab}-${stepIdx}`
-    const step = steps[stepIdx]
     setVerifying(stepIdx)
     setVerifyResult(prev => ({ ...prev, [key]: null }))
-
     try {
       const token = await getToken()
       const res = await fetch(`${API_BASE}/labs/verify`, {
@@ -101,7 +99,6 @@ export default function LabView() {
 
   return (
     <div className="page lab-page lab-split">
-      {/* LEFT PANEL — Instructions */}
       <div className="lab-instructions-panel">
         <div className="lab-header">
           <Link to={`/chapters/${chapterId}`} className="back-link">← Back to Chapter</Link>
@@ -184,7 +181,6 @@ export default function LabView() {
         </div>
       </div>
 
-      {/* RIGHT PANEL — Live Terminal */}
       <div className="lab-terminal-panel">
         <div className="lab-terminal-header">
           <span className="terminal-dot red" />
