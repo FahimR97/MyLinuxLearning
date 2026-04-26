@@ -30,7 +30,15 @@ export const handler = async (event) => {
       KeyConditionExpression: 'pk = :pk',
       ExpressionAttributeValues: { ':pk': pk },
     }));
-    return respond(200, Items || []);
+    // Return as { chapterId: { ...data } } for frontend compatibility
+    const progress = {};
+    for (const item of Items || []) {
+      if (item.chapterId) {
+        const { pk: _pk, sk: _sk, ...data } = item;
+        progress[item.chapterId] = { ...(progress[item.chapterId] || {}), ...data };
+      }
+    }
+    return respond(200, progress);
   }
 
   if (event.httpMethod === 'DELETE') {
@@ -47,14 +55,16 @@ export const handler = async (event) => {
 
   if (event.httpMethod === 'POST') {
     const body = JSON.parse(event.body || '{}');
-    const { chapterId, type } = body;
-    if (!chapterId || !type) return respond(400, { message: 'chapterId and type required' });
-    if (!/^[a-zA-Z0-9-]+$/.test(chapterId)) return respond(400, { message: 'Invalid chapterId' });
-    const sk = type === 'quiz' ? `quiz#${chapterId}` : `chapter#${chapterId}`;
-    await client.send(new PutCommand({
-      TableName: TABLE_NAME,
-      Item: { pk, sk, ...body, timestamp: new Date().toISOString() },
-    }));
+    // Frontend sends { [chapterId]: { quizScore, quizTotal, read, ... } }
+    for (const [chapterId, data] of Object.entries(body)) {
+      if (!/^[a-zA-Z0-9-]+$/.test(chapterId)) continue;
+      const type = data.quizScore != null ? 'quiz' : 'chapter';
+      const sk = type === 'quiz' ? `quiz#${chapterId}` : `chapter#${chapterId}`;
+      await client.send(new PutCommand({
+        TableName: TABLE_NAME,
+        Item: { pk, sk, chapterId, ...data, timestamp: new Date().toISOString() },
+      }));
+    }
     return respond(200, { message: 'Progress saved' });
   }
 
