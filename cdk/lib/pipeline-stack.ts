@@ -43,9 +43,10 @@ export class PipelineStack extends cdk.Stack {
       resources: [`arn:aws:cloudfront::${this.account}:distribution/${props.distributionId}`],
     }));
 
+    // Scoped to BackendStack functions only
     role.addToPolicy(new iam.PolicyStatement({
       actions: ['lambda:UpdateFunctionCode'],
-      resources: [`arn:aws:lambda:${this.region}:${this.account}:function:*`],
+      resources: [`arn:aws:lambda:${this.region}:${this.account}:function:BackendStack-*`],
     }));
 
     role.addToPolicy(new iam.PolicyStatement({
@@ -53,10 +54,7 @@ export class PipelineStack extends cdk.Stack {
       resources: [`arn:aws:cloudformation:${this.region}:${this.account}:stack/BackendStack/*`],
     }));
 
-    role.addToPolicy(new iam.PolicyStatement({
-      actions: ['sts:AssumeRole'],
-      resources: ['*'],
-    }));
+    // Removed wildcard sts:AssumeRole — not needed for this pipeline
 
     new cdk.CfnOutput(this, 'OIDCRoleArn', { value: role.roleArn });
   }

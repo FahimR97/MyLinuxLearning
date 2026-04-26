@@ -2,8 +2,12 @@ node_modules/
 dist/
 build/
 .env
+.env.*
 *.zip
 *.pem
+*.key
+secrets.*
+.aws/
 cdk.out/
 .cdk.staging/
 *.js.map

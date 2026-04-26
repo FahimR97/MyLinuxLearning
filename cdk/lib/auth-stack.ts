@@ -14,10 +14,10 @@ export class AuthStack extends cdk.Stack {
       selfSignUpEnabled: false,
       signInAliases: { username: true },
       passwordPolicy: {
-        minLength: 8,
-        requireUppercase: false,
-        requireDigits: false,
-        requireSymbols: false,
+        minLength: 12,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: true,
       },
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });

@@ -43,10 +43,14 @@ export default function LabView() {
     setVerifyResult(prev => ({ ...prev, [key]: null }))
 
     try {
+      const token = localStorage.getItem('fll-session')
       const res = await fetch(`${API_BASE}/labs/verify`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: step.command, chapterId, labId: lab.id, stepIndex: stepIdx }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ labId: lab.id, stepIndex: stepIdx }),
       })
       const data = await res.json()
       if (data.passed) {
@@ -171,6 +175,7 @@ export default function LabView() {
           src="/term/"
           title="Lab Terminal"
           className="lab-terminal-iframe"
+          sandbox="allow-scripts allow-same-origin allow-forms"
           allow="clipboard-read; clipboard-write"
         />
       </div>

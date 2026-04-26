@@ -16,6 +16,7 @@ export default function LiveTerminal() {
           border: 'none',
           background: '#192030',
         }}
+        sandbox="allow-scripts allow-same-origin allow-forms"
         allow="clipboard-read; clipboard-write"
       />
     </div>

@@ -1,12 +1,13 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 
 const client = new BedrockRuntimeClient({ region: 'eu-west-2' });
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
 
 const headers = {
   'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Methods': 'POST,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
 };
 
 const respond = (code, body) => ({ statusCode: code, headers, body: JSON.stringify(body) });
@@ -17,20 +18,26 @@ export const handler = async (event) => {
   const { scenario, history, userInput } = JSON.parse(event.body || '{}');
   if (!scenario || !userInput) return respond(400, { message: 'scenario and userInput required' });
 
+  // Input validation
+  if (!scenario.title || !scenario.description || !Array.isArray(scenario.steps)) return respond(400, { message: 'Invalid scenario' });
+  if (!Array.isArray(history) || history.length > 50) return respond(400, { message: 'Invalid history' });
+  if (!userInput.text || typeof userInput.text !== 'string') return respond(400, { message: 'Invalid userInput' });
+  const text = userInput.text.slice(0, 500);
+
   const prompt = `You are a senior Linux systems engineer mentoring someone preparing for an L4 Systems Development Engineer interview at AWS. They are working through a troubleshooting scenario.
 
 SCENARIO: ${scenario.title}
 CONTEXT: ${scenario.description}
 
 The ideal diagnostic steps for this scenario are:
-${scenario.steps.map((s, i) => `${i + 1}. ${s.action} (commands: ${s.commands.join(', ')})`).join('\n')}
+${scenario.steps.slice(0, 20).map((s, i) => `${i + 1}. ${s.action} (commands: ${s.commands.join(', ')})`).join('\n')}
 
 The candidate's history so far:
-${history.length > 0 ? history.map(h => `- They ${h.type === 'command' ? 'ran: ' + h.text : 'said: ' + h.text}${h.output ? '\n  Output: ' + h.output.slice(0, 200) : ''}`).join('\n') : '(No actions taken yet)'}
+${history.length > 0 ? history.slice(-20).map(h => `- They ${h.type === 'command' ? 'ran: ' + h.text?.slice(0, 200) : 'said: ' + h.text?.slice(0, 200)}`).join('\n') : '(No actions taken yet)'}
 
 Current step they should be on: step ${(history.filter(h => h.matched).length) + 1} of ${scenario.steps.length}
 
-The candidate just ${userInput.type === 'command' ? 'typed this command: ' + userInput.text : 'shared this thinking: ' + userInput.text}
+The candidate just ${userInput.type === 'command' ? 'typed this command: ' + text : 'shared this thinking: ' + text}
 
 Respond as a mentor. Be concise (2-4 sentences max). If they typed a command:
 - If it matches or is close to the current expected step, confirm it's good and explain what the output means. Show the simulated output.
@@ -39,7 +46,6 @@ Respond as a mentor. Be concise (2-4 sentences max). If they typed a command:
 
 If they shared their thinking:
 - Validate good reasoning, correct misconceptions, and guide them toward the next diagnostic step.
-- If they're on the right track, encourage them and suggest what command would test their theory.
 
 Keep the tone encouraging but direct. Use technical language appropriate for an L4 SysDE interview.`;
 
@@ -59,14 +65,13 @@ Keep the tone encouraging but direct. Use technical language appropriate for an 
     const result = JSON.parse(new TextDecoder().decode(response.body));
     const feedback = result.content[0].text;
 
-    // Check if the command matches any step
     const currentStepIdx = history.filter(h => h.matched).length;
     let matched = false;
     let matchedStep = null;
     let output = null;
 
     if (userInput.type === 'command') {
-      const normalised = userInput.text.trim().toLowerCase().replace(/\s+/g, ' ');
+      const normalised = text.trim().toLowerCase().replace(/\s+/g, ' ');
       for (let i = 0; i < scenario.steps.length; i++) {
         const step = scenario.steps[i];
         for (const cmd of step.commands) {
@@ -77,7 +82,6 @@ Keep the tone encouraging but direct. Use technical language appropriate for an 
               output = step.output;
             } else if (i > currentStepIdx) {
               matchedStep = i;
-              output = null;
             }
             break;
           }
@@ -89,6 +93,6 @@ Keep the tone encouraging but direct. Use technical language appropriate for an 
     return respond(200, { feedback, matched, matchedStep, output });
   } catch (err) {
     console.error('Bedrock error:', err);
-    return respond(500, { message: 'AI feedback unavailable', error: err.message });
+    return respond(500, { message: 'AI feedback unavailable' });
   }
 };

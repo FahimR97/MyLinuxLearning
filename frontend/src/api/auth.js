@@ -45,6 +45,9 @@ export function signOut() {
   const user = userPool?.getCurrentUser();
   if (user) user.signOut();
   localStorage.removeItem('fll-session');
+  localStorage.removeItem('linux-learning-progress');
+  localStorage.removeItem('fll-scenario-progress');
+  localStorage.removeItem('fll-quiz-review-flags');
 }
 
 export function isAuthenticated() {

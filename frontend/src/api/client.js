@@ -4,9 +4,18 @@ import quizzesData from '../content/quizzes.json';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
-async function request(path, options) {
+async function request(path, options = {}) {
   if (!API_BASE) return null;
-  const res = await fetch(API_BASE + path, options);
+  const token = localStorage.getItem('fll-session');
+  const headers = { ...options.headers };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  if (res.status === 401) {
+    localStorage.removeItem('fll-session');
+    window.location.reload();
+    return null;
+  }
+  if (!res.ok) return null;
   return res.json();
 }
 
@@ -17,31 +26,31 @@ export async function getChapters() {
 }
 
 export async function getChapter(id) {
-  const data = await request(`/chapters/${id}`);
+  const data = await request(`/chapters/${encodeURIComponent(id)}`);
   if (data) return data;
   return chaptersData.find(c => c.id === id) || null;
 }
 
 export async function getLabs(chapterId) {
-  const data = await request(`/labs/${chapterId}`);
+  const data = await request(`/labs/${encodeURIComponent(chapterId)}`);
   if (data) return data;
   return labsData.filter(l => l.chapterId === chapterId);
 }
 
 export async function getQuiz(chapterId) {
-  const data = await request(`/quizzes/${chapterId}`);
+  const data = await request(`/quizzes/${encodeURIComponent(chapterId)}`);
   if (data) return data;
   return quizzesData.filter(q => q.chapterId === chapterId).map(({ correctAnswer, ...rest }) => rest);
 }
 
 export async function submitQuiz(chapterId, answers) {
   if (API_BASE) {
-    const res = await fetch(`${API_BASE}/quizzes/${chapterId}/submit`, {
+    const data = await request(`/quizzes/${encodeURIComponent(chapterId)}/submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ answers }),
     });
-    return res.json();
+    if (data) return data;
   }
   const questions = quizzesData.filter(q => q.chapterId === chapterId);
   let correct = 0;
@@ -65,7 +74,7 @@ export async function getProgress() {
 
 export async function saveProgress(data) {
   if (API_BASE) {
-    await fetch(`${API_BASE}/progress`, {
+    await request('/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -78,7 +87,7 @@ export async function saveProgress(data) {
 
 export async function resetProgress() {
   if (API_BASE) {
-    await fetch(`${API_BASE}/progress`, { method: 'DELETE' });
+    await request('/progress', { method: 'DELETE' });
   }
   localStorage.removeItem(PROGRESS_KEY);
 }
