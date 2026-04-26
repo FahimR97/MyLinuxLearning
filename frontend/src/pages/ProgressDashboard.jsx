@@ -24,10 +24,11 @@ export default function ProgressDashboard() {
   const total = chapters.length || 1
   const readCount = Object.keys(progress).filter(k => progress[k]?.read).length
   const quizCount = Object.keys(progress).filter(k => progress[k]?.quizScore != null).length
-  const passCount = Object.keys(progress).filter(k => {
-    const p = progress[k]
-    return p?.quizScore != null && Math.round((p.quizScore / p.quizTotal) * 100) >= 70
-  }).length
+  const labCount = Object.keys(progress).filter(k => progress[k]?.labComplete).length
+  const quizScores = Object.values(progress).filter(p => p?.quizScore != null)
+  const avgScore = quizScores.length > 0
+    ? Math.round(quizScores.reduce((s, p) => s + (p.quizScore / p.quizTotal) * 100, 0) / quizScores.length)
+    : null
   const overallPct = Math.round((readCount / total) * 100)
 
   const scCompleted = Object.values(scProgress).filter(s => s.completed).length
@@ -89,30 +90,35 @@ export default function ProgressDashboard() {
             <span className="pstat-label">Quizzes Taken</span>
           </div>
           <div className="pstat">
-            <span className="pstat-val" style={{ color: 'var(--amber)' }}>{passCount}</span>
-            <span className="pstat-label">Quizzes Passed</span>
+            <span className="pstat-val" style={{ color: 'var(--amber)' }}>{avgScore !== null ? `${avgScore}%` : '—'}</span>
+            <span className="pstat-label">Avg Quiz Score</span>
           </div>
           <div className="pstat">
-            <span className="pstat-val" style={{ color: 'var(--sky)' }}>{scCompleted}/{scTotal}</span>
+            <span className="pstat-val" style={{ color: 'var(--sky)' }}>{labCount}</span>
+            <span className="pstat-label">Labs Passed</span>
+          </div>
+          <div className="pstat">
+            <span className="pstat-val" style={{ color: 'var(--rose)' }}>{scCompleted}/{scTotal}</span>
             <span className="pstat-label">Scenarios Done</span>
           </div>
         </div>
       </div>
 
-      {/* Chapter table */}
       <div className="progress-table" style={{ marginTop: '2rem' }}>
         <div className="ptable-header">
           <span>Chapter</span>
           <span style={{ textAlign: 'center' }}>Read</span>
+          <span style={{ textAlign: 'center' }}>Lab</span>
           <span style={{ textAlign: 'center' }}>Quiz</span>
           <span>Progress</span>
         </div>
         {chapters.map(c => {
           const p = progress[c.id] || {}
           const read = p.read ? 1 : 0
+          const lab = p.labComplete ? 1 : 0
           const quiz = p.quizScore != null ? 1 : 0
           const score = quiz ? Math.round((p.quizScore / p.quizTotal) * 100) : null
-          const pct = ((read + quiz) / 2) * 100
+          const pct = ((read + lab + quiz) / 3) * 100
 
           return (
             <div key={c.id} className="ptable-row">
@@ -121,16 +127,15 @@ export default function ProgressDashboard() {
                 {c.title}
               </Link>
               <span className="ptable-col">
-                {p.read
-                  ? <span className="check green">✓</span>
-                  : <span className="check dim">—</span>
-                }
+                {p.read ? <span className="check green">✓</span> : <span className="check dim">—</span>}
+              </span>
+              <span className="ptable-col">
+                {p.labComplete ? <span className="check green">✓</span> : <span className="check dim">—</span>}
               </span>
               <span className="ptable-col">
                 {score !== null
                   ? <span className={score >= 70 ? 'check green' : 'check amber'}>{score}%</span>
-                  : <span className="check dim">—</span>
-                }
+                  : <span className="check dim">—</span>}
               </span>
               <span className="ptable-col-bar">
                 <div className="mini-bar">
@@ -142,7 +147,6 @@ export default function ProgressDashboard() {
         })}
       </div>
 
-      {/* Scenarios table */}
       {scTotal > 0 && (
         <div className="progress-table" style={{ marginTop: '2rem' }}>
           <div className="ptable-header">
@@ -155,25 +159,17 @@ export default function ProgressDashboard() {
             const sp = scProgress[s.id]
             return (
               <div key={s.id} className="ptable-row">
-                <Link to={`/scenarios/${s.id}`} className="ptable-col-ch">
-                  {s.title}
-                </Link>
+                <Link to={`/scenarios/${s.id}`} className="ptable-col-ch">{s.title}</Link>
                 <span className="ptable-col">
-                  {sp?.completed
-                    ? <span className="check green">✓</span>
-                    : <span className="check dim">—</span>
-                  }
+                  {sp?.completed ? <span className="check green">✓</span> : <span className="check dim">—</span>}
                 </span>
                 <span className="ptable-col">
                   {sp?.commandsUsed
                     ? <span style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>{sp.commandsUsed}</span>
-                    : <span className="check dim">—</span>
-                  }
+                    : <span className="check dim">—</span>}
                 </span>
                 <span className="ptable-col">
-                  <span className={`sc-diff sc-diff-${s.difficulty}`} style={{ fontSize: '0.75rem' }}>
-                    {s.difficulty}
-                  </span>
+                  <span className={`sc-diff sc-diff-${s.difficulty}`} style={{ fontSize: '0.75rem' }}>{s.difficulty}</span>
                 </span>
               </div>
             )

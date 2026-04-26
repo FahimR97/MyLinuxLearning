@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { getLabs } from '../api/client'
+import { getLabs, saveProgress, getProgress } from '../api/client'
 import { getToken } from '../api/auth'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
@@ -44,6 +44,14 @@ export default function LabView() {
   const steps = lab?.steps || []
   const completedInLab = [...completedSteps].filter(k => k.startsWith(`${activeLab}-`)).length
   const allDone = completedInLab === steps.length && steps.length > 0
+
+  useEffect(() => {
+    if (allDone) {
+      getProgress().then(prog => {
+        saveProgress({ [chapterId]: { ...(prog[chapterId] || {}), labComplete: true } })
+      })
+    }
+  }, [allDone, chapterId])
 
   const handleVerify = async (stepIdx) => {
     const key = `${activeLab}-${stepIdx}`
