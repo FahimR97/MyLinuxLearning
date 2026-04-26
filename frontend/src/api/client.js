@@ -2,11 +2,13 @@ import chaptersData from '../content/chapters.json';
 import labsData from '../content/labs.json';
 import quizzesData from '../content/quizzes.json';
 
+import { getToken } from './auth';
+
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 async function request(path, options = {}) {
   if (!API_BASE) return null;
-  const token = localStorage.getItem('fll-session');
+  const token = await getToken();
   const headers = { ...options.headers };
   if (token) headers['Authorization'] = token;
   const res = await fetch(API_BASE + path, { ...options, headers });

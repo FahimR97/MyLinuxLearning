@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getLabs } from '../api/client'
+import { getToken } from '../api/auth'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
@@ -43,7 +44,7 @@ export default function LabView() {
     setVerifyResult(prev => ({ ...prev, [key]: null }))
 
     try {
-      const token = localStorage.getItem('fll-session')
+      const token = await getToken()
       const res = await fetch(`${API_BASE}/labs/verify`, {
         method: 'POST',
         headers: {

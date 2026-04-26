@@ -26,7 +26,6 @@ export function signIn(username, password) {
       },
       onFailure: (err) => reject(err),
       newPasswordRequired: (userAttributes) => {
-        // First login with temp password — set the real password
         delete userAttributes.email_verified;
         delete userAttributes.phone_number_verified;
         user.completeNewPasswordChallenge(password, userAttributes, {
@@ -37,6 +36,24 @@ export function signIn(username, password) {
           onFailure: (err) => reject(err),
         });
       },
+    });
+  });
+}
+
+// Returns a valid ID token, auto-refreshing if expired
+export function getToken() {
+  if (!userPool) return Promise.resolve(localStorage.getItem('fll-session'));
+  const user = userPool.getCurrentUser();
+  if (!user) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    user.getSession((err, session) => {
+      if (err || !session?.isValid()) {
+        resolve(null);
+      } else {
+        const token = session.getIdToken().getJwtToken();
+        localStorage.setItem('fll-session', token);
+        resolve(token);
+      }
     });
   });
 }
