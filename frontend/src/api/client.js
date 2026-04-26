@@ -8,7 +8,7 @@ async function request(path, options = {}) {
   if (!API_BASE) return null;
   const token = localStorage.getItem('fll-session');
   const headers = { ...options.headers };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers['Authorization'] = token;
   const res = await fetch(API_BASE + path, { ...options, headers });
   if (res.status === 401) {
     localStorage.removeItem('fll-session');
