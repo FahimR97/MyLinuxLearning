@@ -54,7 +54,16 @@ export class PipelineStack extends cdk.Stack {
       resources: [`arn:aws:cloudformation:${this.region}:${this.account}:stack/BackendStack/*`],
     }));
 
-    // Removed wildcard sts:AssumeRole — not needed for this pipeline
+    // Removed wildcard sts:AssumeRole — scoped to CDK bootstrap roles only
+    role.addToPolicy(new iam.PolicyStatement({
+      actions: ['sts:AssumeRole'],
+      resources: [`arn:aws:iam::${this.account}:role/cdk-*`],
+    }));
+
+    role.addToPolicy(new iam.PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/cdk-bootstrap/*`],
+    }));
 
     new cdk.CfnOutput(this, 'OIDCRoleArn', { value: role.roleArn });
   }
