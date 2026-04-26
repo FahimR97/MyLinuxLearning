@@ -3,6 +3,7 @@ dist/
 build/
 .env
 *.zip
+*.pem
 cdk.out/
 .cdk.staging/
 *.js.map

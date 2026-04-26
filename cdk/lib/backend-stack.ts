@@ -83,6 +83,28 @@ export class BackendStack extends cdk.Stack {
     const aiFeedback = api.root.addResource('ai-feedback');
     aiFeedback.addMethod('POST', new apigateway.LambdaIntegration(aiFeedbackFn));
 
+    // Lab verification Lambda — uses SSM to check commands on EC2
+    const labVerifyFn = new lambda.Function(this, 'LabVerifyFn', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'lambdas/lab-verify/index.handler',
+      code: lambda.Code.fromAsset(backendRoot, {
+        exclude: ['node_modules/.cache', '*.md'],
+      }),
+      environment: {
+        EC2_INSTANCE_ID: cdk.aws_ssm.StringParameter.valueForStringParameter(this, '/mylinuxlearning/ec2-instance-id'),
+        EC2_REGION: 'us-west-2',
+      },
+      timeout: cdk.Duration.seconds(15),
+      memorySize: 256,
+    });
+    labVerifyFn.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['ssm:SendCommand', 'ssm:GetCommandInvocation'],
+      resources: ['*'],
+    }));
+
+    const labVerify = labs.addResource('verify');
+    labVerify.addMethod('POST', new apigateway.LambdaIntegration(labVerifyFn));
+
     new cdk.CfnOutput(this, 'ApiUrl', { value: api.url });
   }
 }

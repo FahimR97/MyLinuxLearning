@@ -1084,6 +1084,66 @@ a:hover { color: var(--lavender); }
 .lab-complete-banner h3 { color: var(--mint); margin-bottom: 0.5rem; font-size: 1.1rem; }
 .lab-complete-banner p { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 1rem; }
 
+/* Split-pane lab layout */
+.lab-split {
+  display: flex; gap: 0; height: calc(100vh - 0px);
+  max-width: 100%; padding: 0;
+}
+.lab-instructions-panel {
+  flex: 1; min-width: 0;
+  overflow-y: auto; padding: 1.5rem 1.5rem 2rem;
+}
+.lab-terminal-panel {
+  width: 50%; min-width: 380px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  border-left: 1px solid var(--border);
+  background: #192030;
+}
+.lab-terminal-header {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0.5rem 1rem;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.lab-terminal-iframe {
+  flex: 1; width: 100%; border: none; background: #192030;
+}
+.step-command-hint {
+  margin: 0.4rem 0 0.5rem 2.8rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--sky);
+  user-select: all;
+}
+.step-actions {
+  display: flex; gap: 0.5rem;
+  margin: 0.5rem 0 0 2.8rem;
+}
+.btn-sm { padding: 0.35rem 0.85rem; font-size: 0.8rem; }
+.btn-ghost {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: var(--radius);
+  cursor: pointer; transition: all 0.18s; font-family: inherit;
+}
+.btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
+.step-verify-pass {
+  margin: 0.4rem 0 0 2.8rem;
+  font-size: 0.82rem; color: var(--mint); font-weight: 600;
+}
+.step-verify-fail {
+  margin: 0.4rem 0 0 2.8rem;
+  font-size: 0.82rem; color: var(--rose); font-weight: 500;
+}
+@media (max-width: 900px) {
+  .lab-split { flex-direction: column; height: auto; }
+  .lab-terminal-panel { width: 100%; min-width: 0; height: 45vh; border-left: none; border-top: 1px solid var(--border); }
+  .step-command-hint, .step-actions, .step-verify-pass, .step-verify-fail { margin-left: 0; }
+}
+
 /* ===================================
    QUIZ PAGE
    =================================== */
