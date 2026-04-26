@@ -9,15 +9,14 @@ const API_BASE = import.meta.env.VITE_API_URL || '';
 async function request(path, options = {}) {
   if (!API_BASE) return null;
   const token = await getToken() || localStorage.getItem('fll-session');
-  if (!token) return null;
+  if (!token) { console.warn('[API] No token available'); return null; }
   const headers = { ...options.headers };
   headers['Authorization'] = token;
   try {
     const res = await fetch(API_BASE + path, { ...options, headers });
-    if (res.status === 401) return null;
-    if (!res.ok) return null;
+    if (!res.ok) { console.warn('[API]', path, res.status); return null; }
     return res.json();
-  } catch { return null; }
+  } catch (e) { console.warn('[API] fetch error', path, e.message); return null; }
 }
 
 export async function getChapters() {
@@ -68,22 +67,26 @@ const PROGRESS_KEY = 'linux-learning-progress';
 export async function getProgress() {
   if (API_BASE) {
     const data = await request('/progress');
-    if (data) return data;
+    if (data && typeof data === 'object') return data;
   }
   return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
 }
 
 export async function saveProgress(data) {
+  // Always save to localStorage as fallback
+  const existing = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+  for (const [k, v] of Object.entries(data)) {
+    existing[k] = { ...(existing[k] || {}), ...v };
+  }
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(existing));
+  // Also save to API if available
   if (API_BASE) {
     await request('/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    return;
   }
-  const existing = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...existing, ...data }));
 }
 
 export async function resetProgress() {
