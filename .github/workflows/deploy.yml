@@ -49,7 +49,9 @@ jobs:
           LABS_FN=$(get_fn LabsFn7B8F3AE3)
           QUIZZES_FN=$(get_fn QuizzesFnBB1B9AA4)
           PROGRESS_FN=$(get_fn ProgressFn6B9D101A)
+          LAB_VERIFY_FN=$(get_fn LabVerifyFn4BCD60FA)
+          AI_FEEDBACK_FN=$(get_fn AIFeedbackFnAA42E390)
           zip -r deploy.zip lambdas/ content/ node_modules/ -x "*.md"
-          for fn in "$CHAPTERS_FN" "$LABS_FN" "$QUIZZES_FN" "$PROGRESS_FN"; do
+          for fn in "$CHAPTERS_FN" "$LABS_FN" "$QUIZZES_FN" "$PROGRESS_FN" "$LAB_VERIFY_FN" "$AI_FEEDBACK_FN"; do
             aws lambda update-function-code --function-name "$fn" --zip-file fileb://deploy.zip
           done
