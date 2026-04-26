@@ -13,6 +13,7 @@ export default function LabView() {
   const [completedSteps, setCompletedSteps] = useState(new Set())
   const [verifying, setVerifying] = useState(null)
   const [verifyResult, setVerifyResult] = useState({})
+  const savedLab = useRef(false)
 
   useEffect(() => {
     getLabs(chapterId).then(data => {
@@ -44,7 +45,6 @@ export default function LabView() {
   const steps = lab?.steps || []
   const completedInLab = [...completedSteps].filter(k => k.startsWith(`${activeLab}-`)).length
   const allDone = completedInLab === steps.length && steps.length > 0
-  const savedLab = useRef(false)
 
   useEffect(() => {
     if (allDone && !savedLab.current) {
