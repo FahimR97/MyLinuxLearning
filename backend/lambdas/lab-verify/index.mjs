@@ -22,7 +22,24 @@ export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return respond(200, {});
   if (!INSTANCE_ID) return respond(500, { message: 'Verification unavailable' });
 
-  const { labId, stepIndex } = JSON.parse(event.body || '{}');
+  const { labId, stepIndex, action } = JSON.parse(event.body || '{}');
+
+  // Clear history when starting a new lab
+  if (action === 'reset') {
+    try {
+      await ssm.send(new SendCommandCommand({
+        InstanceIds: [INSTANCE_ID],
+        DocumentName: 'AWS-RunShellScript',
+        Parameters: { commands: ['> /home/ubuntu/.bash_history'] },
+        TimeoutSeconds: 30,
+      }));
+      return respond(200, { message: 'History cleared' });
+    } catch (err) {
+      console.error('SSM error:', err);
+      return respond(500, { message: 'Reset unavailable' });
+    }
+  }
+
   if (!labId || stepIndex == null) return respond(400, { message: 'labId and stepIndex required' });
   if (typeof stepIndex !== 'number' || stepIndex < 0 || stepIndex > 50) return respond(400, { message: 'Invalid stepIndex' });
   if (typeof labId !== 'string' || !/^[a-zA-Z0-9-]+$/.test(labId)) return respond(400, { message: 'Invalid labId' });

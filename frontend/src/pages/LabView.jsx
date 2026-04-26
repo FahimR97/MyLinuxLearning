@@ -21,6 +21,14 @@ export default function LabView() {
       setActiveStep(0)
       setCompletedSteps(new Set())
       setVerifyResult({})
+      // Clear terminal history for a fresh start
+      getToken().then(token => {
+        if (API_BASE && token) fetch(`${API_BASE}/labs/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': token },
+          body: JSON.stringify({ action: 'reset' }),
+        }).catch(() => {})
+      })
     })
   }, [chapterId])
 
