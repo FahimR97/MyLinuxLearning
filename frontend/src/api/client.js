@@ -8,13 +8,16 @@ const API_BASE = import.meta.env.VITE_API_URL || '';
 
 async function request(path, options = {}) {
   if (!API_BASE) return null;
-  const token = await getToken();
+  const token = await getToken() || localStorage.getItem('fll-session');
+  if (!token) return null;
   const headers = { ...options.headers };
-  if (token) headers['Authorization'] = token;
-  const res = await fetch(API_BASE + path, { ...options, headers });
-  if (res.status === 401) return null;
-  if (!res.ok) return null;
-  return res.json();
+  headers['Authorization'] = token;
+  try {
+    const res = await fetch(API_BASE + path, { ...options, headers });
+    if (res.status === 401) return null;
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
 }
 
 export async function getChapters() {

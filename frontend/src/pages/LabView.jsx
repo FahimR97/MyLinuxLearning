@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { getLabs, saveProgress, getProgress } from '../api/client'
 import { getToken } from '../api/auth'
 
@@ -44,13 +44,16 @@ export default function LabView() {
   const steps = lab?.steps || []
   const completedInLab = [...completedSteps].filter(k => k.startsWith(`${activeLab}-`)).length
   const allDone = completedInLab === steps.length && steps.length > 0
+  const savedLab = useRef(false)
 
   useEffect(() => {
-    if (allDone) {
+    if (allDone && !savedLab.current) {
+      savedLab.current = true
       getProgress().then(prog => {
         saveProgress({ [chapterId]: { ...(prog[chapterId] || {}), labComplete: true } })
       })
     }
+    if (!allDone) savedLab.current = false
   }, [allDone, chapterId])
 
   const handleVerify = async (stepIdx) => {

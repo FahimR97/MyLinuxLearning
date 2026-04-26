@@ -23,6 +23,7 @@ export const handler = async (event) => {
 
   const userId = getUserId(event);
   const pk = `user#${userId}`;
+  console.log('Method:', event.httpMethod, 'UserId:', userId, 'Body:', event.body);
 
   if (event.httpMethod === 'GET') {
     const { Items } = await client.send(new QueryCommand({
