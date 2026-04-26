@@ -10,11 +10,7 @@ async function request(path, options = {}) {
   const headers = { ...options.headers };
   if (token) headers['Authorization'] = token;
   const res = await fetch(API_BASE + path, { ...options, headers });
-  if (res.status === 401) {
-    localStorage.removeItem('fll-session');
-    window.location.reload();
-    return null;
-  }
+  if (res.status === 401) return null;
   if (!res.ok) return null;
   return res.json();
 }
