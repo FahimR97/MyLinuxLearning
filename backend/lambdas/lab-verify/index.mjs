@@ -44,7 +44,7 @@ export const handler = async (event) => {
       InstanceIds: [INSTANCE_ID],
       DocumentName: 'AWS-RunShellScript',
       Parameters: { commands: [checkScript] },
-      TimeoutSeconds: 10,
+      TimeoutSeconds: 30,
     }));
 
     const commandId = send.Command.CommandId;
