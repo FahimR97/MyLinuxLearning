@@ -10,33 +10,33 @@
       "A package manager for installing software"
     ],
     "correctAnswer": 1,
-    "explanation": "The Linux kernel is the core of the operating system. It manages CPU scheduling, memory allocation, device drivers, and system calls. It is not a complete OS by itself \u2014 a full OS (like Ubuntu or Fedora) combines the kernel with userspace tools, libraries, and applications."
+    "explanation": "The Linux kernel is the core of the operating system. It manages CPU scheduling, memory allocation, device drivers, and system calls. It is not a complete OS by itself — a full OS (like Ubuntu or Fedora) combines the kernel with userspace tools, libraries, and applications."
   },
   {
     "id": "wil-q2",
     "chapterId": "what-is-linux",
-    "question": "Who originally created the Linux kernel?",
+    "question": "A bash script with '#!/bin/bash' runs fine on Ubuntu but fails with 'not found' on Alpine Linux. What is the most likely cause?",
     "options": [
-      "Richard Stallman",
-      "Dennis Ritchie",
-      "Linus Torvalds",
-      "Ken Thompson"
+      "Alpine uses a different file permission model",
+      "Alpine uses musl libc and busybox — bash is not installed by default",
+      "The script has Windows line endings",
+      "Alpine does not support shebang lines"
     ],
-    "correctAnswer": 2,
-    "explanation": "Linus Torvalds created the Linux kernel in 1991 as a free, open-source alternative to MINIX. Richard Stallman founded the GNU Project and the Free Software Foundation. Dennis Ritchie and Ken Thompson created Unix and the C programming language at Bell Labs."
+    "correctAnswer": 1,
+    "explanation": "Alpine Linux uses musl libc and busybox to stay lightweight. Bash is not included by default — the default shell is /bin/sh (ash). Scripts that rely on bash-specific features (arrays, [[ ]], process substitution) will fail. Fix: install bash or rewrite the script for POSIX sh."
   },
   {
     "id": "wil-q3",
     "chapterId": "what-is-linux",
-    "question": "What does 'open source' mean in the context of Linux?",
+    "question": "What is the difference between kernel space and user space, and why does it matter?",
     "options": [
-      "The software is free of charge but the source code is hidden",
-      "Anyone can view, modify, and distribute the source code under its licence",
-      "Only approved developers can see the source code",
-      "The software has no copyright protection"
+      "Kernel space is for root users, user space is for regular users",
+      "Kernel space has direct hardware access and runs with full privileges; user space processes are isolated and must use system calls to request kernel services",
+      "They are the same thing on modern Linux systems",
+      "Kernel space is RAM and user space is disk storage"
     ],
     "correctAnswer": 1,
-    "explanation": "Open source means the source code is publicly available and can be viewed, modified, and redistributed under the terms of its licence (Linux uses GPLv2). It does not mean there is no copyright \u2014 the licence defines how the code may be used and shared."
+    "explanation": "Kernel space runs with full CPU privileges (ring 0) and can access hardware directly. User space processes run in ring 3 with restricted access — they must make system calls (like read(), write(), fork()) to request kernel services. This separation prevents buggy applications from crashing the entire system."
   },
   {
     "id": "wil-q4",
@@ -49,7 +49,7 @@
       "ext4"
     ],
     "correctAnswer": 2,
-    "explanation": "Ubuntu is a Linux distribution \u2014 a complete OS built around the Linux kernel. Bash is a shell, systemd is an init system and service manager, and ext4 is a filesystem. Distributions bundle the kernel with package managers, desktop environments, and default software."
+    "explanation": "Ubuntu is a Linux distribution — a complete OS built around the Linux kernel. Bash is a shell, systemd is an init system and service manager, and ext4 is a filesystem. Distributions bundle the kernel with package managers, desktop environments, and default software."
   },
   {
     "id": "wil-q5",
@@ -67,15 +67,15 @@
   {
     "id": "wil-q6",
     "chapterId": "what-is-linux",
-    "question": "What licence is the Linux kernel released under?",
+    "question": "You type 'echo $SHELL' and see '/bin/bash', but you type 'ps -p $$' and see 'zsh'. What explains this?",
     "options": [
-      "MIT License",
-      "Apache License 2.0",
-      "GNU General Public License v2 (GPLv2)",
-      "BSD 3-Clause License"
+      "The system is broken and needs reinstalling",
+      "$SHELL shows the default login shell from /etc/passwd, but you are currently running a different shell (zsh) in this session",
+      "$SHELL always shows bash regardless of the actual shell",
+      "ps is showing the parent process, not the current shell"
     ],
-    "correctAnswer": 2,
-    "explanation": "The Linux kernel is licensed under GPLv2, which requires that any modified versions of the kernel that are distributed must also be released under GPLv2 with source code available. This 'copyleft' provision ensures the kernel remains free and open."
+    "correctAnswer": 1,
+    "explanation": "$SHELL is an environment variable set at login from /etc/passwd — it shows your default shell. But you can start a different shell at any time. 'ps -p $$' shows the actual process running as your current shell. $$ is the PID of the current shell process."
   },
   {
     "id": "wil-q7",
@@ -88,20 +88,20 @@
       "GNU and Linux are competing projects with no relationship"
     ],
     "correctAnswer": 1,
-    "explanation": "The GNU Project, started by Richard Stallman in 1983, created essential userspace tools, compilers, and libraries. When combined with the Linux kernel, they form a complete operating system \u2014 often called GNU/Linux. GNU had everything except a production-ready kernel; Linux provided that missing piece."
+    "explanation": "The GNU Project, started by Richard Stallman in 1983, created essential userspace tools, compilers, and libraries. When combined with the Linux kernel, they form a complete operating system — often called GNU/Linux. GNU had everything except a production-ready kernel; Linux provided that missing piece."
   },
   {
     "id": "nf-q1",
     "chapterId": "navigating-filesystem",
-    "question": "What does the command 'cd ~' do?",
+    "question": "You run 'rm -rf ${DIR}/' in a script but forgot to set the DIR variable. What happens if 'set -u' is NOT enabled?",
     "options": [
-      "Changes to the root directory /",
-      "Changes to the previous directory",
-      "Changes to the current user's home directory",
-      "Changes to the /tmp directory"
+      "The command fails with a syntax error",
+      "Nothing happens — rm ignores empty variables",
+      "The variable expands to empty, making it 'rm -rf /' which attempts to delete everything from root",
+      "Bash automatically sets DIR to the current directory"
     ],
     "correctAnswer": 2,
-    "explanation": "The tilde (~) is a shell shorthand for the current user's home directory (e.g., /home/username). 'cd ~' and 'cd' with no arguments both take you home. 'cd /' goes to root, and 'cd -' returns to the previous directory."
+    "explanation": "Without 'set -u' (or 'set -o nounset'), an unset variable expands to an empty string. 'rm -rf ${DIR}/' becomes 'rm -rf /' — catastrophic. This is why 'set -euo pipefail' is critical in scripts. With 'set -u', bash exits with an error when referencing an unset variable."
   },
   {
     "id": "nf-q2",
@@ -145,28 +145,28 @@
   {
     "id": "nf-q5",
     "chapterId": "navigating-filesystem",
-    "question": "What does the command 'pwd' output?",
+    "question": "A process is writing logs to /var/log/app.log but 'df' shows the /var partition is 100% full. You delete the file with 'rm /var/log/app.log' but df still shows 100%. Why?",
     "options": [
-      "The contents of the current directory",
-      "The current user's password hash",
-      "The absolute path of the current working directory",
-      "The parent directory name"
+      "rm doesn't actually delete files, it just removes the name",
+      "The filesystem cache hasn't been flushed yet",
+      "The process still has the file open — the space won't be freed until the process closes the file descriptor or is restarted",
+      "You need to run 'sync' to update the disk usage"
     ],
     "correctAnswer": 2,
-    "explanation": "'pwd' stands for Print Working Directory. It outputs the full absolute path of the directory you are currently in. This is essential when navigating deep directory structures or writing scripts that need to know their execution context."
+    "explanation": "On Linux, rm removes the directory entry (the name) but the inode and data blocks remain allocated while any process holds an open file descriptor. The space is only freed when the last file descriptor is closed. Fix: restart the process, or truncate the file with '> /var/log/app.log' instead of deleting it."
   },
   {
     "id": "nf-q6",
     "chapterId": "navigating-filesystem",
-    "question": "What does '..' represent in a file path?",
+    "question": "How would you find all .conf files under /etc that were modified in the last 24 hours?",
     "options": [
-      "The current directory",
-      "The home directory",
-      "The parent directory (one level up)",
-      "A hidden file"
+      "ls -R /etc/*.conf",
+      "find /etc -name '*.conf' -mtime -1",
+      "grep -r '.conf' /etc",
+      "locate /etc/*.conf --recent"
     ],
-    "correctAnswer": 2,
-    "explanation": "'..' (double dot) refers to the parent directory. For example, 'cd ..' moves up one level. '.' (single dot) refers to the current directory. These are special directory entries present in every directory and are fundamental to relative path navigation."
+    "correctAnswer": 1,
+    "explanation": "'find /etc -name \"*.conf\" -mtime -1' searches recursively under /etc for files matching *.conf that were modified less than 1 day ago. -mtime -1 means 'modified within the last 24 hours'. find is the standard tool for searching by name, time, size, permissions, and more."
   },
   {
     "id": "nf-q7",
@@ -231,7 +231,7 @@
       "It allows any user to change the file's permissions"
     ],
     "correctAnswer": 2,
-    "explanation": "The SUID bit (set with chmod u+s) causes an executable to run with the effective UID of the file's owner. The classic example is /usr/bin/passwd, which is owned by root and has SUID set \u2014 allowing normal users to change their own passwords by temporarily gaining root privileges for that specific program."
+    "explanation": "The SUID bit (set with chmod u+s) causes an executable to run with the effective UID of the file's owner. The classic example is /usr/bin/passwd, which is owned by root and has SUID set — allowing normal users to change their own passwords by temporarily gaining root privileges for that specific program."
   },
   {
     "id": "fp-q5",
@@ -244,7 +244,7 @@
       "It encrypts the directory contents"
     ],
     "correctAnswer": 0,
-    "explanation": "The sticky bit (chmod +t) on a directory means only the file's owner, the directory's owner, or root can delete or rename files within it. The classic example is /tmp \u2014 everyone can create files there, but you can only delete your own. Without the sticky bit, anyone with write permission to the directory could delete any file in it."
+    "explanation": "The sticky bit (chmod +t) on a directory means only the file's owner, the directory's owner, or root can delete or rename files within it. The classic example is /tmp — everyone can create files there, but you can only delete your own. Without the sticky bit, anyone with write permission to the directory could delete any file in it."
   },
   {
     "id": "fp-q6",
@@ -296,7 +296,7 @@
       "1"
     ],
     "correctAnswer": 2,
-    "explanation": "The root user always has UID 0. This is hardcoded into the kernel \u2014 any process with effective UID 0 has full superuser privileges. Regular users typically start at UID 1000 on modern distributions. UID 65534 is conventionally assigned to the 'nobody' user."
+    "explanation": "The root user always has UID 0. This is hardcoded into the kernel — any process with effective UID 0 has full superuser privileges. Regular users typically start at UID 1000 on modern distributions. UID 65534 is conventionally assigned to the 'nobody' user."
   },
   {
     "id": "ug-q3",
@@ -342,13 +342,13 @@
     "chapterId": "users-and-groups",
     "question": "What does 'sudo' stand for and what does it do?",
     "options": [
-      "Super User DO \u2014 it permanently switches you to root",
-      "Substitute User DO \u2014 it runs a single command as another user (root by default)",
-      "System Utility for Direct Operations \u2014 it bypasses all permissions",
-      "Secure User Domain Object \u2014 it encrypts the command output"
+      "Super User DO — it permanently switches you to root",
+      "Substitute User DO — it runs a single command as another user (root by default)",
+      "System Utility for Direct Operations — it bypasses all permissions",
+      "Secure User Domain Object — it encrypts the command output"
     ],
     "correctAnswer": 1,
-    "explanation": "sudo stands for 'Substitute User DO' (originally 'Super User DO'). It executes a single command as another user, defaulting to root. Unlike 'su', it doesn't open a persistent root shell \u2014 it runs one command and returns to normal privileges. Access is controlled via /etc/sudoers, edited with visudo."
+    "explanation": "sudo stands for 'Substitute User DO' (originally 'Super User DO'). It executes a single command as another user, defaulting to root. Unlike 'su', it doesn't open a persistent root shell — it runs one command and returns to normal privileges. Access is controlled via /etc/sudoers, edited with visudo."
   },
   {
     "id": "ug-q7",
@@ -366,15 +366,15 @@
   {
     "id": "vef-q1",
     "chapterId": "viewing-editing-files",
-    "question": "What is the difference between 'cat' and 'less' for viewing files?",
+    "question": "You need to extract lines 500-520 from a 10GB log file. Which approach is most efficient?",
     "options": [
-      "cat is for binary files and less is for text files",
-      "cat dumps the entire file to stdout at once; less provides paginated, scrollable viewing",
-      "less can edit files but cat cannot",
-      "There is no practical difference"
+      "cat bigfile.log | head -520 | tail -20",
+      "sed -n '500,520p' bigfile.log",
+      "grep -n '' bigfile.log | head -520",
+      "vim bigfile.log and scroll to line 500"
     ],
     "correctAnswer": 1,
-    "explanation": "'cat' concatenates and prints the entire file to the terminal at once \u2014 fine for small files but overwhelming for large ones. 'less' opens an interactive pager that lets you scroll, search (with /), and navigate without loading the entire file into memory. For large log files, less is far more practical."
+    "explanation": "sed -n '500,520p' is the most efficient — it reads the file sequentially and only prints lines 500-520, then can stop. The cat|head|tail pipeline also works but spawns extra processes. Opening a 10GB file in vim would consume massive memory. sed is purpose-built for this."
   },
   {
     "id": "vef-q2",
@@ -405,15 +405,15 @@
   {
     "id": "vef-q4",
     "chapterId": "viewing-editing-files",
-    "question": "What does 'head -n 1 /etc/passwd' return?",
+    "question": "You need to replace all occurrences of '192.168.1.10' with '10.0.0.5' across every .conf file in /etc/myapp/. What command does this?",
     "options": [
-      "The last line of /etc/passwd",
-      "The first line of /etc/passwd (typically the root user entry)",
-      "The total number of lines in /etc/passwd",
-      "The file permissions of /etc/passwd"
+      "grep -r '192.168.1.10' /etc/myapp/ > '10.0.0.5'",
+      "find /etc/myapp/ -name '*.conf' -exec sed -i 's/192.168.1.10/10.0.0.5/g' {} +",
+      "replace '192.168.1.10' '10.0.0.5' /etc/myapp/*.conf",
+      "vim /etc/myapp/ -c '%s/192.168.1.10/10.0.0.5/g'"
     ],
     "correctAnswer": 1,
-    "explanation": "'head -n 1' outputs only the first line of a file. Since /etc/passwd lists users and root is conventionally the first entry, this typically returns 'root:x:0:0:root:/root:/bin/bash'. head defaults to 10 lines if -n is not specified."
+    "explanation": "find locates all .conf files, then -exec runs sed -i (in-place edit) with a global substitution on each. The 's/old/new/g' pattern replaces all occurrences per line. The + at the end batches files for efficiency. This is a bread-and-butter sysadmin operation."
   },
   {
     "id": "vef-q5",
@@ -431,15 +431,15 @@
   {
     "id": "vef-q6",
     "chapterId": "viewing-editing-files",
-    "question": "In nano, what does Ctrl+K do?",
+    "question": "What is the difference between '>' and '>>' when redirecting output to a file?",
     "options": [
-      "Saves the file",
-      "Quits the editor",
-      "Cuts (deletes) the current line",
-      "Searches for text"
+      "> appends to the file, >> overwrites it",
+      "> overwrites the file (truncates then writes), >> appends to the end of the file",
+      "They are identical — both append",
+      "> writes to stdout, >> writes to stderr"
     ],
-    "correctAnswer": 2,
-    "explanation": "In nano, Ctrl+K cuts the current line (storing it in a buffer). Ctrl+U pastes it back. Ctrl+O saves (writes out), Ctrl+X exits, and Ctrl+W searches. Nano displays its shortcuts at the bottom of the screen, making it more beginner-friendly than Vim."
+    "correctAnswer": 1,
+    "explanation": "'>' truncates the file to zero length then writes — any existing content is lost. '>>' opens the file in append mode and adds to the end. This distinction is critical: 'echo text > logfile' destroys the log, while 'echo text >> logfile' adds to it. A common mistake in scripts."
   },
   {
     "id": "proc-q1",
@@ -448,7 +448,7 @@
     "options": [
       "Press Ctrl+C to stop it and restart later",
       "Press Ctrl+Z to suspend it, then type 'bg' to resume it in the background",
-      "Close the terminal \u2014 the process will continue automatically",
+      "Close the terminal — the process will continue automatically",
       "Press Ctrl+D to detach it"
     ],
     "correctAnswer": 1,
@@ -465,7 +465,7 @@
       "SIGTERM only works on root-owned processes"
     ],
     "correctAnswer": 1,
-    "explanation": "SIGTERM (signal 15) is a polite request \u2014 the process can catch it, clean up resources, close files, and exit gracefully. SIGKILL (signal 9) is handled by the kernel and cannot be caught, blocked, or ignored \u2014 the process is terminated immediately with no cleanup. Always try SIGTERM before resorting to SIGKILL."
+    "explanation": "SIGTERM (signal 15) is a polite request — the process can catch it, clean up resources, close files, and exit gracefully. SIGKILL (signal 9) is handled by the kernel and cannot be caught, blocked, or ignored — the process is terminated immediately with no cleanup. Always try SIGTERM before resorting to SIGKILL."
   },
   {
     "id": "proc-q3",
@@ -473,12 +473,12 @@
     "question": "What would happen if you run 'kill -9 1' as root?",
     "options": [
       "It kills the init/systemd process and the system shuts down immediately",
-      "Nothing \u2014 PID 1 (init/systemd) is protected and ignores SIGKILL",
+      "Nothing — PID 1 (init/systemd) is protected and ignores SIGKILL",
       "It restarts all services",
       "It logs you out of the root session"
     ],
     "correctAnswer": 1,
-    "explanation": "PID 1 (init or systemd) is special \u2014 the kernel protects it from SIGKILL and SIGTERM unless PID 1 has explicitly installed a handler for them. This is a safety mechanism: if PID 1 dies, the kernel panics. This is a favourite interview question that tests deep process knowledge."
+    "explanation": "PID 1 (init or systemd) is special — the kernel protects it from SIGKILL and SIGTERM unless PID 1 has explicitly installed a handler for them. This is a safety mechanism: if PID 1 dies, the kernel panics. This is a favourite interview question that tests deep process knowledge."
   },
   {
     "id": "proc-q4",
@@ -486,7 +486,7 @@
     "question": "A process shows state 'Z' in the ps output. What does this mean?",
     "options": [
       "The process is sleeping and waiting for I/O",
-      "The process is a zombie \u2014 it has exited but its parent hasn't collected its exit status",
+      "The process is a zombie — it has exited but its parent hasn't collected its exit status",
       "The process is running at the highest priority",
       "The process is in a zero-CPU state (idle)"
     ],
@@ -512,7 +512,7 @@
     "question": "What does the 'nice' value of a process control?",
     "options": [
       "How much memory the process can use",
-      "The CPU scheduling priority \u2014 higher nice values mean lower priority",
+      "The CPU scheduling priority — higher nice values mean lower priority",
       "The maximum number of open files",
       "Whether the process can access the network"
     ],
@@ -543,7 +543,7 @@
       "The word ERROR repeated for each match"
     ],
     "correctAnswer": 1,
-    "explanation": "The pipe (|) sends grep's output to wc -l, which counts lines. grep -r recursively searches all files in /var/log/ for 'ERROR' and outputs matching lines. wc -l then counts those lines. This pipeline pattern \u2014 filter then count \u2014 is fundamental to Linux text processing."
+    "explanation": "The pipe (|) sends grep's output to wc -l, which counts lines. grep -r recursively searches all files in /var/log/ for 'ERROR' and outputs matching lines. wc -l then counts those lines. This pipeline pattern — filter then count — is fundamental to Linux text processing."
   },
   {
     "id": "tp-q2",
@@ -608,7 +608,7 @@
       "It timestamps each line of output"
     ],
     "correctAnswer": 1,
-    "explanation": "'tee' reads from stdin and writes to both stdout and one or more files \u2014 like a T-junction in plumbing. In this example, you see the build output on screen AND it's saved to build.log. '2>&1' redirects stderr to stdout first so both streams are captured. Use 'tee -a' to append instead of overwrite."
+    "explanation": "'tee' reads from stdin and writes to both stdout and one or more files — like a T-junction in plumbing. In this example, you see the build output on screen AND it's saved to build.log. '2>&1' redirects stderr to stdout first so both streams are captured. Use 'tee -a' to append instead of overwrite."
   },
   {
     "id": "tp-q7",
@@ -634,7 +634,7 @@
       "Nginx is downloaded and installed"
     ],
     "correctAnswer": 1,
-    "explanation": "'enable' creates symlinks so the service starts at boot, but does NOT start it immediately. 'start' starts it now but doesn't persist across reboots. To do both: 'systemctl enable --now nginx'. This distinction trips up many administrators \u2014 a service can be enabled but stopped, or running but not enabled."
+    "explanation": "'enable' creates symlinks so the service starts at boot, but does NOT start it immediately. 'start' starts it now but doesn't persist across reboots. To do both: 'systemctl enable --now nginx'. This distinction trips up many administrators — a service can be enabled but stopped, or running but not enabled."
   },
   {
     "id": "ss-q2",
@@ -673,7 +673,7 @@
       "It clears the systemd journal logs"
     ],
     "correctAnswer": 1,
-    "explanation": "After editing or creating unit files in /etc/systemd/system/, you must run 'daemon-reload' to tell systemd to re-read its configuration. Without this, systemd uses the old cached version. It does NOT restart any services \u2014 it only reloads the unit file definitions. This is a mandatory step that's easy to forget."
+    "explanation": "After editing or creating unit files in /etc/systemd/system/, you must run 'daemon-reload' to tell systemd to re-read its configuration. Without this, systemd uses the old cached version. It does NOT restart any services — it only reloads the unit file definitions. This is a mandatory step that's easy to forget."
   },
   {
     "id": "ss-q5",
@@ -686,7 +686,7 @@
       "'restart' only works for enabled services"
     ],
     "correctAnswer": 1,
-    "explanation": "'restart' performs a full stop-then-start cycle, causing brief downtime. 'reload' sends a signal (usually SIGHUP) asking the service to re-read its configuration files without stopping \u2014 zero downtime. Not all services support reload. 'try-restart' only restarts if the service is already running."
+    "explanation": "'restart' performs a full stop-then-start cycle, causing brief downtime. 'reload' sends a signal (usually SIGHUP) asking the service to re-read its configuration files without stopping — zero downtime. Not all services support reload. 'try-restart' only restarts if the service is already running."
   },
   {
     "id": "ss-q6",
@@ -738,7 +738,7 @@
       "A symbolic link to another file"
     ],
     "correctAnswer": 1,
-    "explanation": "An inode stores all file metadata: permissions, ownership, timestamps, size, and pointers to data blocks. Crucially, it does NOT store the filename \u2014 that's stored in the directory entry which maps names to inode numbers. This is why hard links work: multiple names can point to the same inode."
+    "explanation": "An inode stores all file metadata: permissions, ownership, timestamps, size, and pointers to data blocks. Crucially, it does NOT store the filename — that's stored in the directory entry which maps names to inode numbers. This is why hard links work: multiple names can point to the same inode."
   },
   {
     "id": "fdd-q3",
@@ -746,12 +746,12 @@
     "question": "What happens when you create a hard link with 'ln original.txt hardlink.txt'?",
     "options": [
       "A copy of the file is created",
-      "A new directory entry is created pointing to the same inode \u2014 both names reference the same data",
+      "A new directory entry is created pointing to the same inode — both names reference the same data",
       "A shortcut file is created that redirects to original.txt",
       "The original file is moved to hardlink.txt"
     ],
     "correctAnswer": 1,
-    "explanation": "A hard link creates a new directory entry pointing to the same inode number. Both names are equally valid \u2014 there's no 'original'. The inode's link count increases. The data is only freed when the link count reaches 0. Hard links cannot cross filesystem boundaries and cannot link to directories (to prevent loops)."
+    "explanation": "A hard link creates a new directory entry pointing to the same inode number. Both names are equally valid — there's no 'original'. The inode's link count increases. The data is only freed when the link count reaches 0. Hard links cannot cross filesystem boundaries and cannot link to directories (to prevent loops)."
   },
   {
     "id": "fdd-q4",
@@ -777,7 +777,7 @@
       "There is no practical difference"
     ],
     "correctAnswer": 1,
-    "explanation": "A symbolic link is a small file whose content is the path to the target. If the target is deleted, the symlink becomes a dangling link (broken). A hard link shares the same inode \u2014 deleting one name doesn't affect the other. Symlinks can cross filesystems and link to directories; hard links cannot."
+    "explanation": "A symbolic link is a small file whose content is the path to the target. If the target is deleted, the symlink becomes a dangling link (broken). A hard link shares the same inode — deleting one name doesn't affect the other. Symlinks can cross filesystems and link to directories; hard links cannot."
   },
   {
     "id": "fdd-q6",
@@ -810,13 +810,13 @@
     "chapterId": "bash-scripting",
     "question": "What would happen if you forget to quote a variable in 'if [ $var = \"hello\" ]' and $var is empty?",
     "options": [
-      "It works fine \u2014 empty strings are handled automatically",
+      "It works fine — empty strings are handled automatically",
       "It causes a syntax error because the expression becomes '[ = \"hello\" ]' which is invalid",
       "It evaluates to true",
       "It silently skips the if block"
     ],
     "correctAnswer": 1,
-    "explanation": "Without quotes, an empty $var disappears entirely, leaving '[ = \"hello\" ]' \u2014 a syntax error. Always quote variables: '[ \"$var\" = \"hello\" ]'. Better yet, use [[ ]] which handles empty variables safely. This is one of the most common bash scripting bugs and a frequent interview question."
+    "explanation": "Without quotes, an empty $var disappears entirely, leaving '[ = \"hello\" ]' — a syntax error. Always quote variables: '[ \"$var\" = \"hello\" ]'. Better yet, use [[ ]] which handles empty variables safely. This is one of the most common bash scripting bugs and a frequent interview question."
   },
   {
     "id": "bs-q2",
@@ -868,7 +868,7 @@
       "It creates a log file called 'cleanup'"
     ],
     "correctAnswer": 1,
-    "explanation": "'trap' registers a command or function to run when a signal is received. EXIT is a pseudo-signal triggered when the script exits (normally, via error, or via Ctrl+C if SIGINT is also trapped). This pattern ensures temporary files are cleaned up, locks are released, and resources are freed \u2014 even if the script fails."
+    "explanation": "'trap' registers a command or function to run when a signal is received. EXIT is a pseudo-signal triggered when the script exits (normally, via error, or via Ctrl+C if SIGINT is also trapped). This pattern ensures temporary files are cleaned up, locks are released, and resources are freed — even if the script fails."
   },
   {
     "id": "bs-q6",
@@ -928,7 +928,7 @@
     "question": "You can ping a server by IP but not by hostname. What is the most likely problem?",
     "options": [
       "The server's firewall blocks hostname-based connections",
-      "DNS resolution is failing \u2014 check /etc/resolv.conf, DNS server reachability, and /etc/hosts",
+      "DNS resolution is failing — check /etc/resolv.conf, DNS server reachability, and /etc/hosts",
       "The server doesn't have a hostname configured",
       "ICMP doesn't support hostnames"
     ],
@@ -946,7 +946,7 @@
       "It routes traffic to the internet"
     ],
     "correctAnswer": 1,
-    "explanation": "The loopback interface (lo) allows a machine to send network traffic to itself. Services listening on 127.0.0.1 are only accessible locally \u2014 not from other machines. This is used for local databases, development servers, and inter-process communication. The entire 127.0.0.0/8 range is reserved for loopback."
+    "explanation": "The loopback interface (lo) allows a machine to send network traffic to itself. Services listening on 127.0.0.1 are only accessible locally — not from other machines. This is used for local databases, development servers, and inter-process communication. The entire 127.0.0.0/8 range is reserved for loopback."
   },
   {
     "id": "netf-q5",
@@ -972,7 +972,7 @@
       "TCP is for local networks and UDP is for the internet"
     ],
     "correctAnswer": 1,
-    "explanation": "TCP establishes a connection (3-way handshake), guarantees delivery via acknowledgements and retransmission, and maintains packet order. UDP sends datagrams with no connection setup, no delivery guarantee, and no ordering \u2014 but with less overhead and lower latency. DNS queries use UDP (port 53), SSH uses TCP (port 22)."
+    "explanation": "TCP establishes a connection (3-way handshake), guarantees delivery via acknowledgements and retransmission, and maintains packet order. UDP sends datagrams with no connection setup, no delivery guarantee, and no ordering — but with less overhead and lower latency. DNS queries use UDP (port 53), SSH uses TCP (port 22)."
   },
   {
     "id": "netf-q7",
@@ -993,7 +993,7 @@
     "question": "A server has iptables rules. You add a new ACCEPT rule at the bottom of the INPUT chain, but traffic is still being dropped. Why?",
     "options": [
       "iptables rules are applied alphabetically",
-      "iptables processes rules top-to-bottom and stops at the first match \u2014 a DROP rule earlier in the chain is matching before your ACCEPT rule",
+      "iptables processes rules top-to-bottom and stops at the first match — a DROP rule earlier in the chain is matching before your ACCEPT rule",
       "ACCEPT rules don't work in the INPUT chain",
       "You need to restart iptables after adding rules"
     ],
@@ -1031,13 +1031,13 @@
     "chapterId": "networking-advanced",
     "question": "What is a VPC in cloud networking, and what is its Linux equivalent concept?",
     "options": [
-      "A VPC is a virtual private cloud \u2014 an isolated network segment; the Linux equivalent is network namespaces and VLANs",
+      "A VPC is a virtual private cloud — an isolated network segment; the Linux equivalent is network namespaces and VLANs",
       "A VPC is a type of VPN tunnel",
       "A VPC is a virtual processor core",
       "VPCs don't have a Linux equivalent"
     ],
     "correctAnswer": 0,
-    "explanation": "A VPC (Virtual Private Cloud) is an isolated virtual network in cloud environments (AWS, GCP, Azure). In Linux, network namespaces provide similar isolation \u2014 each namespace has its own interfaces, routes, and firewall rules. VLANs (802.1Q) provide Layer 2 isolation. Understanding these Linux primitives helps you understand cloud networking."
+    "explanation": "A VPC (Virtual Private Cloud) is an isolated virtual network in cloud environments (AWS, GCP, Azure). In Linux, network namespaces provide similar isolation — each namespace has its own interfaces, routes, and firewall rules. VLANs (802.1Q) provide Layer 2 isolation. Understanding these Linux primitives helps you understand cloud networking."
   },
   {
     "id": "neta-q5",
@@ -1063,7 +1063,7 @@
       "Security groups only filter outbound traffic"
     ],
     "correctAnswer": 1,
-    "explanation": "Security groups are stateful firewalls attached to instances \u2014 if you allow inbound traffic, the response is automatically allowed. NACLs are stateless subnet-level filters \u2014 you must explicitly allow both inbound and outbound. Security groups only support ALLOW rules; NACLs support both ALLOW and DENY. This distinction is critical for cloud architecture."
+    "explanation": "Security groups are stateful firewalls attached to instances — if you allow inbound traffic, the response is automatically allowed. NACLs are stateless subnet-level filters — you must explicitly allow both inbound and outbound. Security groups only support ALLOW rules; NACLs support both ALLOW and DENY. This distinction is critical for cloud architecture."
   },
   {
     "id": "neta-q7",
@@ -1076,16 +1076,16 @@
       "The service is listening on a random interface"
     ],
     "correctAnswer": 1,
-    "explanation": "0.0.0.0 (INADDR_ANY) means the service accepts connections on any interface \u2014 loopback, ethernet, wireless, etc. Binding to 127.0.0.1 restricts to local-only access. Binding to a specific IP restricts to that interface. This is important for security: a database should typically bind to 127.0.0.1, not 0.0.0.0."
+    "explanation": "0.0.0.0 (INADDR_ANY) means the service accepts connections on any interface — loopback, ethernet, wireless, etc. Binding to 127.0.0.1 restricts to local-only access. Binding to a specific IP restricts to that interface. This is important for security: a database should typically bind to 127.0.0.1, not 0.0.0.0."
   },
   {
     "id": "mlt-q1",
     "chapterId": "monitoring-troubleshooting",
     "question": "A server is responding slowly. 'top' shows 95% CPU in 'wa' (iowait). What does this indicate and what would you check next?",
     "options": [
-      "The CPU is overloaded with computation \u2014 add more CPU cores",
-      "The CPU is spending most of its time waiting for disk I/O \u2014 check disk performance with 'iostat -x 1' and look for high await times or saturated disks",
-      "The server is waiting for network responses \u2014 check DNS",
+      "The CPU is overloaded with computation — add more CPU cores",
+      "The CPU is spending most of its time waiting for disk I/O — check disk performance with 'iostat -x 1' and look for high await times or saturated disks",
+      "The server is waiting for network responses — check DNS",
       "The 'wa' metric is irrelevant to performance"
     ],
     "correctAnswer": 1,
@@ -1097,12 +1097,12 @@
     "question": "You suspect a memory leak in a Java application. The system has 16GB RAM and 'free -h' shows only 500MB free but the app uses 4GB. Where is the rest?",
     "options": [
       "The rest is lost to the memory leak",
-      "Linux uses free RAM for disk cache (buff/cache) \u2014 check the 'available' column, which shows memory that can be reclaimed if needed",
+      "Linux uses free RAM for disk cache (buff/cache) — check the 'available' column, which shows memory that can be reclaimed if needed",
       "Other hidden processes are using it",
       "The kernel reserves 50% of RAM"
     ],
     "correctAnswer": 1,
-    "explanation": "Linux aggressively caches disk data in unused RAM (shown as buff/cache in 'free'). This is not wasted \u2014 it speeds up disk access and is immediately reclaimable when applications need memory. The 'available' column (not 'free') shows how much memory is actually available for new applications. A system with low 'free' but high 'available' is healthy."
+    "explanation": "Linux aggressively caches disk data in unused RAM (shown as buff/cache in 'free'). This is not wasted — it speeds up disk access and is immediately reclaimable when applications need memory. The 'available' column (not 'free') shows how much memory is actually available for new applications. A system with low 'free' but high 'available' is healthy."
   },
   {
     "id": "mlt-q3",
@@ -1123,7 +1123,7 @@
     "question": "What does 'strace -p 1234' do and when would you use it?",
     "options": [
       "It traces network packets for process 1234",
-      "It attaches to process 1234 and traces all system calls it makes \u2014 useful for debugging hangs, permission errors, and missing files",
+      "It attaches to process 1234 and traces all system calls it makes — useful for debugging hangs, permission errors, and missing files",
       "It shows the stack trace of a crashed process",
       "It monitors CPU usage of process 1234"
     ],
@@ -1135,13 +1135,13 @@
     "chapterId": "monitoring-troubleshooting",
     "question": "Load average on a 4-core system reads: 8.50, 6.20, 2.10. What does this tell you?",
     "options": [
-      "The system is healthy \u2014 load average should be around 8 for 4 cores",
-      "The system is currently overloaded (8.5 > 4 cores), was overloaded recently (6.2), but was fine 15 minutes ago (2.1) \u2014 something started consuming resources recently",
+      "The system is healthy — load average should be around 8 for 4 cores",
+      "The system is currently overloaded (8.5 > 4 cores), was overloaded recently (6.2), but was fine 15 minutes ago (2.1) — something started consuming resources recently",
       "The system needs 8 more CPU cores",
       "Load average is not related to CPU count"
     ],
     "correctAnswer": 1,
-    "explanation": "Load average shows the average number of processes in runnable or uninterruptible state over 1, 5, and 15 minutes. On a 4-core system, a load of 4.0 means full utilisation. 8.5 means processes are queuing. The trend (2.1 \u2192 6.2 \u2192 8.5) shows increasing load \u2014 something changed recently. Investigate with top, ps, and check for new processes or I/O issues."
+    "explanation": "Load average shows the average number of processes in runnable or uninterruptible state over 1, 5, and 15 minutes. On a 4-core system, a load of 4.0 means full utilisation. 8.5 means processes are queuing. The trend (2.1 → 6.2 → 8.5) shows increasing load — something changed recently. Investigate with top, ps, and check for new processes or I/O issues."
   },
   {
     "id": "mlt-q6",
@@ -1174,8 +1174,8 @@
     "chapterId": "boot-raid-virtualisation",
     "question": "A Linux server fails to boot and drops to an emergency shell. The last message mentions 'failed to mount /home'. What is the most likely cause and fix?",
     "options": [
-      "The /home directory was deleted \u2014 reinstall the OS",
-      "An entry in /etc/fstab is incorrect or the filesystem is corrupted \u2014 check fstab for typos, run fsck on the partition, or mount manually",
+      "The /home directory was deleted — reinstall the OS",
+      "An entry in /etc/fstab is incorrect or the filesystem is corrupted — check fstab for typos, run fsck on the partition, or mount manually",
       "The kernel doesn't support the /home directory",
       "The boot loader is corrupted"
     ],
@@ -1187,10 +1187,10 @@
     "chapterId": "boot-raid-virtualisation",
     "question": "What is the correct boot sequence for a UEFI-based Linux system?",
     "options": [
-      "BIOS \u2192 MBR \u2192 GRUB \u2192 Kernel \u2192 init",
-      "UEFI firmware \u2192 ESP (EFI System Partition) \u2192 GRUB/systemd-boot \u2192 Kernel + initramfs \u2192 systemd (PID 1)",
-      "UEFI \u2192 Kernel \u2192 GRUB \u2192 systemd",
-      "Power on \u2192 Kernel loads directly from disk \u2192 systemd"
+      "BIOS → MBR → GRUB → Kernel → init",
+      "UEFI firmware → ESP (EFI System Partition) → GRUB/systemd-boot → Kernel + initramfs → systemd (PID 1)",
+      "UEFI → Kernel → GRUB → systemd",
+      "Power on → Kernel loads directly from disk → systemd"
     ],
     "correctAnswer": 1,
     "explanation": "UEFI boot: (1) UEFI firmware initialises hardware and reads boot entries, (2) loads the bootloader (GRUB2 or systemd-boot) from the EFI System Partition (ESP, typically /boot/efi), (3) bootloader loads the kernel and initramfs into memory, (4) kernel initialises, mounts initramfs as temporary root, loads drivers, (5) switches to real root filesystem, (6) starts systemd as PID 1."
@@ -1201,7 +1201,7 @@
     "question": "You have a RAID 5 array with 4 disks. One disk fails. What happens, and what if a second disk fails before the first is replaced?",
     "options": [
       "RAID 5 can survive any number of disk failures",
-      "One disk failure: the array continues operating in degraded mode using parity to reconstruct data. Two disk failures: total data loss \u2014 RAID 5 can only tolerate one disk failure",
+      "One disk failure: the array continues operating in degraded mode using parity to reconstruct data. Two disk failures: total data loss — RAID 5 can only tolerate one disk failure",
       "The array shuts down immediately on the first failure",
       "RAID 5 automatically rebuilds from a hot spare instantly"
     ],
@@ -1232,7 +1232,7 @@
       "Type 1 only supports Linux guests"
     ],
     "correctAnswer": 1,
-    "explanation": "Type 1 hypervisors run directly on hardware with no host OS, providing better performance and lower overhead \u2014 used in production (KVM, ESXi, Xen, Hyper-V). Type 2 runs as an application on a host OS, adding overhead but being easier to set up \u2014 used for development (VirtualBox, VMware Workstation). KVM is technically Type 1 as it's a kernel module."
+    "explanation": "Type 1 hypervisors run directly on hardware with no host OS, providing better performance and lower overhead — used in production (KVM, ESXi, Xen, Hyper-V). Type 2 runs as an application on a host OS, adding overhead but being easier to set up — used for development (VirtualBox, VMware Workstation). KVM is technically Type 1 as it's a kernel module."
   },
   {
     "id": "brv-q6",
@@ -1245,14 +1245,14 @@
       "RAID 0 requires at least 3 disks; RAID 1 requires 2"
     ],
     "correctAnswer": 1,
-    "explanation": "RAID 0 (striping) splits data across disks for speed \u2014 but if ANY disk fails, ALL data is lost. It's worse than a single disk for reliability. RAID 1 (mirroring) writes identical data to two or more disks \u2014 if one fails, the other has a complete copy. RAID 0 gives you N\u00d7 capacity and speed; RAID 1 gives you 1\u00d7 capacity but full redundancy."
+    "explanation": "RAID 0 (striping) splits data across disks for speed — but if ANY disk fails, ALL data is lost. It's worse than a single disk for reliability. RAID 1 (mirroring) writes identical data to two or more disks — if one fails, the other has a complete copy. RAID 0 gives you N× capacity and speed; RAID 1 gives you 1× capacity but full redundancy."
   },
   {
     "id": "brv-q7",
     "chapterId": "boot-raid-virtualisation",
     "question": "How would you recover a system where GRUB is broken and the server won't boot?",
     "options": [
-      "The system is unrecoverable \u2014 reinstall the OS",
+      "The system is unrecoverable — reinstall the OS",
       "Boot from a live USB/rescue image, mount the root filesystem, chroot into it, and reinstall/reconfigure GRUB (grub-install and update-grub)",
       "Press F8 for safe mode",
       "Edit the BIOS to skip GRUB"
@@ -1284,7 +1284,7 @@
       "Threads are faster than processes because they use more memory"
     ],
     "correctAnswer": 1,
-    "explanation": "Process: independent execution with its own virtual memory, file descriptors, and PID. Thread: lightweight execution unit within a process, sharing the same memory space (faster communication but requires synchronisation). Container: one or more processes isolated via Linux namespaces (PID, network, mount, user) and resource-limited via cgroups \u2014 shares the host kernel, unlike VMs."
+    "explanation": "Process: independent execution with its own virtual memory, file descriptors, and PID. Thread: lightweight execution unit within a process, sharing the same memory space (faster communication but requires synchronisation). Container: one or more processes isolated via Linux namespaces (PID, network, mount, user) and resource-limited via cgroups — shares the host kernel, unlike VMs."
   },
   {
     "id": "iqa-q3",
@@ -1292,7 +1292,7 @@
     "question": "An interviewer asks: 'What happens when you type google.com in a browser?' Give the most complete answer.",
     "options": [
       "The browser connects directly to Google's server",
-      "DNS resolution \u2192 TCP 3-way handshake \u2192 TLS handshake \u2192 HTTP request \u2192 Server processes request \u2192 HTTP response \u2192 Browser renders HTML/CSS/JS",
+      "DNS resolution → TCP 3-way handshake → TLS handshake → HTTP request → Server processes request → HTTP response → Browser renders HTML/CSS/JS",
       "The browser looks up the IP in /etc/hosts and connects",
       "The ISP routes you directly to the website"
     ],
@@ -1310,20 +1310,20 @@
       "Look at application logs only"
     ],
     "correctAnswer": 1,
-    "explanation": "The USE (Utilisation, Saturation, Errors) method by Brendan Gregg is the gold standard. For each resource: CPU (top, mpstat \u2014 look at %user, %system, %iowait), Memory (free, vmstat \u2014 check available, swap usage), Disk (iostat -x, iotop \u2014 check await, %util), Network (ss, sar -n DEV \u2014 check dropped packets, bandwidth). This systematic approach prevents tunnel vision."
+    "explanation": "The USE (Utilisation, Saturation, Errors) method by Brendan Gregg is the gold standard. For each resource: CPU (top, mpstat — look at %user, %system, %iowait), Memory (free, vmstat — check available, swap usage), Disk (iostat -x, iotop — check await, %util), Network (ss, sar -n DEV — check dropped packets, bandwidth). This systematic approach prevents tunnel vision."
   },
   {
     "id": "iqa-q5",
     "chapterId": "interview-qa",
     "question": "An interviewer asks: 'What is the difference between hard links and soft links, and when would you use each?' What is the best answer?",
     "options": [
-      "Always use soft links \u2014 hard links are deprecated",
+      "Always use soft links — hard links are deprecated",
       "Hard links: same inode, same filesystem only, survive target rename, can't link directories. Soft links: separate inode with path reference, cross filesystems, can link directories, break if target is moved/deleted. Use hard links for backup deduplication; soft links for convenience references.",
       "Hard links copy the file; soft links are just bookmarks",
       "There is no practical difference in modern Linux"
     ],
     "correctAnswer": 1,
-    "explanation": "Hard links share the same inode \u2014 both names are equally 'real'. Deleting one doesn't affect the other. They can't cross filesystem boundaries or link to directories. Soft links are separate files containing a path \u2014 they can cross filesystems and link to directories, but break if the target moves. Use hard links when you need guaranteed access; soft links for flexible references."
+    "explanation": "Hard links share the same inode — both names are equally 'real'. Deleting one doesn't affect the other. They can't cross filesystem boundaries or link to directories. Soft links are separate files containing a path — they can cross filesystems and link to directories, but break if the target moves. Use hard links when you need guaranteed access; soft links for flexible references."
   },
   {
     "id": "iqa-q6",
@@ -1370,7 +1370,7 @@
     "question": "A server feels slow and you need a quick overview. What is your first command?",
     "options": [
       "ps aux",
-      "top (or htop) \u2014 it shows CPU, memory, load average, and top processes in one view",
+      "top (or htop) — it shows CPU, memory, load average, and top processes in one view",
       "free -h",
       "df -h"
     ],
@@ -1382,8 +1382,8 @@
     "chapterId": "command-reference",
     "question": "'free -h' shows low 'free' memory but high 'available' memory. Is this a problem?",
     "options": [
-      "Yes \u2014 low free memory means the system is running out of RAM",
-      "No \u2014 Linux uses free RAM for disk cache (buff/cache). The 'available' column shows memory that can be reclaimed for applications, which is the number that matters",
+      "Yes — low free memory means the system is running out of RAM",
+      "No — Linux uses free RAM for disk cache (buff/cache). The 'available' column shows memory that can be reclaimed for applications, which is the number that matters",
       "It depends on swap usage only",
       "You need to restart to reclaim the cached memory"
     ],
@@ -1421,13 +1421,13 @@
     "chapterId": "command-reference",
     "question": "What is the difference between 'kill <PID>' and 'kill -9 <PID>'?",
     "options": [
-      "There is no difference \u2014 both terminate the process immediately",
+      "There is no difference — both terminate the process immediately",
       "'kill' sends SIGTERM (graceful shutdown, process can clean up); 'kill -9' sends SIGKILL (immediate forced termination, no cleanup possible)",
       "'kill -9' is gentler because 9 is the priority level",
       "'kill' only works on your own processes; 'kill -9' works on any process"
     ],
     "correctAnswer": 1,
-    "explanation": "'kill <PID>' sends SIGTERM (signal 15) by default \u2014 the process can catch this signal, save state, close files, and exit cleanly. 'kill -9' sends SIGKILL \u2014 the kernel terminates the process immediately with no chance to clean up. Always try SIGTERM first and wait a few seconds. Use SIGKILL only as a last resort, as it can leave temporary files, locks, and corrupted data behind."
+    "explanation": "'kill <PID>' sends SIGTERM (signal 15) by default — the process can catch this signal, save state, close files, and exit cleanly. 'kill -9' sends SIGKILL — the kernel terminates the process immediately with no chance to clean up. Always try SIGTERM first and wait a few seconds. Use SIGKILL only as a last resort, as it can leave temporary files, locks, and corrupted data behind."
   },
   {
     "id": "cr-q6",
@@ -1440,7 +1440,7 @@
       "watch cat /var/log/syslog"
     ],
     "correctAnswer": 1,
-    "explanation": "'tail -f' follows a file, printing new lines as they are appended \u2014 essential for watching logs during troubleshooting. 'tail -F' also handles log rotation (when the file is replaced). For systemd services, 'journalctl -f -u servicename' follows that unit's logs. Press Ctrl+C to stop following. 'less +F' also offers a follow mode with the ability to switch back to scrolling."
+    "explanation": "'tail -f' follows a file, printing new lines as they are appended — essential for watching logs during troubleshooting. 'tail -F' also handles log rotation (when the file is replaced). For systemd services, 'journalctl -f -u servicename' follows that unit's logs. Press Ctrl+C to stop following. 'less +F' also offers a follow mode with the ability to switch back to scrolling."
   },
   {
     "id": "cr-q7",
@@ -1460,10 +1460,10 @@
     "chapterId": "command-reference",
     "question": "'vmstat 1' shows a consistently high 'wa' column. What does this indicate?",
     "options": [
-      "High network wait time \u2014 check DNS",
-      "High I/O wait \u2014 the CPU is idle waiting for disk operations to complete, indicating a storage bottleneck",
-      "High memory wait \u2014 the system needs more RAM",
-      "High process wait \u2014 too many processes in the run queue"
+      "High network wait time — check DNS",
+      "High I/O wait — the CPU is idle waiting for disk operations to complete, indicating a storage bottleneck",
+      "High memory wait — the system needs more RAM",
+      "High process wait — too many processes in the run queue"
     ],
     "correctAnswer": 1,
     "explanation": "The 'wa' (iowait) column in vmstat shows the percentage of time the CPU spends waiting for I/O operations (typically disk). High iowait means the storage subsystem is the bottleneck, not the CPU. Next steps: use 'iostat -x 1' to identify which disk is slow, 'iotop' to find which process is generating the I/O, and check for failing disks with 'smartctl'."
@@ -1473,10 +1473,10 @@
     "chapterId": "troubleshooting-playbook",
     "question": "A server is slow. vmstat shows high 'wa' (I/O wait) and the 'b' column (blocked processes) is consistently above 0. What is the bottleneck?",
     "options": [
-      "CPU \u2014 too many processes competing for CPU time",
-      "Disk I/O \u2014 processes are blocked waiting for storage. Investigate with 'iostat -x 1' and 'iotop' to find the cause",
-      "Memory \u2014 the system is swapping heavily",
-      "Network \u2014 packets are being dropped"
+      "CPU — too many processes competing for CPU time",
+      "Disk I/O — processes are blocked waiting for storage. Investigate with 'iostat -x 1' and 'iotop' to find the cause",
+      "Memory — the system is swapping heavily",
+      "Network — packets are being dropped"
     ],
     "correctAnswer": 1,
     "explanation": "High 'wa' (iowait) combined with blocked processes (b > 0) is the classic signature of a disk I/O bottleneck. Processes are stuck in uninterruptible sleep waiting for disk operations. Diagnose with: 'iostat -x 1' (look at %util, await, avgqu-sz), 'iotop' (identify the I/O-heavy process), and check for failing disks, full filesystems, or excessive logging/swapping."
@@ -1487,7 +1487,7 @@
     "question": "'df -h' shows disk space available, but you cannot create new files and get 'No space left on device'. What is wrong?",
     "options": [
       "The filesystem is mounted read-only",
-      "The filesystem has run out of inodes \u2014 check with 'df -i'. All inodes are allocated even though data blocks remain",
+      "The filesystem has run out of inodes — check with 'df -i'. All inodes are allocated even though data blocks remain",
       "The disk is physically failing",
       "You don't have write permission to the directory"
     ],
@@ -1499,7 +1499,7 @@
     "chapterId": "troubleshooting-playbook",
     "question": "You 'rm' a large log file but 'df' still shows the disk as full. Why?",
     "options": [
-      "rm doesn't actually delete files \u2014 it moves them to trash",
+      "rm doesn't actually delete files — it moves them to trash",
       "A process still has the file open. The disk space isn't freed until the process closes its file descriptor. Find it with 'lsof +L1'",
       "The filesystem cache hasn't been flushed yet",
       "You need to run 'sync' to update the disk usage"
@@ -1518,7 +1518,7 @@
       "The SSH client is misconfigured"
     ],
     "correctAnswer": 1,
-    "explanation": "Ping uses ICMP, SSH uses TCP port 22 \u2014 they are different protocols. If ping works but SSH times out, a firewall (iptables, cloud security group, or network ACL) is likely blocking port 22. Other possibilities: sshd is not running or is listening on a different port, or TCP wrappers (/etc/hosts.deny) are blocking the connection. Check with 'nc -zv server 22' from the client side."
+    "explanation": "Ping uses ICMP, SSH uses TCP port 22 — they are different protocols. If ping works but SSH times out, a firewall (iptables, cloud security group, or network ACL) is likely blocking port 22. Other possibilities: sshd is not running or is listening on a different port, or TCP wrappers (/etc/hosts.deny) are blocking the connection. Check with 'nc -zv server 22' from the client side."
   },
   {
     "id": "tp-q5",
@@ -1539,7 +1539,7 @@
     "question": "A website returns HTTP 502 Bad Gateway. Where do you look first?",
     "options": [
       "The client's browser cache",
-      "The reverse proxy (nginx/Apache) error logs and the upstream backend application \u2014 502 means the proxy could not get a valid response from the backend",
+      "The reverse proxy (nginx/Apache) error logs and the upstream backend application — 502 means the proxy could not get a valid response from the backend",
       "DNS records for the domain",
       "The server's disk usage"
     ],
@@ -1565,12 +1565,12 @@
     "question": "You need to truncate a log file that a process is actively writing to. What command do you use?",
     "options": [
       "rm /var/log/app.log && touch /var/log/app.log",
-      "truncate -s 0 /var/log/app.log (or: > /var/log/app.log) \u2014 this empties the file without removing the inode, so the writing process continues normally",
+      "truncate -s 0 /var/log/app.log (or: > /var/log/app.log) — this empties the file without removing the inode, so the writing process continues normally",
       "echo '' > /var/log/app.log",
       "mv /var/log/app.log /var/log/app.log.old"
     ],
     "correctAnswer": 1,
-    "explanation": "'truncate -s 0 file' or '> file' empties the file in place, preserving the inode and file descriptor. The writing process continues logging to the same file without interruption. 'rm' followed by 'touch' creates a new inode \u2014 the old process still writes to the deleted file (wasting space). 'mv' has the same problem. 'echo \"\"' writes a newline rather than truly emptying the file."
+    "explanation": "'truncate -s 0 file' or '> file' empties the file in place, preserving the inode and file descriptor. The writing process continues logging to the same file without interruption. 'rm' followed by 'touch' creates a new inode — the old process still writes to the deleted file (wasting space). 'mv' has the same problem. 'echo \"\"' writes a newline rather than truly emptying the file."
   },
   {
     "id": "iqa-new-q1",
