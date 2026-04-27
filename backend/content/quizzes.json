@@ -15,15 +15,15 @@
   {
     "id": "wil-q2",
     "chapterId": "what-is-linux",
-    "question": "A bash script with '#!/bin/bash' runs fine on Ubuntu but fails with 'not found' on Alpine Linux. What is the most likely cause?",
+    "question": "Who originally created the Linux kernel, and in what year?",
     "options": [
-      "Alpine uses a different file permission model",
-      "Alpine uses musl libc and busybox — bash is not installed by default",
-      "The script has Windows line endings",
-      "Alpine does not support shebang lines"
+      "Richard Stallman in 1983",
+      "Linus Torvalds in 1991",
+      "Dennis Ritchie in 1972",
+      "Ken Thompson in 1969"
     ],
     "correctAnswer": 1,
-    "explanation": "Alpine Linux uses musl libc and busybox to stay lightweight. Bash is not included by default — the default shell is /bin/sh (ash). Scripts that rely on bash-specific features (arrays, [[ ]], process substitution) will fail. Fix: install bash or rewrite the script for POSIX sh."
+    "explanation": "Linus Torvalds created the Linux kernel in 1991 as a free alternative to MINIX. Richard Stallman started the GNU Project in 1983. Ritchie and Thompson created Unix and C at Bell Labs. Knowing these names and dates helps you understand why Linux exists and how it relates to Unix."
   },
   {
     "id": "wil-q3",
@@ -67,15 +67,15 @@
   {
     "id": "wil-q6",
     "chapterId": "what-is-linux",
-    "question": "You type 'echo $SHELL' and see '/bin/bash', but you type 'ps -p $$' and see 'zsh'. What explains this?",
+    "question": "You type 'echo $SHELL' and see '/bin/bash', but 'ps -p $$' shows 'zsh'. What explains this?",
     "options": [
-      "The system is broken and needs reinstalling",
-      "$SHELL shows the default login shell from /etc/passwd, but you are currently running a different shell (zsh) in this session",
+      "The system is misconfigured",
+      "$SHELL shows the default login shell from /etc/passwd, but you launched a different shell (zsh) in this session",
       "$SHELL always shows bash regardless of the actual shell",
       "ps is showing the parent process, not the current shell"
     ],
     "correctAnswer": 1,
-    "explanation": "$SHELL is an environment variable set at login from /etc/passwd — it shows your default shell. But you can start a different shell at any time. 'ps -p $$' shows the actual process running as your current shell. $$ is the PID of the current shell process."
+    "explanation": "$SHELL is set at login from /etc/passwd — it shows your default shell. But you can start a different shell at any time (e.g., typing 'zsh'). 'ps -p $$' shows the actual running shell process. Understanding this distinction helps when debugging shell-specific issues."
   },
   {
     "id": "wil-q7",
@@ -93,15 +93,15 @@
   {
     "id": "nf-q1",
     "chapterId": "navigating-filesystem",
-    "question": "You run 'rm -rf ${DIR}/' in a script but forgot to set the DIR variable. What happens if 'set -u' is NOT enabled?",
+    "question": "What does the tilde (~) represent in a file path, and what are two ways to navigate to your home directory?",
     "options": [
-      "The command fails with a syntax error",
-      "Nothing happens — rm ignores empty variables",
-      "The variable expands to empty, making it 'rm -rf /' which attempts to delete everything from root",
-      "Bash automatically sets DIR to the current directory"
+      "The root directory; 'cd /' and 'cd ~'",
+      "The current user's home directory; 'cd ~' and 'cd' with no arguments",
+      "The previous directory; 'cd -' and 'cd ~'",
+      "The /tmp directory; 'cd /tmp' and 'cd ~'"
     ],
-    "correctAnswer": 2,
-    "explanation": "Without 'set -u' (or 'set -o nounset'), an unset variable expands to an empty string. 'rm -rf ${DIR}/' becomes 'rm -rf /' — catastrophic. This is why 'set -euo pipefail' is critical in scripts. With 'set -u', bash exits with an error when referencing an unset variable."
+    "correctAnswer": 1,
+    "explanation": "The tilde (~) expands to the current user's home directory (e.g., /home/fahim). Both 'cd ~' and 'cd' with no arguments take you home. 'cd -' returns to the previous directory. 'cd /' goes to root. These shortcuts are essential for fast navigation."
   },
   {
     "id": "nf-q2",
@@ -166,7 +166,7 @@
       "locate /etc/*.conf --recent"
     ],
     "correctAnswer": 1,
-    "explanation": "'find /etc -name \"*.conf\" -mtime -1' searches recursively under /etc for files matching *.conf that were modified less than 1 day ago. -mtime -1 means 'modified within the last 24 hours'. find is the standard tool for searching by name, time, size, permissions, and more."
+    "explanation": "'find /etc -name \"*.conf\" -mtime -1' searches recursively for files matching *.conf modified less than 1 day ago. find is the standard tool for searching by name, time, size, and permissions. ls -R doesn't filter by time, grep searches file contents not names, and locate uses a pre-built database that may be stale."
   },
   {
     "id": "nf-q7",
@@ -366,15 +366,15 @@
   {
     "id": "vef-q1",
     "chapterId": "viewing-editing-files",
-    "question": "You need to extract lines 500-520 from a 10GB log file. Which approach is most efficient?",
+    "question": "What is the key difference between 'cat', 'less', and 'head' for viewing files, and when would you use each?",
     "options": [
-      "cat bigfile.log | head -520 | tail -20",
-      "sed -n '500,520p' bigfile.log",
-      "grep -n '' bigfile.log | head -520",
-      "vim bigfile.log and scroll to line 500"
+      "They are interchangeable — all display file contents the same way",
+      "cat dumps everything at once (good for small files), less paginates (good for large files), head shows only the first N lines (good for quick peeks)",
+      "cat is for binary files, less is for text, head is for logs",
+      "less and head can edit files, cat cannot"
     ],
     "correctAnswer": 1,
-    "explanation": "sed -n '500,520p' is the most efficient — it reads the file sequentially and only prints lines 500-520, then can stop. The cat|head|tail pipeline also works but spawns extra processes. Opening a 10GB file in vim would consume massive memory. sed is purpose-built for this."
+    "explanation": "cat outputs the entire file to stdout — fine for small files but floods your terminal with large ones. less loads the file in a scrollable pager (press q to quit). head -n N shows just the first N lines. For a 10GB log, 'less' or 'head/tail' are practical; 'cat' would be unusable."
   },
   {
     "id": "vef-q2",
@@ -434,12 +434,12 @@
     "question": "What is the difference between '>' and '>>' when redirecting output to a file?",
     "options": [
       "> appends to the file, >> overwrites it",
-      "> overwrites the file (truncates then writes), >> appends to the end of the file",
+      "> overwrites the file (truncates then writes), >> appends to the end",
       "They are identical — both append",
       "> writes to stdout, >> writes to stderr"
     ],
     "correctAnswer": 1,
-    "explanation": "'>' truncates the file to zero length then writes — any existing content is lost. '>>' opens the file in append mode and adds to the end. This distinction is critical: 'echo text > logfile' destroys the log, while 'echo text >> logfile' adds to it. A common mistake in scripts."
+    "explanation": "'>' truncates the file to zero length then writes — existing content is lost. '>>' opens in append mode and adds to the end. This distinction is critical: 'echo text > logfile' destroys the log, while 'echo text >> logfile' adds to it. A very common mistake in scripts and one-liners."
   },
   {
     "id": "proc-q1",
