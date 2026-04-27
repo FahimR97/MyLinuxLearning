@@ -67,15 +67,15 @@
   {
     "id": "wil-q6",
     "chapterId": "what-is-linux",
-    "question": "You type 'echo $SHELL' and see '/bin/bash', but 'ps -p $$' shows 'zsh'. What explains this?",
+    "question": "You need to install nginx on Amazon Linux 2023. Which package manager would you use?",
     "options": [
-      "The system is misconfigured",
-      "$SHELL shows the default login shell from /etc/passwd, but you launched a different shell (zsh) in this session",
-      "$SHELL always shows bash regardless of the actual shell",
-      "ps is showing the parent process, not the current shell"
+      "apt install nginx",
+      "dnf install nginx",
+      "pacman -S nginx",
+      "brew install nginx"
     ],
     "correctAnswer": 1,
-    "explanation": "$SHELL is set at login from /etc/passwd — it shows your default shell. But you can start a different shell at any time (e.g., typing 'zsh'). 'ps -p $$' shows the actual running shell process. Understanding this distinction helps when debugging shell-specific issues."
+    "explanation": "Amazon Linux 2023 is based on Fedora and uses dnf as its package manager. Ubuntu/Debian use apt, Arch uses pacman, and brew is for macOS. Knowing which distro uses which package manager is essential — the chapter covers Ubuntu (apt), RHEL (yum/dnf), and Amazon Linux (yum for AL2, dnf for AL2023)."
   },
   {
     "id": "wil-q7",
@@ -158,15 +158,15 @@
   {
     "id": "nf-q6",
     "chapterId": "navigating-filesystem",
-    "question": "How would you find all .conf files under /etc that were modified in the last 24 hours?",
+    "question": "You run 'rm -rf ${DIR}/' in a script but DIR was never set. Without 'set -u', what happens?",
     "options": [
-      "ls -R /etc/*.conf",
-      "find /etc -name '*.conf' -mtime -1",
-      "grep -r '.conf' /etc",
-      "locate /etc/*.conf --recent"
+      "The command fails with a syntax error",
+      "Nothing — rm ignores empty variables",
+      "It expands to 'rm -rf /' and attempts to delete everything from root",
+      "Bash prompts you for confirmation before deleting"
     ],
-    "correctAnswer": 1,
-    "explanation": "'find /etc -name \"*.conf\" -mtime -1' searches recursively for files matching *.conf modified less than 1 day ago. find is the standard tool for searching by name, time, size, and permissions. ls -R doesn't filter by time, grep searches file contents not names, and locate uses a pre-built database that may be stale."
+    "correctAnswer": 2,
+    "explanation": "Without 'set -u', an unset variable expands to an empty string. 'rm -rf ${DIR}/' becomes 'rm -rf /' — catastrophic. The chapter warns about this exact danger. Always quote variables and use 'set -u' in scripts to catch unset variables."
   },
   {
     "id": "nf-q7",
@@ -795,15 +795,15 @@
   {
     "id": "fdd-q7",
     "chapterId": "filesystem-deep-dive",
-    "question": "What does 'lsblk' show that 'df' does not?",
+    "question": "You run 'ls -li' and see two files with the same inode number. What does this tell you?",
     "options": [
-      "Network interfaces",
-      "All block devices including unmounted partitions, their sizes, and parent-child relationships",
-      "File permissions",
-      "Running processes using disk I/O"
+      "The files are corrupted",
+      "They are hard links — both names point to the same inode and data on disk",
+      "One is a copy of the other",
+      "They are symbolic links to each other"
     ],
     "correctAnswer": 1,
-    "explanation": "lsblk lists ALL block devices (disks, partitions, LVM volumes, loop devices) in a tree structure, including those not currently mounted. df only shows mounted filesystems and their usage. lsblk is essential for discovering available disks and understanding the storage layout before mounting or partitioning."
+    "explanation": "Hard links share the same inode number because they are different directory entries pointing to the same underlying data. Deleting one name doesn't affect the other — the data is only freed when the last hard link is removed. The -i flag in ls shows inode numbers."
   },
   {
     "id": "bs-q1",
@@ -1042,15 +1042,15 @@
   {
     "id": "neta-q5",
     "chapterId": "networking-advanced",
-    "question": "What does 'tcpdump -i eth0 port 80 -w capture.pcap' do?",
+    "question": "A VPC has CIDR block 10.0.0.0/16. You create a subnet with 10.0.1.0/24. How many usable host IPs does the subnet have?",
     "options": [
-      "Blocks all traffic on port 80",
-      "Captures all packets on interface eth0 involving port 80 and writes them to a pcap file for later analysis",
-      "Displays the bandwidth usage on port 80",
-      "Tests connectivity to port 80"
+      "256",
+      "254",
+      "251",
+      "250"
     ],
-    "correctAnswer": 1,
-    "explanation": "tcpdump is a packet capture tool. -i specifies the interface, 'port 80' filters for HTTP traffic, and -w writes raw packets to a pcap file (readable by Wireshark or tcpdump -r). This is essential for debugging network issues, verifying traffic flow, and security analysis. Use -c N to limit capture count."
+    "correctAnswer": 2,
+    "explanation": "A /24 gives 256 addresses (2^8), but AWS reserves 5: network address (.0), VPC router (.1), DNS (.2), future use (.3), and broadcast (.255). That leaves 251 usable. In non-cloud contexts, only .0 (network) and .255 (broadcast) are reserved, giving 254. The chapter covers CIDR math and AWS subnet reservations."
   },
   {
     "id": "neta-q6",
@@ -1120,15 +1120,15 @@
   {
     "id": "mlt-q4",
     "chapterId": "monitoring-troubleshooting",
-    "question": "What does 'strace -p 1234' do and when would you use it?",
+    "question": "You run 'vmstat 1' and see the 'si' and 'so' columns consistently above zero. What does this indicate?",
     "options": [
-      "It traces network packets for process 1234",
-      "It attaches to process 1234 and traces all system calls it makes — useful for debugging hangs, permission errors, and missing files",
-      "It shows the stack trace of a crashed process",
-      "It monitors CPU usage of process 1234"
+      "High network I/O — the server is sending and receiving data",
+      "The system is actively swapping memory to and from disk, indicating memory pressure",
+      "The CPU is switching between processes frequently",
+      "Disk read and write operations are high"
     ],
     "correctAnswer": 1,
-    "explanation": "strace intercepts and logs every system call (open, read, write, connect, etc.) made by a process. It's invaluable for debugging: 'why is this process hanging?' (stuck on a read/connect), 'why does it fail?' (ENOENT for missing files, EACCES for permission denied). Use -f to follow child processes, -e to filter specific syscalls."
+    "explanation": "In vmstat, 'si' (swap in) and 'so' (swap out) show memory being moved between RAM and swap space on disk. Consistent swapping means the system doesn't have enough RAM for its workload. This causes severe performance degradation because disk is orders of magnitude slower than RAM."
   },
   {
     "id": "mlt-q5",
