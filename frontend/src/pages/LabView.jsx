@@ -13,6 +13,7 @@ export default function LabView() {
   const [completedSteps, setCompletedSteps] = useState(new Set())
   const [verifying, setVerifying] = useState(null)
   const [verifyResult, setVerifyResult] = useState({})
+  const [showHint, setShowHint] = useState({})
   const savedLab = useRef(false)
 
   useEffect(() => {
@@ -55,8 +56,6 @@ export default function LabView() {
       </div>
     )
   }
-
-  const [showHint, setShowHint] = useState({})
 
   const handleVerify = async (stepIdx) => {
     const key = `${activeLab}-${stepIdx}`
