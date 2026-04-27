@@ -56,6 +56,8 @@ export default function LabView() {
     )
   }
 
+  const [showHint, setShowHint] = useState({})
+
   const handleVerify = async (stepIdx) => {
     const key = `${activeLab}-${stepIdx}`
     setVerifying(stepIdx)
@@ -143,7 +145,12 @@ export default function LabView() {
                     <span className="step-num">{isCompleted ? '✓' : i + 1}</span>
                     <span className="step-instruction">{step.instruction}</span>
                   </div>
-                  {(isCurrent || isCompleted) && (
+                  {(isCurrent || isCompleted) && !showHint[key] && !isCompleted && (
+                    <button className="btn btn-ghost btn-sm hint-toggle" onClick={() => setShowHint(h => ({ ...h, [key]: true }))}>
+                      💡 Show command
+                    </button>
+                  )}
+                  {(showHint[key] || isCompleted) && (
                     <div className="step-command-hint" onClick={() => {navigator.clipboard.writeText(step.command)}} title="Click to copy">
                       <code>$ {step.command}</code>
                       <span className="copy-icon">📋</span>
