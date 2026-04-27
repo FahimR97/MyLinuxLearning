@@ -28,15 +28,15 @@
   {
     "id": "wil-q3",
     "chapterId": "what-is-linux",
-    "question": "What is the difference between kernel space and user space, and why does it matter?",
+    "question": "When you type 'ls' in bash, the shell uses fork() and exec(). What does each step do?",
     "options": [
-      "Kernel space is for root users, user space is for regular users",
-      "Kernel space has direct hardware access and runs with full privileges; user space processes are isolated and must use system calls to request kernel services",
-      "They are the same thing on modern Linux systems",
-      "Kernel space is RAM and user space is disk storage"
+      "fork() runs the ls program, exec() returns the output",
+      "fork() creates a copy of the shell process, then exec() replaces that copy with the ls program",
+      "fork() opens a new terminal window, exec() types the command",
+      "fork() and exec() are the same thing — both start a new process"
     ],
     "correctAnswer": 1,
-    "explanation": "Kernel space runs with full CPU privileges (ring 0) and can access hardware directly. User space processes run in ring 3 with restricted access — they must make system calls (like read(), write(), fork()) to request kernel services. This separation prevents buggy applications from crashing the entire system."
+    "explanation": "fork() creates a child process that is an exact copy of the shell. exec() then replaces that child's code with the ls binary. The parent shell waits for the child to finish, then shows you the prompt again. This fork/exec model is how every external command runs on Linux."
   },
   {
     "id": "wil-q4",
@@ -145,15 +145,15 @@
   {
     "id": "nf-q5",
     "chapterId": "navigating-filesystem",
-    "question": "A process is writing logs to /var/log/app.log but 'df' shows the /var partition is 100% full. You delete the file with 'rm /var/log/app.log' but df still shows 100%. Why?",
+    "question": "What is the difference between /var, /tmp, and /opt in the Linux directory tree?",
     "options": [
-      "rm doesn't actually delete files, it just removes the name",
-      "The filesystem cache hasn't been flushed yet",
-      "The process still has the file open — the space won't be freed until the process closes the file descriptor or is restarted",
-      "You need to run 'sync' to update the disk usage"
+      "They are all the same — just different names for temporary storage",
+      "/var holds variable data like logs and caches, /tmp holds temporary files cleared on reboot, /opt holds optional third-party software",
+      "/var is for variables in scripts, /tmp is for templates, /opt is for optimisation files",
+      "/var and /tmp are user directories, /opt is a system directory"
     ],
-    "correctAnswer": 2,
-    "explanation": "On Linux, rm removes the directory entry (the name) but the inode and data blocks remain allocated while any process holds an open file descriptor. The space is only freed when the last file descriptor is closed. Fix: restart the process, or truncate the file with '> /var/log/app.log' instead of deleting it."
+    "correctAnswer": 1,
+    "explanation": "/var stores data that changes during operation — logs (/var/log), package caches (/var/cache), mail spools. /tmp is for temporary files that any user can write to, typically cleared on reboot. /opt is for self-contained third-party applications (e.g., /opt/myapp). Knowing what lives where is key to troubleshooting."
   },
   {
     "id": "nf-q6",
@@ -405,15 +405,15 @@
   {
     "id": "vef-q4",
     "chapterId": "viewing-editing-files",
-    "question": "You need to replace all occurrences of '192.168.1.10' with '10.0.0.5' across every .conf file in /etc/myapp/. What command does this?",
+    "question": "What does 'echo \"hello\" > file.txt' do if file.txt already contains data, and how is '2>&1' different from '>'?",
     "options": [
-      "grep -r '192.168.1.10' /etc/myapp/ > '10.0.0.5'",
-      "find /etc/myapp/ -name '*.conf' -exec sed -i 's/192.168.1.10/10.0.0.5/g' {} +",
-      "replace '192.168.1.10' '10.0.0.5' /etc/myapp/*.conf",
-      "vim /etc/myapp/ -c '%s/192.168.1.10/10.0.0.5/g'"
+      "> appends to the file, 2>&1 overwrites it",
+      "> overwrites file.txt with 'hello', and 2>&1 redirects stderr to the same place as stdout",
+      "> sends output to stderr, 2>&1 sends it to stdout",
+      "They do the same thing"
     ],
     "correctAnswer": 1,
-    "explanation": "find locates all .conf files, then -exec runs sed -i (in-place edit) with a global substitution on each. The 's/old/new/g' pattern replaces all occurrences per line. The + at the end batches files for efficiency. This is a bread-and-butter sysadmin operation."
+    "explanation": "'>' truncates the file and writes — existing content is lost. '2>&1' redirects file descriptor 2 (stderr) to wherever file descriptor 1 (stdout) is currently going. So 'command > output.log 2>&1' captures both normal output and errors in the same file. This is essential for logging."
   },
   {
     "id": "vef-q5",
