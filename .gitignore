@@ -12,3 +12,4 @@ cdk.out/
 .cdk.staging/
 *.js.map
 *.d.ts
+backend/content/*.json

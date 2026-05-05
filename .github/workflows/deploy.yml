@@ -43,6 +43,7 @@ jobs:
 
       - name: Deploy Backend Lambdas
         run: |
+          cp frontend/src/content/*.json backend/content/
           cd backend
           npm ci --omit=dev
           get_fn() {
